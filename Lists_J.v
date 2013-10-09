@@ -1197,12 +1197,12 @@ Inductive dictionary : Type :=
 Definition insert (key value : nat) (d : dictionary) : dictionary :=
   (record key value d).
 
-(* Below is a function [find] that searches a [dictionary] for a
+(* Here is a function [find] that searches a [dictionary] for a
     given key.  It evaluates evaluates to [None] if the key was not
     found and [Some val] if the key was mapped to [val] in the
     dictionary. If the same key is mapped to multiple values, [find]
     will return the first one it finds. *)
-(** 下の [find] 関数は、 [dictionary] から与えられたキーに対応する値を探し出すものです。 キーが見つからなかった場合には [None] に評価され、キーが [val] に結び付けられていた場合には [Some val] に評価されます。同じキーが複数の値に結び付けられている場合には、最初に見つかったほうの値を返します。 *)
+(** この [find] 関数は、 [dictionary] から与えられたキーに対応する値を探し出すものです。 キーが見つからなかった場合には [None] に評価され、キーが [val] に結び付けられていた場合には [Some val] に評価されます。同じキーが複数の値に結び付けられている場合には、最初に見つかったほうの値を返します。 *)
 
 Fixpoint find (key : nat) (d : dictionary) : option nat :=
   match d with
