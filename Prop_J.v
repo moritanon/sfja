@@ -1,6 +1,6 @@
 (* * Prop: Propositions and Evidence *)
 (** Prop_J: 命題と根拠 *)
-Require Export MoreCoq.
+Require Export MoreCoq_J.
 
 (* In previous chapters, we have seen many examples of factual
     claims (_propositions_) and ways of presenting evidence of their

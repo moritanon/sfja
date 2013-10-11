@@ -1,6 +1,6 @@
 (* * MoreProp: More about Propositions and Evidence *)
 (** MoreProp_J: 命題と根拠についてもう少し *)
-Require Export "Prop".
+Require Export "Prop_J".
 
 
 (* ####################################################### *)
