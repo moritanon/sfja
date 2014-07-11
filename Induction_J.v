@@ -77,8 +77,8 @@ Qed.
 (** **** 練習問題: ★★ (andb_true_elim2) *)
 (** destructを使い、case（もしくはsubcase）を作成して、以下の証明andb_true_elim2を完成させなさい。*)
 
-Theorem andb_true_elim2 : ∀ b c : bool,
-  andb b c = true → c = true.
+Theorem andb_true_elim2 : forall b c : bool,
+  andb b c = true -> c = true.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
