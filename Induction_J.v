@@ -174,8 +174,8 @@ Proof.
 (** 与えられた引数を二倍する次の関数について考えましょう： *)
 Fixpoint double (n:nat) :=
   match n with
-  | O ⇒ O
-  | S n' ⇒ S (S (double n'))
+  | O => O
+  | S n' => S (S (double n'))
   end.
 
 (** [double]についてのシンプルなこの事実を証明するために、帰納法を使いなさい。*)
