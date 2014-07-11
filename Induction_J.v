@@ -170,9 +170,16 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(** **** 練習問題: ★★ (double_plus) *)
+(** 与えられた引数を二倍する次の関数について考えましょう： *)
+Fixpoint double (n:nat) :=
+  match n with
+  | O ⇒ O
+  | S n' ⇒ S (S (double n'))
+  end.
+
 (** [double]についてのシンプルなこの事実を証明するために、帰納法を使いなさい。*)
 
-(** **** 練習問題: ★★ (double_plus) *)
 Lemma double_plus : forall n, double n = n + n .
 Proof.
   (* FILL IN HERE *) Admitted.
