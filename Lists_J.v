@@ -115,7 +115,7 @@ Admitted.
 Theorem surjective_pairing : forall (p : natprod),
   p = (fst p, snd p).
 Proof.
-  intros p.  destruct p as [n,m].  simpl.  reflexivity.  Qed.
+  intros p.  destruct p as [n m].  simpl.  reflexivity.  Qed.
 
 (* **** Exercise: 1 star (snd_fst_is_swap) *)
 (** **** 練習問題: ★ (snd_fst_is_swap) *)
