@@ -577,7 +577,7 @@ Proof.
      大きなリストはそれより小さなリストから作り出され、少しずつ [nil] に近付いて行きます。よって、このふたつのことからすべてのリスト [l] に関して [P] が真であることが言えます。具体的な例で説明しましょう。
      *)
 
-Theorem app_ass : forall l1 l2 l3 : natlist,
+Theorem app_assoc : forall l1 l2 l3 : natlist,
   (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros l1 l2 l3. induction l1 as [| n l1'].
@@ -921,7 +921,7 @@ Proof.
    次の問題には簡単な解法があります。こんがらがってしまったようであれば、少し戻って単純な方法を探してみましょう。
    *)
 
-Theorem app_ass4 : forall l1 l2 l3 l4 : natlist,
+Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
   l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
 Proof.
   (* FILL IN HERE *) Admitted.
