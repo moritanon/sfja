@@ -326,12 +326,12 @@ Definition list123' := cons _ 1 (cons _ 2 (cons _ 3 (nil _))).
     *)
 (** さらに先に進みましょう。プログラム全体が[_]まみれになることを避けるため、特定の関数の引数については常に型推論するよう指定できます。 [Arguments] ディレクティブは、関数やコンスラクタの名前を特定し、その引数名を列挙します。そして、波カッコを引数の前後で囲むことで、その引数を暗黙的に指定されたものとして扱います。*)
 
-Implicit Arguments nil {X}.
-Implicit Arguments cons {X} _ _. (* _(アンダースコア)を匿名の引数の場所に使っています。*)
-Implicit Arguments length {X} l.
-Implicit Arguments app {X} l1 l2.
-Implicit Arguments rev {X} l.
-Implicit Arguments snoc {X} l b.
+Arguments nil {X}.
+Arguments cons {X} _ _. (* _(アンダースコア)を匿名の引数の場所に使っています。*)
+Arguments length {X} l.
+Arguments app {X} l1 l2.
+Arguments rev {X} l.
+Arguments snoc {X} l b.
 
 (* note: no _ arguments required... *)
 (* 注）もはや引数に_は必要ありません... *)
@@ -399,7 +399,7 @@ Notation "x ++ y" := (app x y)
 (*  Now lists can be written just the way we'd hope: *)
 (** これで、我々の望む書き方ができるようになりました。 *)
 
-Definition list123''' := [1, 2, 3].
+Definition list123''' := [1; 2; 3].
 
 (* ###################################################### *)
 (* *** Exercises: Polymorphic Lists *)
@@ -450,7 +450,7 @@ Proof.
 Inductive prod (X Y : Type) : Type :=
   pair : X -> Y -> prod X Y.
 
-Implicit Arguments pair [[X] [Y]].
+Arguments pair {X} {Y} _ _.
 
 (** リストと同様、型引数を暗黙にし、その表記法を定義します。 *)
 
@@ -551,8 +551,8 @@ Inductive option (X:Type) : Type :=
   | Some : X -> option X
   | None : option X.
 
-Implicit Arguments Some [[X]].
-Implicit Arguments None [[X]].
+Arguments Some {X} _.
+Arguments None {X}.
 
 (* We can now rewrite the [index] function so that it works
     with any type of lists. *)
