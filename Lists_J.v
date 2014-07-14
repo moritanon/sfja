@@ -1205,7 +1205,7 @@ Definition insert (key value : nat) (d : dictionary) : dictionary :=
     will return the first one it finds. *)
 (** この [find] 関数は、 [dictionary] から与えられたキーに対応する値を探し出すものです。 キーが見つからなかった場合には [None] に評価され、キーが [val] に結び付けられていた場合には [Some val] に評価されます。同じキーが複数の値に結び付けられている場合には、最初に見つかったほうの値を返します。 *)
 
-Fixpoint find (key : nat) (d : dictionary) : option nat :=
+Fixpoint find (key : nat) (d : dictionary) : natoption :=
   match d with
   | empty         => None
   | record k v d' => if (beq_nat key k) then (Some v) else (find key d')
