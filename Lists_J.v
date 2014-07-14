@@ -1178,7 +1178,8 @@ Proof.
     a finite map from numbers to numbers.) *)
 
 (**
-TODO
+基本的なデータ構造をCoqにおいて、どのように定義するかについての最後の実例として、ここで単純な[dictionary]データ型を宣言しましょう。
+[dictionary]データ型は、キーとそのキーに対応して保存される値の両方に数値を使用します。(すなわちdictionary数値から数値への無限のmapを表現します。)
 *)
 
 Module Dictionary.
