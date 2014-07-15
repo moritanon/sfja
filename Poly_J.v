@@ -886,7 +886,7 @@ Proof. reflexivity.  Qed.
 (** 同じ関数が、数値のリストと、「数値から[bool]型のリストへの関数」を引数にとり、「[bool]型のリストのリスト」を返すような関数にも使えます。 *)
 
 Example test_map3:
-    map (fun n => [evenb n,oddb n]) [2;1;2;5]
+    map (fun n => [evenb n; oddb n]) [2;1;2;5]
   = [[true;false];[false;true];[true;false];[false;true]].
 Proof. reflexivity.  Qed.
 
