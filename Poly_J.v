@@ -331,7 +331,7 @@ Arguments cons {X} _ _. (* _(アンダースコア)を匿名の引数の場所�
 Arguments length {X} l.
 Arguments app {X} l1 l2.
 Arguments rev {X} l.
-Arguments snoc {X} l b.
+Arguments snoc {X} l v.
 
 (* note: no _ arguments required... *)
 (* 注）もはや引数に_は必要ありません... *)
