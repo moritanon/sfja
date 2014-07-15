@@ -533,7 +533,7 @@ Fixpoint split
 (* FILL IN HERE *) admit.
 
 Example test_split:
-  split [(1,false)；(2,false)] = ([1;2],[false;false]).
+  split [(1,false); (2,false)] = ([1;2],[false;false]).
 Proof. reflexivity.  Qed.
 *)
 (** [] *)
