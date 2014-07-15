@@ -868,7 +868,7 @@ Fixpoint map {X Y:Type} (f:X->Y) (l:list X)
     been applied to each element of [l] in turn.  For example: *)
 (** これは、関数[f]とリスト[ l = [n1, n2, n3, ...] ]を引数にとり、関数[f]を[l]の各要素に適用した[ [f n1, f n2, f n3,...] ]というリストを返します。例えばこのようなものです。 *)
 
-Example test_map1: map (plus 3) [2,0,2] = [5,3,5].
+Example test_map1: map (plus 3) [2;0;2] = [5;3;5].
 Proof. reflexivity.  Qed.
 
 (*  The element types of the input and output lists need not be
@@ -877,7 +877,7 @@ Proof. reflexivity.  Qed.
     function from numbers to booleans to yield a list of booleans: *)
 (** 入力されるリストの要素の型と、出力されるリストの要素の型は同じである必要はありません（[map]は、[X]と[Y]二種類の型変数を取ります）。次の例は、数値のリストと、数値を受け取り[bool]値を返す関数から、bool型のリストを返します。 *)
 
-Example test_map2: map oddb [2,1,2,5] = [false,true,false,true].
+Example test_map2: map oddb [2;1;2;5] = [false;true;false;true].
 Proof. reflexivity.  Qed.
 
 (* It can even be applied to a list of numbers and
@@ -886,8 +886,8 @@ Proof. reflexivity.  Qed.
 (** 同じ関数が、数値のリストと、「数値から[bool]型のリストへの関数」を引数にとり、「[bool]型のリストのリスト」を返すような関数にも使えます。 *)
 
 Example test_map3:
-    map (fun n => [evenb n,oddb n]) [2,1,2,5]
-  = [[true,false],[false,true],[true,false],[false,true]].
+    map (fun n => [evenb n,oddb n]) [2;1;2;5]
+  = [[true;false];[false;true];[true;false];[false;true]].
 Proof. reflexivity.  Qed.
 
 
@@ -913,7 +913,7 @@ Proof.
 *)
 (** [map]関数は、[list X]から[list Y]へのマップを、型[X -> Y]の関数を使って実現しています。同じような関数[flat_map]を定義しましょう。これは[list X]から[list Y]へのマップですが、[X -> list Y]となる関数[f]を使用できます。このため、次のように要素ごとの関数[f]の結果を平坦化してやる必要があります。
         flat_map (fun n => [n,n+1,n+2]) [1,5,10]
-      = [1, 2, 3, 5, 6, 7, 10, 11, 12].
+      = [1; 2; 3; 5; 6; 7; 10; 11; 12].
 *)
 
 Fixpoint flat_map {X Y:Type} (f:X -> list Y) (l:list X)
@@ -922,7 +922,7 @@ Fixpoint flat_map {X Y:Type} (f:X -> list Y) (l:list X)
 
 Example test_flat_map1:
   flat_map (fun n => [n,n,n]) [1,5,4]
-  = [1, 1, 1, 5, 5, 5, 4, 4, 4].
+  = [1; 1; 1; 5; 5; 5; 4; 4; 4].
  (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -984,10 +984,10 @@ Fixpoint fold {X Y:Type} (f: X->Y->Y) (l:list X) (b:Y) : Y :=
 Check (fold andb).
 (* ===> fold andb : list bool -> bool -> bool *)
 
-Example fold_example1 : fold mult [1,2,3,4] 1 = 24.
+Example fold_example1 : fold mult [1;2;3;4] 1 = 24.
 Proof. reflexivity. Qed.
 
-Example fold_example2 : fold andb [true,true,false,true] true = false.
+Example fold_example2 : fold andb [true;true;false;true] true = false.
 Proof. reflexivity. Qed.
 
 Example fold_example3 : fold app  [[1];[];[2;3];[4]] [] = [1;2;3;4].
