@@ -1,6 +1,6 @@
 (** * MoreCoq_J:  Coqについてもう少し*)
 
-Require Export Poly.
+Require Export Poly_J.
 
 (*  This chapter introduces several more Coq tactics that,
     together, allow us to prove many more theorems about the
