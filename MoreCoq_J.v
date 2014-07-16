@@ -1169,7 +1169,7 @@ Proof.
 (** [] *)
 
 (** **** 練習問題: ★★★, advanced (split_combine) *)
-(** We have just proven that for all lists of pairs, [combine] is the
+(* We have just proven that for all lists of pairs, [combine] is the
     inverse of [split].  How would you formalize the statement that
     [split] is the inverse of [combine]?
 
@@ -1179,6 +1179,10 @@ Proof.
     your induction hypothesis general by not doing [intros] on more
     things than necessary.  Hint: what property do you need of [l1]
     and [l2] for [split] [combine l1 l2 = (l1,l2)] to be true?)  *)
+
+(* 思考練習: 我々はすでに、全ての型のリストのペアでcombineがsplitの逆関数であることを証明しました。ではその逆の「splitはcombineの逆関数である」を示すことはできるでしょうか？ 
+   下記の[split]が[combine]の逆関数であることを述べる[split_combine_statement]の定義を完成させなさい。それから、その性質が正しいことを証明しなさい。（なるべくintrosを使うタイミングを遅らせ、帰納法の仮定を一般化させておくといいでしょう。 )
+   ヒント: split combine l1 l2 = (l1,l2)がtrueとなるl1、l2の条件は何でしょう？ *)
 
 Definition split_combine_statement : Prop :=
 (* FILL IN HERE *) admit.
