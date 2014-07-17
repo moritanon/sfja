@@ -27,7 +27,7 @@ Require Export MoreCoq_J.
 (*  As a running example, let's
     define a simple property of natural numbers -- we'll call it
     "[beautiful]." *)
-(** この章の最初の部分のexampleを実行するにあたって、自然数に関するシンプルな命題を定義し、その命題が示す[beautiful]数をと呼びましょう。 *)
+(** この章の最初の部分のexampleを実行するにあたって、自然数に関するシンプルな命題を定義し、その自然数を[beautiful]と呼ぶこととしましょう。 *)
 
 (* Informally, a number is [beautiful] if it is [0], [3], [5], or the
     sum of two [beautiful] numbers.  
