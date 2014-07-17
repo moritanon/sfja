@@ -1203,8 +1203,8 @@ Proof.
 (** [] *)
 
 (** **** 練習問題: ★★★, advanced (filter_exercise) *)
-(** This one is a bit challenging.  Pay attention to the form of your IH. *)
-
+(* This one is a bit challenging.  Pay attention to the form of your IH. *)
+(** この問題は少し難しいかもしれません。上に上げる仮説の形に注意してください。*)
 Theorem filter_exercise : forall (X : Type) (test : X -> bool)
                              (x : X) (l lf : list X),
      filter test l = x :: lf ->
