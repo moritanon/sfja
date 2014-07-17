@@ -17,6 +17,150 @@ Require Export MoreProp_J.
     この章では、そのエンコーディング(Coqでどのように表現されるかということか？)を説明し、これまで見て来たタクティックが これらの結合子を含んだ論理的推論の標準形式を実行するためにどのように使用されるのかを示します。*)
 
 (* ########################################################### *)
+(* * Propositions *)
+(** * 命題 *)
+
+(* In previous chapters, we have seen many examples of factual
+    claims (_propositions_) and ways of presenting evidence of their
+    truth (_proofs_).  In particular, we have worked extensively with
+    _equality propositions_ of the form [e1 = e2], with
+    implications ([P -> Q]), and with quantified propositions 
+    ([forall x, P]).  
+*)
+(** 以前の章で、事実の主張（命題）とそれらが真であるという証拠を表現する方法（証明）の多くの例を見てきました。とりわけ、e1 = e2という形の等価命題、P → Q という形の含意、そして、∀ x , P という量化命題を広く使用してきました。
+*)
+(* In Coq, the type of things that can (potentially) 
+    be proven is [Prop]. *)
+(** Coqにおいて、(潜在的に)証明されるものの型は、[Prop]です。
+*)
+(* Here is an example of a provable proposition: *)
+(** 証明可能な命題の例です。*)
+Check (3 = 3).
+(* ===> Prop *)
+
+(* Here is an example of an unprovable proposition: *)
+(** 次は、証明不可能な命題の例です。*)
+Check (forall (n:nat), n = 2).
+(* ===> Prop *)
+
+(* Recall that [Check] asks Coq to tell us the type of the indicated 
+  expression. *)
+(** [Check]は、表示された表現の型をCoqに問い合わせて、我々に教えてくれるんでしたね。*)
+(* ########################################################### *)
+(* * Proofs and Evidence *)
+(** 証明と根拠 *)
+(* In Coq, propositions have the same status as other types, such as
+    [nat].  Just as the natural numbers [0], [1], [2], etc. inhabit
+    the type [nat], a Coq proposition [P] is inhabited by its
+    _proofs_.  We will refer to such inhabitants as _proof term_ or
+    _proof object_ or _evidence_ for the truth of [P]. 
+
+    In Coq, when we state and then prove a lemma such as:
+
+Lemma silly : 0 * 3 = 0.  
+Proof. reflexivity. Qed.
+
+    the tactics we use within the [Proof]...[Qed] keywords tell Coq
+    how to construct a proof term that inhabits the proposition.  In
+    this case, the proposition [0 * 3 = 0] is justified by a
+    combination of the _definition_ of [mult], which says that [0 * 3]
+    _simplifies_ to just [0], and the _reflexive_ principle of
+    equality, which says that [0 = 0].
+*)
+
+(** Coqにおいて、命題は他の型と同じ状態を持ちます。例えば、[nat]のように。自然数の[0],[1],[2]などが[nat]型の世界に属するのと同じように、Coqの命題[P]は、その_証明_の世界に属しています。
+[P]が真であるための_証明の項_、_証明オブジェクト_や_根拠_のような住人について見ていくことにしましょう。
+  
+Coqにおいて、補題を証明するときには、以下のように書きます。
+
+Lemma silly : 0 * 3 = 0.
+Proof. reflexivity. Qed.
+
+   我々が[Proof]...[Qed]キーワードの間に使用するタクティックはCoqに命題が連続する証明をどのように構築するかを伝えます。   この場合、命題[0 * 3 = 0]は [0 * 3]は_簡約_の結果0であるとする[mult]の定義と[0 = 0]であるとする_反射的_な同値性の原理の合わせ技で正当化されます。
+*)
+
+(** *** *)
+
+Lemma silly : 0 * 3 = 0.
+Proof. reflexivity. Qed.
+
+(* We can see which proof term Coq constructs for a given Lemma by
+using the [Print] directive: *)
+(** [Print]ディレクティブを使用すると、LemmaとしてCoqが構築した証明term?を見ることが出来ます。
+*)
+Print silly.
+(* ===> silly = eq_refl : 0 * 3 = 0 *)
+
+(* Here, the [eq_refl] proof term witnesses the equality. (More on equality later!)*)
+(** この[eq_refl」は同値性を証明する証明termです。 (同値性について詳しくは後述!)*)
+(* ** Implications _are_ functions *)
+(** ** 含意は関数なのです *)
+(* Just as we can implement natural number multiplication as a
+function:
+[
+mult : nat -> nat -> nat 
+]
+
+The _proof term_ for an implication [P -> Q] is a _function_ that takes evidence for [P] as input and produces evidence for [Q] as its output.
+*)     
+(** ここで、自然数のかけ算を関数として実装してみましょう 
+[
+mult : nat -> nat -> nat
+]
+[P -> Q]という含意のための_証明term_は、[P]のための根拠を入力としてとり、出力としてQの根拠を生成する_関数_なのです。
+*)
+
+Lemma silly_implication : (1 + 1) = 2  ->  0 * 3 = 0.
+Proof. intros H. reflexivity. Qed.
+
+(* We can see that the proof term for the above lemma is indeed a
+function: *)
+(** 上記補題の証明termが確かに関数であることが分かります: *)
+
+Print silly_implication.
+(* ===> silly_implication = fun _ : 1 + 1 = 2 => eq_refl
+     : 1 + 1 = 2 -> 0 * 3 = 0 *)
+
+(* ** Defining Propositions *)
+(** 命題を定義するということ *)
+
+(* Just as we can create user-defined inductive types (like the
+    lists, binary representations of natural numbers, etc., that we
+    seen before), we can also create _user-defined_ propositions.
+
+    Question: How do you define the meaning of a proposition?  
+*)
+(**
+ユーザ定義の再帰的な型(これまでに見てきたlistや自然数のバイナリ表記のような)を作ることが出来るように、
+_ユーザ定義の_命題もまた作ることが出来ます。
+
+問題：命題の意味はどうやって定義するのでしょうか？
+*)
+
+(** *** *)
+
+(* The meaning of a proposition is given by _rules_ and _definitions_
+    that say how to construct _evidence_ for the truth of the
+    proposition from other evidence.
+
+    - Typically, rules are defined _inductively_, just like any other datatype.
+
+    - Sometimes a proposition is declared to be true without substantiating evidence.  Such propositions are called _axioms_.  
+
+
+    In this, and subsequence chapters, we'll see more about how these
+    proof terms work in more detail.
+*)
+
+(** 命題の意味は命題の正しさのための根拠を他の根拠からどのように構築するかを述べる_規則_と_定義_によって与えられます。
+
+  - 典型的に、規則は他のデータ型と同じように、_帰納的に_定義されます。
+
+  - 時々、命題は、 具体的な根拠なしに宣言されます。そのような命題は、_公理_と呼ばれます。
+  
+  これからの章において、これらの証明termが細かい点においてどのように働くかを見ていくことにしましょう
+  *)
+(* ########################################################### *)
 (* * Conjunction *)
 (** * 論理積、連言（Conjunction、AND） *)
 
@@ -1323,5 +1467,4 @@ Proof.  intros X l1. induction l1.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* $Date: 2013-07-17 16:19:11 -0400 (Wed, 17 Jul 2013) $ *)
-
+(* $Date: 2014-06-05 07:22:21 -0400 (Thu, 05 Jun 2014) $ *)
