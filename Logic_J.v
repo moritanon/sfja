@@ -172,13 +172,6 @@ _ユーザ定義の_命題もまた作ることが出来ます。
 Inductive and (P Q : Prop) : Prop :=
   conj : P -> Q -> (and P Q). 
 
-(* Note that, like the definition of [ev] in a previous
-    chapter, this definition is parameterized; however, in this case,
-    the parameters are themselves propositions, rather than numbers. *)
-(** 注意してほしいのは、前の章で取り上げた関数 [ev] の定義と同様に、
-    この定義もパラメータ化された命題になっていることです。ただしこの場合はパラメータ
-    自身も数値ではなく命題です。 *)
-
 (* The intuition behind this definition is simple: to
     construct evidence for [and P Q], we must provide evidence
     for [P] and evidence for [Q].  More precisely:
@@ -237,24 +230,28 @@ Check conj.
     conjunctionの二つの部分を別々に証明するべきサブゴールにします。
  *)
 
+
 Theorem and_example : 
-  (beautiful 0) /\ (beautiful 3).
+  (0 = 0) /\ (4 = mult 2 2).
 Proof.
   apply conj.
-  Case "left". apply b_0.
-  Case "right". apply b_3.  Qed.
+  Case "left". reflexivity.
+  Case "right". reflexivity.  Qed.
+
 
 (* Just for convenience, we can use the tactic [split] as a shorthand for
     [apply conj]. *)
 (** [apply conj] とするかわりに [split] タクティックでも同じことができます。便利ですね。 *)
 
 Theorem and_example' : 
-  (ev 0) /\ (ev 4).
+  (0 = 0) /\ (4 = mult 2 2).
 Proof.
   split.
-    Case "left". apply ev_0.
-    Case "right". apply ev_SS. apply ev_SS. apply ev_0.  Qed.
+    Case "left". reflexivity.
+    Case "right". reflexivity.  Qed.
 
+(* ** "Eliminating" conjunctions *) 
+(** ** 論理積を"取り除く"ということ *)
 (* Conversely, the [inversion] tactic can be used to take a
     conjunction hypothesis in the context, calculate what evidence
     must have been used to build it, and add variables representing
