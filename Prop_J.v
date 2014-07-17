@@ -40,7 +40,7 @@ Require Export MoreCoq_J.
        - Rule [b_5]: The number [5] is [beautiful]. 
        - Rule [b_sum]: If [n] and [m] are both [beautiful], then so is
          their sum. *)
-(** 非形式的には、もしその数が、0、3、5であれば[beautiful]であり、また二つの[beautiful]数の和からなる数もまた[beautiful]であるとします。
+(** 非形式的には、もしその数が、0、3、5であれば[beautiful]であり、また二つの[beautiful]な数の和からなる数もまた[beautiful]であるとします。
 
 
 もっと杓子定規な言い方をすると、[beautiful]数は以下の4つのルールによって定義されます。
@@ -105,6 +105,7 @@ Require Export MoreCoq_J.
          beautiful 5         beautiful 3
          ------------------------------- (b_sum)
                    beautiful 8   
+                   
 [5]と[3]が引っくり返ってるだけかい・・・
 *)
 
@@ -180,13 +181,13 @@ Proof.
 
 (* Besides _constructing_ evidence that numbers are beautiful, we can
     also _reason about_ such evidence. *)
-(** 数が[beautiful]であるという根拠を構築際に、そのような根拠について推論することも出来ます。*)
+(** 数が[beautiful]であるという根拠を構築する際に、そのような根拠について推論することも出来ます。*)
 (* The fact that we introduced [beautiful] with an [Inductive]
     declaration tells Coq not only that the constructors [b_0], [b_3],
     [b_5] and [b_sum] are ways to build evidence, but also that these
     two constructors are the _only_ ways to build evidence that
     numbers are beautiful. *)
-(**  [beautiful]を[inductive]な宣言を以て導入したという事実は、Coqに[b_0],[b_3],[b_5][b_sum]というコンストラクタが根拠を構築する方法であると教えるだけでなく、これらの二つ？のコンストラクタだけが数がbeautifulであるという根拠を構築する方法であることを教えます。
+(**  [beautiful]を[inductive]な宣言を以て導入したという事実は、Coqに[b_0],[b_3],[b_5][b_sum]というコンストラクタが根拠を構築する方法であると教えるだけでなく、これらの二つ？のコンストラクタ以外に数がbeautifulであるという根拠を構築する方法がないということを教えます。
 *)
 
 (** In other words, if someone gives us evidence [E] for the assertion
