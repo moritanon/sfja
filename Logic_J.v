@@ -1,5 +1,5 @@
+(* * Logic: Logic in Coq *)
 (** * Logic_J: Coqにおける論理 *)
-(** * Logic: Logic in Coq *)
 
 Require Export MoreProp_J. 
 
