@@ -1,7 +1,7 @@
 (* * Logic: Logic in Coq *)
 (** * Logic_J: Coqにおける論理 *)
 
-Require Export MoreProp_J. 
+Require Export MoreCoq_J. 
 
 (* Coq's built-in logic is very small: the only primitives are
     [Inductive] definitions, universal quantification ([forall]), and
