@@ -666,69 +666,6 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
-Theorem five_not_even :  
-  ~ ev 5.
-Proof. 
-  (* WORKED IN CLASS *)
-  unfold not. intros Hev5. inversion Hev5 as [|n Hev3 Heqn]. 
-  inversion Hev3 as [|n' Hev1 Heqn']. inversion Hev1.  Qed.
-
-(** **** 練習問題: ★ (ev_not_ev_S) *)
-(* Theorem [five_not_even] confirms the unsurprising fact that five
-    is not an even number.  Prove this more interesting fact: *)
-(** 定理 [five_not_even] は、「５は偶数ではない」というようなとても当たり前の事実を確認するものです。今度はもう少し面白い例です。 *)
-Theorem ev_not_ev_S : forall n,
-  ev n -> ~ ev (S n).
-Proof. 
-  unfold not. intros n H. induction H. (* not n! *)
-  (* FILL IN HERE *) Admitted.
-(** [] *)
-
-(*  Note that some theorems that are true in classical logic are _not_
-    provable in Coq's (constructive) logic.  E.g., let's look at how
-    this proof gets stuck... *)
-(** このうちいくつかは、古典論理ではtrueと判断できるにもかかわらず、Coqの(構成上の)論理では証明できないものがあるので注意が必要です。例えば、この証明がどのように詰まるかを見てみましょう。 *)
-
-Theorem classic_double_neg : forall P : Prop,
-  ~~P -> P.
-Proof.
-  (* WORKED IN CLASS *)
-  intros P H. unfold not in H. 
-  (* どうなっているのでしょうか？ [P] の証明に必要な根拠をどうしても編み出すことができません。 *)
-  (* But now what? There is no way to "invent" evidence for [~P] 
-     from evidence for [P]. *) 
-  Abort.
-
-(** **** 練習問題: ★★★★★, advanced, optional (classical_axioms) *)
-(*  For those who like a challenge, here is an exercise
-    taken from the Coq'Art book (p. 123).  The following five
-    statements are often considered as characterizations of
-    classical logic (as opposed to constructive logic, which is
-    what is "built in" to Coq).  We can't prove them in Coq, but
-    we can consistently add any one of them as an unproven axiom
-    if we wish to work in classical logic.  Prove that these five
-    propositions are equivalent. *)
-(**  さらなる挑戦を求める人のために、 Coq'Art book (p. 123) から一つ練習問題を
-    取り上げてみます。次の五つの文は、よく「古典論理の特性」と考えられている
-    もの（Coqにビルトインされている構成的論理の対極にあるもの）です。
-    これらをCoqで証明することはできませんが、古典論理を使うことが必要なら、
-    矛盾なく「証明されていない公理」として道具に加えることができます。
-    これら五つの命題が等価であることを証明しなさい。 *)
-
-
-Definition peirce := forall P Q: Prop, 
-  ((P->Q)->P)->P.
-Definition classic := forall P:Prop, 
-  ~~P -> P.
-Definition excluded_middle := forall P:Prop, 
-  P \/ ~P.
-Definition de_morgan_not_and_not := forall P Q:Prop, 
-  ~(~P /\ ~Q) -> P\/Q.
-Definition implies_to_or := forall P Q:Prop, 
-  (P->Q) -> (~P\/Q). 
-
-(* FILL IN HERE *)
-(** [] *)
 
 (* ########################################################## *)
 (* ** Inequality *)
