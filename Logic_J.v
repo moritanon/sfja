@@ -297,27 +297,6 @@ Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** 練習問題: ★★ (even__ev) *)
-(** Now we can prove the other direction of the equivalence of [even]
-   and [ev], which we left hanging in chapter [Prop].  Notice that the
-   left-hand conjunct here is the statement we are actually interested
-   in; the right-hand conjunct is needed in order to make the
-   induction hypothesis strong enough that we can carry out the
-   reasoning in the inductive step.  (To see why this is needed, try
-   proving the left conjunct by itself and observe where things get
-   stuck.) *)
-(** 今度は、前の章で棚上げしていた [even] と [ev] の等価性をが別の方向から証明してみましょう。ここで左側のandは我々が実際に注目すべきものです。右のandは帰納法の仮定となって帰納法による証明に結びついていくことになるでしょう。なぜこれが必要となるかは、左側のandをそれ自身で証明しようとして、行き詰まってみると分かるでしょう。
- *)
-
-Theorem even__ev : forall n : nat,
-  (even n -> ev n) /\ (even (S n) -> ev (S n)).
-Proof.
-  (* ヒント: nに帰納法を使います. *)
-  (* FILL IN HERE *) Admitted.
-(** [] *)
-
-
-
 (* ###################################################### *)
 (* ** Iff *)
 (** ** Iff （両含意）*)
