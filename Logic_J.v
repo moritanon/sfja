@@ -573,7 +573,7 @@ Proof.
 (*  Define [True] as another inductively defined proposition.  (The
     intution is that [True] should be a proposition for which it is
     trivial to give evidence.) *)
-(** [True] を、帰納的な命題として定義しなさい。あなたの定義に対してCoqはどのような帰納的原理を生成してくれるでしょうか。 （直観的には [True] はただ当たり前のように根拠を示される命題であるべきです。） *)
+(** [True] を、帰納的な命題として定義しなさい。（直観的には [True] はただ当たり前のように根拠を示される命題であるべきです。） *)
 (* FILL IN HERE *)
 (** [] *)
 
