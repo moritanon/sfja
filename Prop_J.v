@@ -715,18 +715,31 @@ Proof.
     is provable.  In the same way, a two-argument proposition can be
     thought of as a _relation_ -- i.e., it defines a set of pairs for
     which the proposition is provable. *)
-
+(** [ev] のように数値でパラメータ化された命題は、属性（ _property_ ）と
+    見なすこともできます。つまり、それに属する値についてその命題が証明可能である
+    ような [nat] の部分集合の定義と見ることができるということです。
+    同様に、引数（パラメータ）を二つ持つ命題は、その二つの「関係」を表していると
+    考えられます。つまり、その命題について証明可能な値のペアの集合の定義、
+    というわけです。
+ *)
 Module LeModule.  
 
 
-(** One useful example is the "less than or equal to"
+(* One useful example is the "less than or equal to"
     relation on numbers. *)
+(** 一つの有用な例として、小さいか等しいという数の関係です。 *)
 
-(** The following definition should be fairly intuitive.  It
+(* The following definition should be fairly intuitive.  It
     says that there are two ways to give evidence that one number is
     less than or equal to another: either observe that they are the
     same number, or give evidence that the first is less than or equal
     to the predecessor of the second. *)
+(** この定義はかなり直観的なものになります。これは、ある数値がもう一つの
+    数値より小さいかまたは等しい、ということを示すには二つの方法があることを
+    示しています。一つはそれらが同じ数であるかどうかを確認すること。もう
+    一つは最初の数が。二つ目の数の一つ前の数より小さいかまたは等しい、
+    ということの根拠を得ることです。
+ *)
 
 Inductive le : nat -> nat -> Prop :=
   | le_n : forall n, le n n
@@ -734,22 +747,32 @@ Inductive le : nat -> nat -> Prop :=
 
 Notation "m <= n" := (le m n).
 
-
-(** Proofs of facts about [<=] using the constructors [le_n] and
+(* Proofs of facts about [<=] using the constructors [le_n] and
     [le_S] follow the same patterns as proofs about properties, like
     [ev] in chapter [Prop].  We can [apply] the constructors to prove [<=]
     goals (e.g., to show that [3<=3] or [3<=6]), and we can use
     tactics like [inversion] to extract information from [<=]
     hypotheses in the context (e.g., to prove that [(2 <= 1) -> 2+2=5].) *)
-
+(** コンストラクタ [le_n] と [le_S] を使った [<=] にからむ証明は、前章の [eq] が
+    そうであったように、属性についての証明のいくつかのパターンに倣っています。
+    [<=] の形をしたゴール（例えば [3<=3] や [3<=6] など）に、そのコンストラクタを
+    apply することができますし、inversion のようなタクティックを使って
+    （[(2 <= 1) -> 2 + 2 = 5] の証明をしようとする際のように） コンテキストに [<=] を含む
+    仮定から情報を抽出することもできます。
+ *)
 (** *** *)
-(** Here are some sanity checks on the definition.  (Notice that,
+(* Here are some sanity checks on the definition.  (Notice that,
     although these are the same kind of simple "unit tests" as we gave
     for the testing functions we wrote in the first few lectures, we
     must construct their proofs explicitly -- [simpl] and
     [reflexivity] don't do the job, because the proofs aren't just a
     matter of simplifying computations.) *)
-
+(** ここで、定義が正しくなされているのかのチェックをしてみましょう。（注意して
+    欲しいのは、ここでやることが、最初のレクチャーで書いてもらった、ある種の
+    シンプルな「ユニットテスト」のようなものですが、今回のものは以前のものと
+    ちょっと違います。今回のものには、[simpl] や [reflexivity] はほとんど
+    役に立ちません。簡約だけで証明できるようなものではないからです。
+ *)
 Theorem test_le1 :
   3 <= 3.
 Proof.
@@ -769,8 +792,9 @@ Proof.
   intros H. inversion H. inversion H2.  Qed.
 
 (** *** *)
-(** The "strictly less than" relation [n < m] can now be defined
+(* The "strictly less than" relation [n < m] can now be defined
     in terms of [le]. *)
+(** 「より小さい」という関係（ [n < m] ）は、[le] を使って定義できます。 *)
 
 End LeModule.
 
@@ -778,7 +802,8 @@ Definition lt (n m:nat) := le (S n) m.
 
 Notation "m < n" := (lt m n).
 
-(** Here are a few more simple relations on numbers: *)
+(* Here are a few more simple relations on numbers: *)
+(** 他にも、数値の関係についていくつか見てみましょう。 *)
 
 Inductive square_of : nat -> nat -> Prop :=
   sq : forall n:nat, square_of n (n * n).
@@ -790,24 +815,31 @@ Inductive next_even (n:nat) : nat -> Prop :=
   | ne_1 : ev (S n) -> next_even n (S n)
   | ne_2 : ev (S (S n)) -> next_even n (S (S n)).
 
-(** **** Exercise: 2 stars (total_relation) *)
-(** Define an inductive binary relation [total_relation] that holds
+(* **** Exercise: 2 stars (total_relation) *)
+(** **** 練習問題: ★★, recommended (total_relation) *)
+(* Define an inductive binary relation [total_relation] that holds
     between every pair of natural numbers. *)
+(** 二つの自然数のペア同士の間に成り立つ帰納的な関係 [total_relation] を
+    定義しなさい。 *)
 
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 2 stars (empty_relation) *)
-(** Define an inductive binary relation [empty_relation] (on numbers)
+(* **** Exercise: 2 stars (empty_relation) *)
+(** **** 練習問題: ★★ (empty_relation) *)
+(* Define an inductive binary relation [empty_relation] (on numbers)
     that never holds. *)
-
+(** 自然数の間では決して成り立たない関係 [empty_relation] を帰納的に
+    定義しなさい。 *)
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 2 stars, optional (le_exercises) *)
-(** Here are a number of facts about the [<=] and [<] relations that
+(* **** Exercise: 2 stars, optional (le_exercises) *)
+(** **** 練習問題: ★★, optional (le_exercises) *)
+(* Here are a number of facts about the [<=] and [<] relations that
     we are going to need later in the course.  The proofs make good
     practice exercises. *)
+(** ここで [<=] や [<] といった関係についての事実をいくつか書き溜めていくことにしましょう。それらはここから先に進む際に必要になってくるばかりでなく、その証明自体がとてもよい練習問題になってくれます。 *)
 
 Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
 Proof.
@@ -902,13 +934,17 @@ Inductive R : nat -> nat -> nat -> Prop :=
 (** [] *)
 *)
 
-(** **** Exercise: 3 stars, optional (R_fact) *)  
-(** Relation [R] actually encodes a familiar function.  State and prove two
+(* **** Exercise: 3 stars, optional (R_fact) *)  
+(** **** 練習問題: ★★★, optional (R_fact) *)
+(* Relation [R] actually encodes a familiar function.  State and prove two
     theorems that formally connects the relation and the function. 
     That is, if [R m n o] is true, what can we say about [m],
     [n], and [o], and vice versa?
 *)
-
+(** 関係 [R] の、等値性に関する特性をあげ、それを証明しなさい。 それは、
+    もし [R m n o] が true なら [m] についてどんなことが言えるでしょうか？
+    [n] や [o] についてはどうでしょうか？その逆は？
+ *)
 (* FILL IN HERE *)
 (** [] *)
 
@@ -916,12 +952,13 @@ End R.
 
 
 (* ##################################################### *)
-(** * Programming with Propositions Revisited *)
+(*  * Programming with Propositions Revisited *)
+(** * 命題を使用したプログラミング 再訪 *)
 
 (** As we have seen, a _proposition_ is a statement expressing a factual claim,
     like "two plus two equals four."  In Coq, propositions are written
     as expressions of type [Prop]. . *)
-
+(** これまで見てきたように、命題(_proposition_)は、例えば、2足す2は等しい。のように、実際の主張を表現する文です。Coqにおいて命題は、[Prop]型を持つ式です。*)
 Check (2 + 2 = 4).
 (* ===> 2 + 2 = 4 : Prop *)
 
@@ -935,7 +972,7 @@ Check (beautiful 8).
 (** Both provable and unprovable claims are perfectly good
     propositions.  Simply _being_ a proposition is one thing; being
     _provable_ is something else! *)
-
+(** 証明可能な主張も証明不可能は主張のどちらも完璧に正しい命題です。 単に、命題である(_being_)とは証明可能(_provable_)とは別のことです! *)
 Check (2 + 2 = 5).
 (* ===> 2 + 2 = 5 : Prop *)
 
@@ -944,10 +981,12 @@ Check (beautiful 4).
 
 (** Both [2 + 2 = 4] and [2 + 2 = 5] are legal expressions
     of type [Prop]. *)
+(** [2 + 2 = 4]も[2 + 2 = 5]も、Prop型を持つ妥当な式です。 *)
 
 (** *** *)
-(** We've mainly seen one place that propositions can appear in Coq: in
+(* We've mainly seen one place that propositions can appear in Coq: in
     [Theorem] (and [Lemma] and [Example]) declarations. *)
+(** これまで Coq の中で命題を使う方法は1つしか見ていません。 Theorem（あるいは Lemma、Example）の宣言の中でだけです。  *)
 
 Theorem plus_2_2_is_4 : 
   2 + 2 = 4.
@@ -956,20 +995,21 @@ Proof. reflexivity.  Qed.
 (** But they can be used in many other ways.  For example, we have also seen that
     we can give a name to a proposition using a [Definition], just as we have
     given names to expressions of other sorts. *)
+(**  しかし命題にはもっといろいろな使い方があります。 例えば、他の種類の式（数字、関数、型、型関数など）と同様に、Definition を使うことで命題に名前を与えることができます。 *)
 
 Definition plus_fact : Prop  :=  2 + 2 = 4.
 Check plus_fact.
 (* ===> plus_fact : Prop *)
 
-(** We can later use this name in any situation where a proposition is
+(* We can later use this name in any situation where a proposition is
     expected -- for example, as the claim in a [Theorem] declaration. *)
-
+(** こうすることで、命題が使える場所ならどこでも、例えば、Theorem 宣言内の主張などとして使うことができます。 *)
 Theorem plus_fact_is_true : 
   plus_fact.
 Proof. reflexivity.  Qed.
 
 (** *** *)
-(** We've seen several ways of constructing propositions.  
+(* We've seen several ways of constructing propositions.  
 
        - We can define a new proposition primitively using [Inductive].
 
@@ -979,9 +1019,18 @@ Proof. reflexivity.  Qed.
 
        - We can combine propositions using implication and
          quantification. *)
+(** これまで、命題を構成する幾つかの方法を見て来ました。
+
+   - [Inductive]を使用することで、プリミティブに新しい命題を定義することが出来ます。
+   
+   - [e1]と[e2]のような同じ型を持つ二つの式を与えることで、[e1 = e2]という命題を構成してそれらの値が等しいと述べることが出来ます。
+   
+   - 含意と量化を使って命題を合成することも出来ます。 *)
+         
 (** *** *)
-(** We have also seen _parameterized propositions_, such as [even] and
+(* We have also seen _parameterized propositions_, such as [even] and
     [beautiful]. *)
+(* [even]や、[beautiful]のようなパラーメータ化された命題(_parameterized propositions_)もありました。*)
 
 Check (even 4).
 (* ===> even 4 : Prop *)
@@ -991,51 +1040,58 @@ Check even.
 (* ===> even : nat -> Prop *)
 
 (** *** *)
-(** The type of [even], i.e., [nat->Prop], can be pronounced in
+(* The type of [even], i.e., [nat->Prop], can be pronounced in
     three equivalent ways: (1) "[even] is a _function_ from numbers to
     propositions," (2) "[even] is a _family_ of propositions, indexed
     by a number [n]," or (3) "[even] is a _property_ of numbers."  *)
-
-(** Propositions -- including parameterized propositions -- are
+(** [nat->Prop]のような[even]の型は三つの同等な方法で、表明されます。
+    (1) [even]は数から命題への関数(_function_)である。(2)[even]は数[n]によってインデクス付された命題の族集合(_family_)である。
+    (3) [even]は数の性質(_property_)である *)
+    
+(* Propositions -- including parameterized propositions -- are
     first-class citizens in Coq.  For example, we can define functions
     from numbers to propositions... *)
-
+(** 命題（パラーメータ化された命題も含む）はCoqにおける第一級（first-class）市民です。 このため、ほかの定義の中でこれらの命題を使うことができます。
+複数の引数を受け取るように定義することや.. *)
 Definition between (n m o: nat) : Prop :=
   andb (ble_nat n o) (ble_nat o m) = true.
 
-(** ... and then partially apply them: *)
-
+(*  ... and then partially apply them: *)
+(** ...部分適用もできます。 *)
 Definition teen : nat->Prop := between 13 19.
 
-(** We can even pass propositions -- including parameterized
+(*  We can even pass propositions -- including parameterized
     propositions -- as arguments to functions: *)
-
+(** 他の関数に、引数として命題（パラーメータ化された命題も含む）を渡すことすらできます。  *)
 Definition true_for_zero (P:nat->Prop) : Prop :=
   P 0.
 
 (** *** *)
 (** Here are two more examples of passing parameterized propositions
     as arguments to a function.  
-
     The first function, [true_for_all_numbers], takes a proposition
     [P] as argument and builds the proposition that [P] is true for
     all natural numbers. *)
+(** ここでもう二つばかり、パラメータ化された命題を引数として関数に渡す例を見ておきましょう。 
+一つめの関数は、[true_for_all_numbers]、命題[P]を引数として受け取り、[P]が全ての自然数に対して真であるという命題を生成します。
+*)
 
 Definition true_for_all_numbers (P:nat->Prop) : Prop :=
   forall n, P n.
 
-(** The second, [preserved_by_S], takes [P] and builds the proposition
+(* The second, [preserved_by_S], takes [P] and builds the proposition
     that, if [P] is true for some natural number [n'], then it is also
     true by the successor of [n'] -- i.e. that [P] is _preserved by
     successor_: *)
-
+(** もう一つの例は、[preserved_by_S],[P]を引数として取って、次の命題を生成します。
+    もし[P]がある自然数[n']において、真であるならば、常に [n'] の次の数でも P が真である。 *)
 Definition preserved_by_S (P:nat->Prop) : Prop :=
   forall n', P n' -> P (S n').
 
 (** *** *)
 (** Finally, we can put these ingredients together to define
 a proposition stating that induction is valid for natural numbers: *)
-
+(** これらを一つにまとめることで、自然数に関する帰納法の原理を自分で再宣言できます。*)
 Definition natural_number_induction_valid : Prop :=
   forall (P:nat->Prop),
     true_for_zero P ->
@@ -1052,7 +1108,9 @@ Definition natural_number_induction_valid : Prop :=
     [Peven]. As its result, it should return a new property [P] such
     that [P n] is equivalent to [Podd n] when [n] is odd, and
     equivalent to [Peven n] otherwise. *)
-
+(** 下の[combine_odd_even]関数の定義を完成させなさい。[combine_odd_even]は、二つの数に関する性質、[Podd]と[Peven]を引数として受け取り、
+    結果として、[n]が奇数の場合、[P n]が[Podd n]と、[n]が偶数のときには、[Peven n]と等しい新しい性質[P]を返します。*)
+    
 Definition combine_odd_even (Podd Peven : nat -> Prop) : nat -> Prop :=
   (* FILL IN HERE *) admit.
 
@@ -1086,13 +1144,13 @@ Proof.
 (** [] *)
 
 (* ##################################################### *)
-(** One more quick digression, for adventurous souls: if we can define
+(*  One more quick digression, for adventurous souls: if we can define
     parameterized propositions using [Definition], then can we also
     define them using [Fixpoint]?  Of course we can!  However, this
     kind of "recursive parameterization" doesn't correspond to
     anything very familiar from everyday mathematics.  The following
     exercise gives a slightly contrived example. *)
-
+(** 冒険心を満足させるために、もう少し脱線してみましょう。 Definition でパラメータ化された命題を定義できるなら、 Fixpoint でも 定義できていいのではないでしょうか？もちろんできます！しかし、この種の 「再帰的なパラメータ化」は、日常的に使われる数学の分野と必ずしも調和するわけでは ありません。そんなわけで次の練習問題は、例としてはいささか不自然かもしれません。 *)
 (** **** Exercise: 4 stars, optional (true_upto_n__true_everywhere) *)
 (** Define a recursive function
     [true_upto_n__true_everywhere] that makes
