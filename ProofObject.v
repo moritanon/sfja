@@ -161,8 +161,9 @@ Qed.
     term of the required type.  To see this process in action, let's
     use the [Show Proof] command to display the current state of the
     proof tree at various points in the following tactic proof. *)
-(** これらの証明オブジェクトは、
+(** これらの証明オブジェクトは、Coqの操作の核心部分です。
 
+     Coqが証明スクリプトを進めるとき、内部的に起きていることは、証明オブジェクトを徐々に生成しています。項の型は証明されるべき命題です。 [Proof]コマンドと[Qed]コマンドの間のタクティックはCoqに要求される型の項をどのように構築するかを指示していきます。このプロセスを実地に見ることために、[Show Proof]コマンドを使用してみましょう。このコマンドは証明タクティックが進める証明木の様々な時点での状態を表示します。)
 Theorem eight_is_beautiful'': beautiful 8.
 Proof.
    Show Proof.
@@ -174,10 +175,11 @@ Proof.
    Show Proof.
 Qed.
 
-(** At any given moment, Coq has constructed a term with some
+(* At any given moment, Coq has constructed a term with some
     "holes" (indicated by [?1], [?2], and so on), and it knows what
     type of evidence is needed at each hole.  *)
-
+(** どの瞬間においても、Coqはいくつかの"穴"([?1]や[?2]やその他)を持つ項を構築しています。
+そして
 (**
     Each of the holes corresponds to a subgoal, and the proof is
     finished when there are no more subgoals.  At this point, the
