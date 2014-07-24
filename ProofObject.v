@@ -179,25 +179,26 @@ Qed.
     "holes" (indicated by [?1], [?2], and so on), and it knows what
     type of evidence is needed at each hole.  *)
 (** どの瞬間においても、Coqはいくつかの"穴"([?1]や[?2]やその他)を持つ項を構築しています。
-そして
-(**
+そしてその穴に何の根拠の型が必要とされるかをCoqは知っています。*)
+(*
     Each of the holes corresponds to a subgoal, and the proof is
     finished when there are no more subgoals.  At this point, the
     [Theorem] command gives a name to the evidence we've built and
     stores it in the global context. *)
-
-(** Tactic proofs are useful and convenient, but they are not
+(**
+   それぞれの穴にはサブゴールが対応しており、証明は、サブゴールがすべて無くなったときに終了します。この時において、[Theorem]コマンドは我々が構築した根拠に名前を与え、グローバルなコンテキストにそれを追加します。 *)
+(* Tactic proofs are useful and convenient, but they are not
     essential: in principle, we can always construct the required
     evidence by hand, as shown above. Then we can use [Definition] 
     (rather than [Theorem]) to give a global name directly to a 
     piece of evidence. *)
-
+(** タクティックにようる証明は、使いやすいのですが、本質的ではありません。原理的に、われわれは上で見たように、必要とされる根拠を手でいつでも構築することが出来ます。それから、[Definition]コマンドを(むしろ[Theorem]コマンドより)根拠の断片にグローバルな名前を与えるために使っています。*)
 Definition eight_is_beautiful''' : beautiful 8 :=
   b_sum 3 5 b_3 b_5.
 
-(** All these different ways of building the proof lead to exactly the
+(* All these different ways of building the proof lead to exactly the
     same evidence being saved in the global environment. *)
-
+(** 証明を構築する方法のいろいろありますが、正確におなじグローバル環境にセーブされる根拠に至ります。*)
 Print eight_is_beautiful.
 (* ===> eight_is_beautiful    = b_sum 3 5 b_3 b_5 : beautiful 8 *)
 Print eight_is_beautiful'.
@@ -207,9 +208,9 @@ Print eight_is_beautiful''.
 Print eight_is_beautiful'''.
 (* ===> eight_is_beautiful''' = b_sum 3 5 b_3 b_5 : beautiful 8 *)
 
-(** **** Exercise: 1 star (six_is_beautiful) *)
-(** Give a tactic proof and a proof object showing that [6] is [beautiful]. *)
-
+(** ****  練習問題: ★ (six_is_beautiful) *)
+(* Give a tactic proof and a proof object showing that [6] is [beautiful]. *)
+(** [6]が[beautiful]であるというこを示すタクティックによる証明と証明オブジェクトを書きなさい。*)
 Theorem six_is_beautiful :
   beautiful 6.
 Proof.
@@ -219,8 +220,9 @@ Definition six_is_beautiful' : beautiful 6 :=
   (* FILL IN HERE *) admit.
 (** [] *)
 
-(** **** Exercise: 1 star (nine_is_beautiful) *)
+(** ****  練習問題: ★(nine_is_beautiful) *)
 (** Give a tactic proof and a proof object showing that [9] is [beautiful]. *)
+(** [9]が[beautiful]であるというこを示すタクティックによる証明と証明オブジェクトを書きなさい。*)
 
 Theorem nine_is_beautiful :
   beautiful 9.
@@ -232,9 +234,10 @@ Definition nine_is_beautiful' : beautiful 9 :=
 (** [] *)
 
 (* ##################################################### *)
-(** * Quantification, Implications and Functions *)
+(* * Quantification, Implications and Functions *)
+(** 全称量化、含意 と 関数 *)
 
-(** In Coq's computational universe (where we've mostly been living
+(* In Coq's computational universe (where we've mostly been living
     until this chapter), there are two sorts of values with arrows in
     their types: _constructors_ introduced by [Inductive]-ly defined
     data types, and _functions_.
@@ -244,7 +247,12 @@ Definition nine_is_beautiful' : beautiful 9 :=
     [Inductive]-ly defined propositions, and... functions!
 
     For example, consider this statement: *)
+(** Coqにおける計算機の世界(この章までは我々はほとんどそこに住んでいました)において、二つの種類の、型の中に矢印を持つ値があります。
+再帰的[Inductive]に定義されることによって導入されるコンスラクタ(_constructors_)と関数(_function_)	です 
 
+同様に、Coqの論理の世界において、含意のための根拠を与える二つの方法があります。再帰的[Inductive]に定義される命題と...そう。関数です!
+
+例として次の文を考えましょう。 *)
 Theorem b_plus3: forall n, beautiful n -> beautiful (3+n).
 Proof.
    intros n H.
@@ -253,13 +261,15 @@ Proof.
    apply H.
 Qed.
 
-(** What is the proof object corresponding to [b_plus3]? 
+(* What is the proof object corresponding to [b_plus3]? 
 
     We're looking for an expression whose _type_ is [forall n,
     beautiful n -> beautiful (3+n)] -- that is, a _function_ that
     takes two arguments (one number and a piece of evidence) and
     returns a piece of evidence!  Here it is: *)
+(** [b_plus3]に対応する証明オブジェクトはどのようなものでしょうか？
 
+われわれは、型(_type_)が[forall n, beautiful n -> beautiful (3 + n)]である式を探します。すなわち、二つの引数(一つの数値と根拠の断片)を取って、根拠の断片を返す関数(_function_)です! *)
 Definition b_plus3' : forall n, beautiful n -> beautiful (3+n) := 
   fun (n : nat) => fun (H : beautiful n) =>
     b_sum 3 n b_3 H.
@@ -267,8 +277,10 @@ Definition b_plus3' : forall n, beautiful n -> beautiful (3+n) :=
 Check b_plus3'.
 (* ===> b_plus3' : forall n : nat, beautiful n -> beautiful (3+n) *)
 
-(** Recall that [fun n => blah] means "the function that, given [n],
+(* Recall that [fun n => blah] means "the function that, given [n],
     yields [blah]."  Another equivalent way to write this definition is: *)
+(** [fun n => blah]は、関数を意味し、その関数は[n]が与えられたら、[blah]を返すものであることを思いだしましょう 
+この定義を書くもう一つの等価な方法は、以下の通りです。 *)
 
 Definition b_plus3'' (n : nat) (H : beautiful n) : beautiful (3+n) := 
   b_sum 3 n b_3 H.
@@ -276,7 +288,7 @@ Definition b_plus3'' (n : nat) (H : beautiful n) : beautiful (3+n) :=
 Check b_plus3''.
 (* ===> b_plus3'' : forall n, beautiful n -> beautiful (3+n) *)
 
-(** When we view the proposition being proved by [b_plus3] as a function type,
+(* When we view the proposition being proved by [b_plus3] as a function type,
     one aspect of it may seem a little unusual. The second argument's
     type, [beautiful n], mentions the _value_ of the first argument, [n].
     While such _dependent types_ are not commonly found in programming
@@ -288,9 +300,14 @@ Check b_plus3''.
     same thing: [->] is just a shorthand for a degenerate use of
     [forall] where there is no dependency, i.e., no need to give a name
     to the type on the LHS of the arrow. *)                                           
+(** [b_plus3]によって証明される命題を関数型として見るときに、その一つの局面はあまり役に立たないように見えるかもしれません。
+二つめの引数の型、[beautiful n]は最初の引数である[n]の値に言及します。一方そのような依存型(_dependent types_)は通常のプログラミング言語、MLやHaskellのような関数型言語においてすら現われませんが、それらはとても有用なものなのです。
+含意[->]と全称量化([forall])は根拠上の関数に対応しています。実際に、それらは本当に同じものです。[->]は、依存性が存在しない場合の[forall]の短縮記法にすぎません。つまり、LHSの矢印上の型に名前を与える必要がないような場合です。
 
-(** For example, consider this proposition: *)
-
+LHSってなんや？
+*)
+(* For example, consider this proposition: *)
+(** 例としてこの命題について考えてみましょう *)
 Definition beautiful_plus3 : Prop := 
   forall n, forall (E : beautiful n), beautiful (n+3).
 
@@ -301,31 +318,38 @@ Definition beautiful_plus3 : Prop :=
     bother making up a name for it.  We could write it like this
     instead, using the dummy identifier [_] in place of a real
     name: *)
+(* この命題を継承する項は二つの引数
+数 [n]と
+[n]がbeautifulであるという根拠[E]
+を取る関数になるでしょう。
+しかしこの根拠のための名前[E]は[funny_prop1]の残りの文の中で使われません。そのための名前を考えだすために手間をかけることは少しばかばかしいように思われます。以上の代わりにダミーの識別子[_]を用いて以下のように書くことが出来ます。*)
 
 Definition beautiful_plus3' : Prop := 
   forall n, forall (_ : beautiful n), beautiful (n+3).
 
-(** Or, equivalently, we can write it in more familiar notation: *)
-
+(* Or, equivalently, we can write it in more familiar notation: *)
+(** あるいは、もっと書き慣れた方法で書くことも出来ます。 *)
 Definition beatiful_plus3'' : Prop :=
   forall n, beautiful n -> beautiful (n+3). 
 
 (** In general, "[P -> Q]" is just syntactic sugar for
     "[forall (_:P), Q]". *)
+(** 一般的に、"[P -> Q]"というのは、"[forall (_:P), Q]"の糖衣構文です *)
 
-
-(** **** Exercise: 2 stars b_times2 *)
-
-(** Give a proof object corresponding to the theorem [b_times2] from Prop.v *)
-
+(* **** Exercise: 2 stars b_times2 *)
+(** **** 練習問題 ★★ b_times2 *)
+(* Give a proof object corresponding to the theorem [b_times2] from Prop.v *)
+(** Prop.vの定理[b_times2]に対応する証明オブジェクトを書きなさい *)
 Definition b_times2': forall n, beautiful n -> beautiful (2*n) :=
   (* FILL IN HERE *) admit.
 (** [] *)
 
 
 
-(** **** Exercise: 2 stars, optional (gorgeous_plus13_po) *) 
+(* **** Exercise: 2 stars, optional (gorgeous_plus13_po) *) 
+(** **** 練習問題 ★★, optional (gorgeous_plus13_po) *) 
 (** Give a proof object corresponding to the theorem [gorgeous_plus13] from Prop.v *)
+(** Prop.vの定理[gorgeous_plus13]に対応する証明オブジェクトを書きなさい *)
 
 Definition gorgeous_plus13_po: forall n, gorgeous n -> gorgeous (13+n):=
    (* FILL IN HERE *) admit.
@@ -334,8 +358,10 @@ Definition gorgeous_plus13_po: forall n, gorgeous n -> gorgeous (13+n):=
 
 
 
-(** It is particularly revealing to look at proof objects involving the 
+(* It is particularly revealing to look at proof objects involving the 
 logical connectives that we defined with inductive propositions in Logic.v. *)
+(** 
+Logic.vで再帰的な命題として論理的な関係を含む証明オブジェクトを見ることは、とりわけ、理解の一助になります。 *)
 
 Theorem and_example : 
   (beautiful 0) /\ (beautiful 3).
@@ -344,7 +370,8 @@ Proof.
    (* Case "left". *)  apply b_0.
    (* Case "right". *)  apply b_3.  Qed.
 
-(** Let's take a look at the proof object for the above theorem. *)
+(* Let's take a look at the proof object for the above theorem. *)
+(** 上記の定理の証明オブジェクトをとりあげてみましょう *)
 
 Print and_example. 
 (* ===>  conj (beautiful 0) (beautiful 3) b_0 b_3
@@ -354,12 +381,18 @@ Print and_example.
     conj (beautiful 0) (beautiful 3) 
          (...pf of beautiful 3...) (...pf of beautiful 3...)
     as you'd expect, given the type of [conj]. *)
-
+(** [conj]の型が与えられた場合は、あなたが期待したように、
+  conj (beautiful 0) (beautiful 3)
+    (.. beautiful 0の証明..)    (.. beautiful 3の証明..)
+	という形になることに注意しましょう。
+*)
 (** **** Exercise: 1 star, optional (case_proof_objects) *)
-(** The [Case] tactics were commented out in the proof of
+(* The [Case] tactics were commented out in the proof of
     [and_example] to avoid cluttering the proof object.  What would
     you guess the proof object will look like if we uncomment them?
     Try it and see. *)
+(** [Case]タクティックは[and_example]の証明ので、証明オブジェクに含まれないように、コメントアウトされていました。
+コメントを外すとどのような証明オブジェクトになると思いますか？ 実際にやってみましょう。
 (** [] *)
 
 Theorem and_commut : forall P Q : Prop, 
@@ -371,13 +404,15 @@ Proof.
     (* Case "left". *) apply HQ. 
     (* Case "right". *) apply HP.  Qed.
 
-(** Once again, we have commented out the [Case] tactics to make the
+(* Once again, we have commented out the [Case] tactics to make the
     proof object for this theorem easier to understand. It is still
     a little complicated, but after performing some simple reduction
     steps, we can see that all that is really happening is taking apart 
     a record containing evidence for [P] and [Q] and rebuilding it in the
     opposite order: *)
-
+(** この定理を理解しやすくするために[Case]タクティックをコメントアウトして証明オブジェクトを生成しています。
+ちょっと複雑になりますが、簡約を行なうステップを実行することで、 PとQの根拠を含むレコードを分離して、反対の順序に組上げるときに実際におこる全てのことを見ることができます。
+*)
 Print and_commut.
 (* ===>
     and_commut = 
@@ -388,8 +423,9 @@ Print and_commut.
             end
       : forall P Q : Prop, P /\ Q -> Q /\ P *)
 
-(** After simplifying some direct application of [fun] expressions to arguments,
+(* After simplifying some direct application of [fun] expressions to arguments,
 we get: *)
+(** [fun]式に引数を直接の適用することによる簡約で、以下のようになります。 *)
 
 (* ===> 
    and_commut = 
@@ -401,15 +437,17 @@ we get: *)
 
 
 
-(** **** Exercise: 2 stars, optional (conj_fact) *)
-(** Construct a proof object demonstrating the following proposition. *)
-
+(* **** Exercise: 2 stars, optional (conj_fact) *)
+(** **** 練習問題 ★★,optional (conj_fact) *)
+(* Construct a proof object demonstrating the following proposition. *)
+(** 次の命題を立証する証明オブジェクトを書きなさい *)
 Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R :=
   (* FILL IN HERE *) admit.
 (** [] *)
 
 
-(** **** Exercise: 2 stars, advanced, optional (beautiful_iff_gorgeous) *)
+(* **** Exercise: 2 stars, advanced, optional (beautiful_iff_gorgeous) *)
+(** **** 練習問題 ★★, advanced, optional (beautiful_iff_gorgeous) *)
 
 (** We have seen that the families of propositions [beautiful] and
     [gorgeous] actually characterize the same set of numbers.
@@ -417,7 +455,10 @@ Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R :=
     fun, write your proof as an explicit proof object, rather than
     using tactics. (_Hint_: if you make use of previously defined
     theorems, you should only need a single line!) *)
-
+(**
+同じ数の集合を特徴付ける[beautiful]や[gorgeous]といった命題の仲間達を見てきました。
+すべての[n]について、[beautiful <-> gorgeous]であることを証明しなさい。 
+あそびやゲームのつもりで、明示的な証明オブジェクトとして証明を書いてみましょう。(ヒント:もし以前に定理を定義しているなら、一行で書けちゃいますよ。)
 Definition beautiful_iff_gorgeous :
   forall n, beautiful n <-> gorgeous n :=
   (* FILL IN HERE *) admit.
@@ -425,33 +466,40 @@ Definition beautiful_iff_gorgeous :
 
 
 (** **** Exercise: 2 stars, optional (or_commut'') *)
+(** **** 練習問題 ★★, optional (or_commut'') *)
 (** Try to write down an explicit proof object for [or_commut] (without
     using [Print] to peek at the ones we already defined!). *)
-
+(** [or_commut]の明示的な証明オブジェクトを書きなさい。定義済みの定理を[Print]で見たりしてはいけませんよ! *)
 (* FILL IN HERE *)
 (** [] *)
 
-(** Recall that we model an existential for a property as a pair consisting of 
+(* Recall that we model an existential for a property as a pair consisting of 
 a witness value and a proof that the witness obeys that property. 
 We can choose to construct the proof explicitly. 
-
 For example, consider this existentially quantified proposition: *)
+(** 
+ 根拠となる値とその値が性質を満たす証明からなるペアとして、存在することをモデル化したことを思いだしましょう。
+証明を明示的に構築することを選ぶことが出来ます。
+例として、次の 存在量化命題を考えましょう。
+*)
 Check ex.
 
 Definition some_nat_is_even : Prop := 
   ex _ ev.
 
-(** To prove this proposition, we need to choose a particular number
+(* To prove this proposition, we need to choose a particular number
     as witness -- say, 4 -- and give some evidence that that number is
     even. *)
-
+(** この命題を証明するために、特定の数を根拠として選択する必要があります。例えば、4です。
+そして、その数が偶数であるという根拠に与えます。 *)
 Definition snie : some_nat_is_even := 
   ex_intro _ ev 4 (ev_SS 2 (ev_SS 0 ev_0)).
 
 
-(** **** Exercise: 2 stars, optional (ex_beautiful_Sn) *)
+(* **** Exercise: 2 stars, optional (ex_beautiful_Sn) *)
+(** **** 練習問題 ★★, optional (ex_beautiful_Sn) *)
 (** Complete the definition of the following proof object: *)
-
+(** 次の証明オブジェクトの定義を完成させなさい。 *)
 Definition p : ex _ (fun n => beautiful (S n)) :=
 (* FILL IN HERE *) admit.
 (** [] *)
@@ -460,6 +508,7 @@ Definition p : ex _ (fun n => beautiful (S n)) :=
 
 (* ##################################################### *)
 (** * Giving Explicit Arguments to Lemmas and Hypotheses *)
+(** * Lemma や Hypothesesに明示的に引数を与えること *)
 
 (** Even when we are using tactic-based proof, it can be very useful to
 understand the underlying functional nature of implications and quantification. 
@@ -468,7 +517,11 @@ For example, it is often convenient to [apply] or [rewrite]
 using a lemma or hypothesis with one or more quantifiers or 
 assumptions already instantiated in order to direct what
 happens.  For example: *)
+(** 
+タクティックを使用した証明を使用するときにおいてすら、含意や全称量化の基底となる関数的な本質を理解しやすいと思います。
 
+よく分からん
+*)
 Check plus_comm.
 (* ==> 
     plus_comm
@@ -483,17 +536,17 @@ Proof.
    reflexivity.  Qed.
 
 
-(** In this case, giving just one argument would be sufficient. *)
-
+(* In this case, giving just one argument would be sufficient. *)
+(** このケースにおいて、一つの引数を与えるだけで十分です。 *)
 Lemma plus_comm_r' : forall a b c, c + (b + a) = c + (a + b).
 Proof.
    intros a b c.
    rewrite (plus_comm b). 
    reflexivity.  Qed.
 
-(** Arguments must be given in order, but wildcards (_)
+(* Arguments must be given in order, but wildcards (_)
 may be used to skip arguments that Coq can infer.  *)
-
+(** 引数は順序通りに与えられる必要がありますが、ワイルドカードはCoqが推測する引数をスキップするために使用されるかもしれません。 *)
 Lemma plus_comm_r'' : forall a b c, c + (b + a) = c + (a + b).
 Proof.
   intros a b c.
@@ -502,7 +555,7 @@ Proof.
 
 (** The author of a lemma can choose to declare easily inferable arguments
 to be implicit, just as with functions and constructors. 
-
+(** 補題の作者は、関数や、コンストラクタと同じように、より推測しやすい引数を暗黙的に宣言するかどうか選ぶことが出来ます。*)
   The [with] clauses we've already seen is really just a way of
   specifying selected arguments by name rather than position:  *)
 
@@ -513,10 +566,11 @@ Proof.
   reflexivity. Qed.
 
 
-(** **** Exercise: 2 stars (trans_eq_example_redux) *)
+(* **** Exercise: 2 stars (trans_eq_example_redux) *)
+(** **** 練習問題: ★★ (trans_eq_example_redux) *)
 (** Redo the proof of the following theorem (from MoreCoq.v) using
 an [apply] of [trans_eq] but _not_ using a [with] clause. *)
-
+(** 次の定理(MoreCoq.vより)を[apply]や[trans_eq]を使ってやりなおしなさい。ただし、[with] を使用せずにです。*)
 Example trans_eq_example' : forall (a b c d e f : nat),
      [a;b] = [c;d] ->
      [c;d] = [e;f] ->
@@ -528,11 +582,14 @@ Proof.
 
 
 (* ##################################################### *)
-(** * Programming with Tactics (Optional) *)
+(* * Programming with Tactics (Optional) *)
+(** タクティックを使用したプログラミング (Optional) *)
 
 (** If we can build proofs with explicit terms rather than
 tactics, you may be wondering if we can build programs using
 tactics rather than explicit terms.  Sure! *)
+明示的な項を使用して証明を構築できるならば、明示的な項ではなく、タクティックを使用してプログラムを構築することが出来るのでしょうか？
+もちろん出来ます ! *)
 
 Definition add1 : nat -> nat. 
 intro n. 
@@ -550,7 +607,7 @@ Print add1.
 Eval compute in add1 2. 
 (* ==> 3 : nat *)
 
-(** Notice that we terminate the [Definition] with a [.] rather than with
+(* Notice that we terminate the [Definition] with a [.] rather than with
 [:=] followed by a term.  This tells Coq to enter proof scripting mode
 to build an object of type [nat -> nat].  Also, we terminate the proof
 with [Defined] rather than [Qed]; this makes the definition _transparent_
@@ -559,6 +616,13 @@ so that it can be used in computation like a normally-defined function.
 This feature is mainly useful for writing functions with dependent types,
 which we won't explore much further in this book.
 But it does illustrate the uniformity and orthogonality of the basic ideas in Coq. *)
+(**  ここで[Definition]を[:=]とそれに続く項ではなく、[.]で終了させたことに気を付けましょう。
+このことはCoqに対して、[nat->nat]型を持つオブジェクトを生成するために、証明スクリプトモードに入ることを告げるものです。
+それから、[Qed]ではなく、[Defined]で証明を終わらせたことにも気を付けましょう。
+このことは、定義を透過的(_transparent_)にするもので、計算中で、通常に定義された関数のように使用することが出来るようになります。
+
+この性質はおもに、依存型を使った関数を書くときに便利ですが、この本ではこれ以上説明しません。
+しかし、このことはCoqの基本的なアイデアが一貫性と直交性にあることを示しています。 *)
 
 (* $Date: 2014-06-05 07:22:21 -0400 (Thu, 05 Jun 2014) $ *)
 
