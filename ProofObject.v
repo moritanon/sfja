@@ -91,7 +91,7 @@ Check b_sum.
     and yields evidence for the proposition [beautiful (n+m)]." *)
 (** これは次のように読むことが出来ます。"[b_sum]は4つの引数を -- 二つの数 [n]と[m]と、命題[beautiful n]と[beautiful m]のためのそれぞれの根拠を取り --
 命題[beautiful (n+m)]の根拠を生成する" *)
-*)
+
 (* Now let's look again at a previous proof involving [beautiful]. *)
 (** それでは、もういちど先程の[beautiful]を含む証明を見てみましょう *)
 Theorem eight_is_beautiful: beautiful 8.
