@@ -600,16 +600,20 @@ that isn't sufficiently general.  The net effect of this will be
 to lose information (much as [destruct] can do), and leave
 you unable to complete the proof. Here's an example: *)
 (** [induction]タクティクの潜在的に混乱させるかもしれない特徴は、十分に一般的でない用語の上に帰納法を試さなければならないことかもしれません。
-このことにより、([destruct]が出来ることとほとんど同じように)情報が失われること、証明を完成させるまえにいやになって投げだすかもしれません。(あなたが)
+このことにより、([destruct]が出来ることとほとんど同じように)情報が失われてしまい、証明を完成させることが出来なくなってしまうでしょう。
+例
 *)
 Lemma one_not_beautiful_FAILED: ~ beautiful 1. 
 Proof.
   intro H.
   (* Just doing an [inversion] on [H] won't get us very far in the [b_sum]
     case. (Try it!). So we'll need induction. A naive first attempt: *)
+  (** [H]上で[inversion]を行うことは[b_sum]の場合以上のことを我々に与えてくれません。(試してみましょう!)。そのため帰納法が必要になります。
+      素直な最初の試みは、*)
   induction H. 
   (* But now, although we get four cases, as we would expect from
      the definition of [beautiful], we lose all information about [H] ! *) 
+  (** しかし、我々は[beautiful]の定義から期待したとおり、4つの場合が得られますが、 [H]についての全ての情報を失なってしまいました! *)
 Abort.
 
 (** The problem is that [induction] over a Prop only works properly over 
@@ -622,7 +626,12 @@ Abort.
    an indication that you need to be proving something more general.
    But in some cases, it suffices to pull out any concrete arguments
    into separate equations, like this: *)
+(** 問題は、命題上の[induction]が 命題の完全に一般的なインスタンス上でのみ適切に働かないことです。
+たとえば、すべての引数のうちの一つに自由な(拘束されていない)変数がある場合です。この点において、inductionは、[inversion]よりは、[destruct]のように振舞います。
 
+上記のような場合に、[induction]をつかいたいときは、もっと一般的な何かを証明するための帰納法が必要になります。しかしいくつかの場合においては、以下のように具体的な引数から
+差分を抽出するだけで事足ります。
+*)
 Lemma one_not_beautiful: forall n, n = 1 -> ~ beautiful n. 
 Proof.
  intros n E H.
@@ -635,6 +644,7 @@ Proof.
       inversion E. 
     Case "b_sum". 
       (* the rest is a tedious case analysis *)
+      (** 以下つまらないケース分析です *)
       destruct p as [|p'].
       SCase "p = 0".
         destruct q as [|q'].
@@ -650,14 +660,15 @@ Proof.
           simpl in E. inversion E.  destruct p'.  inversion H0.  inversion H0. 
 Qed.
 
-(** There's a handy [remember] tactic that can generate the second
+(* There's a handy [remember] tactic that can generate the second
 proof state out of the original one. *)
-
+(** 二つめの証明の状態を生成することの出来るもっとお手軽な[remember]タクティックというのもあります。 *)
 Lemma one_not_beautiful': ~ beautiful 1. 
 Proof.
   intros H.  
   remember 1 as n eqn:E. 
   (* now carry on as above *)
+  (** あとは上記と同じ *)
   induction H.   
 Admitted.
 
