@@ -921,10 +921,10 @@ Admitted.
 
          _Proof_ : [m <= o] についての帰納法で証明する。
 
-           -  [m <= o] が [le_n] であることを示した最後のルールを仮定する。
-              それにより [m = o] であることとその結果が直接導かれる。
+           -  [m <= o] が [le_n] であることを示した最後のルールであると仮定しましょう。
+              それにより [m = o] であることとその結果が直接導かれます。
 
-           - [m <= o] が [le_S] であることを示した最後のルールを仮定する。
+           - [m <= o] が [le_S] であることを示した最後のルールであると仮定しましょう。
              それにより [m <= o'] を満たす [o'] について [o = S o'] が成り立つ。
              帰納法の仮定法より [n <= o'] である。
 
@@ -1029,52 +1029,63 @@ Admitted.
     For this reason, Coq actually generates the following simplified
     induction principle for [gorgeous]: *)
 (** 最初のほうで、我々は帰納的に定義された「集合」に対して、Coqが生成する
-    帰納法の原理をつぶさに見てきました。[ev] のように、帰納的に定義された
+    帰納法の原理をつぶさに見てきました。[gorgeous] のように、帰納的に定義された
     「命題」の帰納法の原理は、やや複雑でした。これらに共通して言えることですが、
-    これらを [ev] の証明に使おうとする際、帰納的な発想のもとで [ev] が持ちうる
-    ものの中から使えそうな形になっているものを探します。それは [0] が偶数であることの
-    根拠であったり、ある [n] について [S (S n)] は偶数であるという根拠（もちろん、
-    これには [n] 自身が偶数であるということの根拠も含まれていなければ
+    これらを [gorgeous] の証明に使おうとする際、帰納的な発想のもとで [gorgeous] が持ちうる
+    ものの中から使えそうな形になっているものを探します。それは [0] がgorgeousであることの
+    根拠であったり、ある [n] について [n+3] はgorgeousであるという根拠（もちろん、
+    これには [n] 自身がgorgeousであるということの根拠も含まれていなければ
     なりませんが）だったりするでしょう。しかしながら直観的な言い方をすると、
     我々が証明したいものは根拠についての事柄ではなく、数値についての事柄です。
     つまり、我々は根拠をベースに数値の属性を証明できるような帰納法の原理を
     必要としているわけです。
     
-    例えば、ずいぶん前にお話ししたように、[ev] の帰納的な定義は、
+    例えば、ここまでにお話ししたように、[gorgeous] の帰納的な定義は、
     こんな感じで...
 
-    Inductive ev : nat -> Prop :=
-       | ev_0 : ev O
-       | ev_SS : forall n:nat, ev n -> ev (S (S n)).
-
+    Inductive gorgeous : nat -> Prop :=
+         g_0 : gorgeous 0
+       | g_plus3 : forall n, gorgeous n -> gorgeous (3+m)
+       | g_plus5 : forall n, gorgeous n -> gorgeous (5+m).
+       
     ... ここから生成される帰納法の原理はこんな風になります ...
 
-    ev_ind_max :
-       forall P : (forall n : nat, ev n -> Prop),
-            P O ev_0 ->
-            (forall (n : nat) (e : ev n),
-              P n e -> P (S (S n)) (ev_SS n e)) ->
-            forall (n : nat) (e : ev n), P n e
+    gorgeous_ind_max :
+       forall P : (forall n : nat, gorgeous n -> Prop),
+            P O g_0 ->
+            (forall (m : nat) (e : gorgeous m), 
+               P m e -> P (3+m) (g_plus3 m e) ->
+            (forall (m : nat) (e : gorgeous m), 
+               P m e -> P (5+m) (g_plus5 m e) ->
+            forall (n : nat) (e : gorgeous n), P n e
 
     ... なぜなら：
 
-     - [ev] は数値 [n] でインデックスされている（ [ev] に属するオブジェクト [e] は、いずれも特定の数 [n] が偶数であることの根拠となっている）ため、この命題 [P] は [n] と[e] の両方でパラメータ化されている。-- つまり、この帰納法の原理は一つの偶数と、それが偶数であることの根拠が揃っているような主張の証明に使われる。
+     - [gorgeous] は数値 [n] でインデックスされている（ [gorgeous] に属するオブジェクト [e] は、いずれも特定の数 [n] がgorgeousであることの根拠となっている）ため、この命題 [P] は [n] と[e] の両方でパラメータ化されている。-- つまり、この帰納法の原理は一つのgorgeousな数と、それがgorgeousであることの根拠が揃っているような主張の証明に使われる。
 
-     - 偶数であることに根拠を与える方法は二つある（ [ev] のコンストラクタは二つある）ので、帰納法の原理を適用すると、二つのゴールが生成されます。:
+     - gorgeousであることに根拠を与える方法は3つある（ [gorgeous] のコンストラクタは3つある）ので、帰納法の原理を適用すると、3つのゴールが生成されます。:
 
-         - [P] が [O] と [ev_0] で成り立つことを証明する必要がある。
+         - [P] が [O] と [g_0] で成り立つことを証明する必要がある。
 
-         - [n] が偶数で [e] がその偶数性の根拠であるとき、もし [P] が [n] と [e] のもとで成り立つなら、[S (S n)] と [ev_SS n e] のもとで成り立つことを証明する必要がある。
+         - [m] がgorgeousで [e] がそのgorgeous性であることの根拠であるとき、もし [P] が [m] と [e] のもとで成り立つなら、
+           [3+m] と [g_plus3 m e] のもとで成り立つことを証明する必要がある。
 
-     - もしこれらのサブゴールが証明できれば、この帰納法の原理によって [P] が全ての偶数 [n] とその偶数性の根拠 [e] のもとで真であることが示される。
+         - [m] がgorgeousで [e] がそのgorgeous性であることの根拠であるとき、もし [P] が [m] と [e] のもとで成り立つなら、
+           [5+m] と [g_plus5 m e] のもとで成り立つことを証明する必要がある。
 
-    しかしこれは、私たちが求めたり必要としているものより少しだけ柔軟にできていて、偶数性の根拠の断片を属性として含むような論理的主張を証明する方法を与えてくれます。我々の興味の対象は「数値の属性が偶数である」ことの証明なのですから、その興味の対象も数値に関する主張であって、根拠に対するものではないはずです。これにより、単に [n] だけでパラメータ化されていて、[P] がすべての偶数 [n] で成り立つことを示せるような命題 [P] を証明する際に帰納法の原理を得ることがより楽になります。
+     - もしこれらのサブゴールが証明できれば、この帰納法の原理によって [P] が全ての gorgeous である[n] とそのgorgeous性の根拠 [e] のもとで真であることが示される。
+
+    しかしこれは、私たちが求めたり必要としているものより少しだけ柔軟にできていて、
+    gorgeous性の根拠の断片を属性として含むような論理的主張を証明する方法を与えてくれます。
+    我々の興味の対象は「数値の属性がgorgeousである」ことの証明なのですから、その興味の対象も数値に関する主張であって、
+    根拠に対するものではないはずです。これにより、単に [n] だけでパラメータ化されていて、
+    [P] がすべてのgorgeousな数 [n] で成り立つことを示せるような命題 [P] を証明する際に帰納法の原理を得ることがより楽になります。
 
        forall P : nat -> Prop,
           ... ->
-             forall n : nat, ev n -> P n
+             forall n : nat, gorgeous n -> P n
 
-    このような理由で、Coqは実際には [ev] のために次のような帰納法の原理を生成します。: *)
+    このような理由で、Coqは実際には [gorgeous] のために次のような帰納法の原理を生成します。: *)
 
 Check gorgeous_ind.
 (* ===>  gorgeous_ind
@@ -1084,14 +1095,16 @@ Check gorgeous_ind.
        (forall n : nat, gorgeous n -> P n -> P (5 + n)) ->
        forall n : nat, gorgeous n -> P n *)
 
-(** In particular, Coq has dropped the evidence term [e] as a
+(* In particular, Coq has dropped the evidence term [e] as a
     parameter of the the proposition [P], and consequently has
     rewritten the assumption [forall (n : nat) (e: gorgeous n), ...]
     to be [forall (n : nat), gorgeous n -> ...]; i.e., we no longer
     require explicit evidence of the provability of [gorgeous n]. *)
-(** とりわけ、Coqはパラメータとしての命題[P]の根拠となる項 [e]を削除し、その結果として、[forall (n:nat)(e:gorgeos n),...]型の仮定を[forall (n : nat), gorgeous n -> ...]という型に書きかえてしまいます。[gorgeous n]を証明する明確な根拠をもはや必要としないからです *)
+(** とりわけ、Coqはパラメータとしての命題[P]の根拠となる項 [e]を削除し、
+   その結果として、[forall (n:nat)(e:gorgeos n),...]型の仮定を[forall (n : nat), gorgeous n -> ...]という型に書きかえてしまいます。
+   [gorgeous n]を証明する明確な根拠をもはや必要としないからです *)
 
-(** In English, [gorgeous_ind] says:
+(* In English, [gorgeous_ind] says:
 
     - Suppose, [P] is a property of natural numbers (that is, [P n] is
       a [Prop] for every [n]).  To show that [P n] holds whenever [n]
@@ -1105,8 +1118,22 @@ Check gorgeous_ind.
       - for any [n], if [n] is gorgeous and [P] holds for
         [n], then [P] holds for [5+n]. *)
 
-(** As expected, we can apply [gorgeous_ind] directly instead of using [induction]. *)
+(**  [gorgeous_ind]を自然言語で書き直すと、 
+    
+   - P が自然数の属性である（つまり、P が全ての n についての命題である）と仮定し、P n が、[n]がgorgeousの場合常に成り立つことを示す。
+     これは、以下を示せば十分である。: 
+     
+     - [P]は0のときに成立つ。
+     
+     - 全ての[n]について、[n]がgorgeousであり、[P]が[n]のときに成立つならば、[P]は[3+n]の場合にも成り立つ。
+     
+     - 全ての[n]について、[n]がgorgeousであり、[P]が[n]のときに成立つならば、[P]は[5+n]の場合にも成り立つ。
+     
+*)
 
+
+(* As expected, we can apply [gorgeous_ind] directly instead of using [induction]. *)
+(** [induction]タクティックを使用するかわりに、直接[gorgeous_ind]を使用して、期待通り動作するか見てみましょう *)
 Theorem gorgeous__beautiful' : forall n, gorgeous n -> beautiful n.
 Proof.
    intros.
@@ -1140,8 +1167,9 @@ For example, in [Logic], we have defined [<=] as: *)
     left-hand argument [n] is the same everywhere in the definition, 
     so we can actually make it a "general parameter" to the whole 
     definition, rather than an argument to each constructor. *)
-(**
-
+(** これはこれで <= という関係の妥当なな定義だと言えます。
+    しかし少し観察してみると 定義の左側のに現れる n は全て同じだということがわかります。
+    ということは、 個々のコンストラクタにではなく定義全体に全称量化子を使うことが できるということです。
  *)
  
 Inductive le (n:nat) : nat -> Prop :=
@@ -1182,8 +1210,9 @@ Check le_ind.
 (* ##################################################### *)
 (** * Additional Exercises *)
 
-(** **** Exercise: 2 stars, optional (foo_ind_principle) *)
-(** Suppose we make the following inductive definition:
+(* **** Exercise: 2 stars, optional (foo_ind_principle) *)
+(** **** 練習問題: ★★, optional (foo_ind_principle) *)
+(* Suppose we make the following inductive definition:
    Inductive foo (X : Set) (Y : Set) : Set :=
      | foo1 : X -> foo X Y
      | foo2 : Y -> foo X Y
@@ -1198,10 +1227,26 @@ Check le_ind.
            ________________________________________________
 
 *)
+(** 次のような、帰納的な定義をしたとします： 
+   Inductive foo (X : Set) (Y : Set) : Set :=
+     | foo1 : X -> foo X Y
+     | foo2 : Y -> foo X Y
+     | foo3 : foo X Y -> foo X Y.
+   次の空欄を埋め、この定義のために Coq が生成する帰納法の原理を完成させなさい。  
+   foo_ind
+        : forall (X Y : Set) (P : foo X Y -> Prop),   
+          (forall x : X, __________________________________) ->
+          (forall y : Y, __________________________________) ->
+          (________________________________________________) ->
+           ________________________________________________
+
+*)
+
 (** [] *)
 
-(** **** Exercise: 2 stars, optional (bar_ind_principle) *)
-(** Consider the following induction principle:
+(* **** Exercise: 2 stars, optional (bar_ind_principle) *)
+(** **** 練習問題: ★★, optional (bar_ind_principle) *)
+(* Consider the following induction principle:
    bar_ind
         : forall P : bar -> Prop,
           (forall n : nat, P (bar1 n)) ->
@@ -1215,10 +1260,26 @@ Check le_ind.
      | bar3 : ________________________________________.
 
 *)
+(** 次に挙げた帰納法の原理について考えてみましょう： 
+   bar_ind
+        : forall P : bar -> Prop,
+          (forall n : nat, P (bar1 n)) ->
+          (forall b : bar, P b -> P (bar2 b)) ->
+          (forall (b : bool) (b0 : bar), P b0 -> P (bar3 b b0)) ->
+          forall b : bar, P b
+   これに対応する帰納的な集合の定義を書きなさい。 
+   Inductive bar : Set :=
+     | bar1 : ________________________________________
+     | bar2 : ________________________________________
+     | bar3 : ________________________________________.
+
+*)
 (** [] *)
 
-(** **** Exercise: 2 stars, optional (no_longer_than_ind) *)
-(** Given the following inductively defined proposition:
+(* **** Exercise: 2 stars, optional (no_longer_than_ind) *)
+(** **** 練習問題: ★★, optional (no_longer_than_ind) *)
+
+(* Given the following inductively defined proposition:
   Inductive no_longer_than (X : Set) : (list X) -> nat -> Prop :=
     | nlt_nil  : forall n, no_longer_than X [] n
     | nlt_cons : forall x l n, no_longer_than X l n -> 
@@ -1239,6 +1300,28 @@ Check le_ind.
            ____________________
 
 *)
+(**  次のような帰納的に定義された命題が与えられたとします： 
+  Inductive no_longer_than (X : Set) : (list X) -> nat -> Prop :=
+    | nlt_nil  : forall n, no_longer_than X [] n
+    | nlt_cons : forall x l n, no_longer_than X l n -> 
+                               no_longer_than X (x::l) (S n)
+    | nlt_succ : forall l n, no_longer_than X l n -> 
+                             no_longer_than X l (S n).
+  この定義のために Coq が生成する帰納法の原理を書きなさい。
+  no_longer_than_ind
+       : forall (X : Set) (P : list X -> nat -> Prop),
+         (forall n : nat, ____________________) ->
+         (forall (x : X) (l : list X) (n : nat),
+          no_longer_than X l n -> ____________________ -> 
+                                  _____________________________ ->
+         (forall (l : list X) (n : nat),
+          no_longer_than X l n -> ____________________ -> 
+                                  _____________________________ ->
+         forall (l : list X) (n : nat), no_longer_than X l n -> 
+           ____________________
+
+*)
+
 (** [] *)
 
 
@@ -1398,7 +1481,7 @@ Check ex_ind.
 
 (* ######################################################### *)
 (* ** Explicit Proof Objects for Induction *)
-(** ** 帰納法のための明白な証明オブジェクト *)
+(** ** 帰納法のための明示的な証明オブジェクト *)
 
 
 (* Although tactic-based proofs are normally much easier to
