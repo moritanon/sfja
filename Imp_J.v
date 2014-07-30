@@ -953,7 +953,7 @@ Tactic Notation "aevalR_cases" tactic(first) ident(c) :=
     推論規則(_inference rules_)と呼ばれる、
     より読みやすいグラフィカルな形で書くのが便利です。
     推論規則は、横線の上の前提から、横線の下の結論を導出できることを述べます。
-	( すでに、Propの章で見ていると思います。)
+	( すでに、Propの章で見ていると思いますが。) *)
 
 (* For example, the constructor [E_APlus]...
       | E_APlus : forall (e1 e2: aexp) (n1 n2: nat),
@@ -1043,10 +1043,10 @@ Tactic Notation "aevalR_cases" tactic(first) ident(c) :=
 (* ####################################################### *)
 (* ** Equivalence of the Definitions *)
 (** ** 等価性の定義 *)
-(** It is straightforward to prove that the relational and functional
+(* It is straightforward to prove that the relational and functional
     definitions of evaluation agree on all possible arithmetic
     expressions... *)
-
+(** 関係による定義と、関数による定義とが、評価が有り得る全ての算術式において一致することの直接的な証明です。*)
 Theorem aeval_iff_aevalR : forall a n,
   (a || n) <-> aeval a = n.
 Proof.
@@ -1082,16 +1082,19 @@ Proof.
       apply IHa2. reflexivity.
 Qed.
 
-(** Note: if you're reading the HTML file, you'll see an empty square box instead
+(* Note: if you're reading the HTML file, you'll see an empty square box instead
 of a proof for this theorem.  
 You can click on this box to "unfold" the text to see the proof.
 Click on the unfolded to text to "fold" it back up to a box. We'll be using
 this style frequently from now on to help keep the HTML easier to read.
 The full proofs always appear in the .v files. *)
+(** 注意： もし、HTMLファイルを読んでいるならば、この定理の証明の代わりに白抜きの四角形が表示されているかもしれません。
+その場合は、その四角形をクリックすることで、折り畳まれた証明を"unfold"して見てください。展開された証明はクリックすると折り畳まれます。
+これから、HTMLの読み易さのためにしばしばこの形式を用います。完全な証明は常に、.vファイルにあります *)
 
-(** We can make the proof quite a bit shorter by making more
+(* We can make the proof quite a bit shorter by making more
     use of tacticals... *)
-
+(** タクティカルを使用することで、証明はもっと全然短かくすることができます。*) 
 Theorem aeval_iff_aevalR' : forall a n,
   (a || n) <-> aeval a = n.
 Proof.
@@ -1105,10 +1108,11 @@ Proof.
        try apply IHa1; try apply IHa2; reflexivity.
 Qed.
 
-(** **** Exercise: 3 stars  (bevalR) *)
-(** Write a relation [bevalR] in the same style as
+(* **** Exercise: 3 stars  (bevalR) *)
+(** **** 練習問題: ★★★  (bevalR) *)
+(* Write a relation [bevalR] in the same style as
     [aevalR], and prove that it is equivalent to [beval].*)
-
+(** 関係[bevalR]を[aevalR]と同じ形式で書きなさい。そしてそれが、[beval]と等価であることを証明しなさい。 *)
 (* 
 Inductive bevalR:
 (* FILL IN HERE *)
@@ -1117,8 +1121,8 @@ Inductive bevalR:
 End AExp.
 
 (* ####################################################### *)
-(** ** Computational vs. Relational Definitions *)
-
+(* ** Computational vs. Relational Definitions *)
+(** ** 関数による定義 vs. 関係による定義 *)
 (** For the definitions of evaluation for arithmetic and boolean
     expressions, the choice of whether to use functional or relational
     definitions is mainly a matter of taste.  In general, Coq has
@@ -1132,22 +1136,33 @@ End AExp.
     However, there are circumstances where relational definitions of
     evaluation are preferable to functional ones.  *)
 
+(** 算術式とブール式の評価の定義について、関数を使うか関係を使うかはほとんど趣味の問題です。
+一般に、Coqは関係を扱う方がいくらかサポートが厚いです。 特に帰納法についてはそうです。
+一方、 ある意味で関数による定義の方がより多くの情報を持っています。 
+なぜなら、関数は決定的でなければならず、 またすべての引数について定義されていなければなりません。 
+関数については、必要ならばこれらの性質を明示的に示さなければなりません。
+
+しかしながら、評価の定義として、 関係による定義が関数による定義よりはるかに望ましい状況があります。*) 
+
 Module aevalR_division.
 
-(** For example, suppose that we wanted to extend the arithmetic
+(* For example, suppose that we wanted to extend the arithmetic
     operations by considering also a division operation:*)
+(** たとえば、算術の操作を割り算を加えて拡張しようと思ったとしましょう *)
 
 Inductive aexp : Type :=
   | ANum : nat -> aexp
   | APlus : aexp -> aexp -> aexp
   | AMinus : aexp -> aexp -> aexp
   | AMult : aexp -> aexp -> aexp
-  | ADiv : aexp -> aexp -> aexp.   (* <--- new *)
+  | ADiv : aexp -> aexp -> aexp.   (* <--- ここ! *)
 
-(** Extending the definition of [aeval] to handle this new operation
+(* Extending the definition of [aeval] to handle this new operation
     would not be straightforward (what should we return as the result
     of [ADiv (ANum 5) (ANum 0)]?).  But extending [aevalR] is
     straightforward. *)
+(** この新しい操作を扱えるように[aeval]の定義を拡張することは簡単には行きません。([ADiv (ANum 5) (ANum 0)]の結果何を返すべきでしょうか？)
+しかし、[aevalR]を拡張することは簡単です。*)
 
 Inductive aevalR : aexp -> nat -> Prop :=
   | E_ANum : forall (n:nat),
@@ -1173,10 +1188,12 @@ Inductive aexp : Type :=
   | AMinus : aexp -> aexp -> aexp
   | AMult : aexp -> aexp -> aexp.
 
-(** Again, extending [aeval] would be tricky (because evaluation is
+(* Again, extending [aeval] would be tricky (because evaluation is
     _not_ a deterministic function from expressions to numbers), but
     extending [aevalR] is no problem: *)
-
+(** もう一度言いますが、[aeval]を拡張することはトリッキーなものになります。(なぜなら評価は、式から数への決定的な関数ではない(_not_)からです。)
+しかし [aevalR]ならば問題ありません。
+*)
 Inductive aevalR : aexp -> nat -> Prop :=
   | E_Any : forall (n:nat),
       AAny || n                 (* <--- new *)
