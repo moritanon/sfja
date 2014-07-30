@@ -366,8 +366,8 @@ Proof. try reflexivity. (* this just does [reflexivity] *) Qed.
 Theorem silly2 : forall (P : Prop), P -> P.
 Proof.
   intros P HP.
-  try reflexivity. (* just [reflexivity] would have failed *)
-  apply HP. (* we can still finish the proof in some other way *)
+  try reflexivity. (*  [reflexivity] が失敗するだけ *)
+  apply HP. (* 別の方法で証明を終わらせることは出来ます。 *)
 Qed.
 
 (* Using [try] in a completely manual proof is a bit silly, but
