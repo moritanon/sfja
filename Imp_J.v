@@ -1631,7 +1631,7 @@ Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
         st  (* bogus *)
   end.
 
-(** In a traditional functional programming language like ML or
+(* In a traditional functional programming language like ML or
     Haskell we could write the [WHILE] case as follows:
 <<
   Fixpoint ceval_fun (st : state) (c : com) : state :=
@@ -1663,27 +1663,61 @@ Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
     Thus, because it doesn't terminate on all inputs, the full version
     of [ceval_fun] cannot be written in Coq -- at least not without
     additional tricks (see chapter [ImpCEvalFun] if curious). *)
+(** MLやHaskellといった伝統的な関数型プログラム言語において、[WHILE]は以下のように書けます。 
+<<
+  Fixpoint ceval_fun (st : state) (c : com) : state :=
+    match c with
+      ...
+      | WHILE b DO c END =>
+          if (beval st b1)
+            then ceval_fun st (c1; WHILE b DO c END)
+            else st
+    end.
+>>
+   Coqはそのような定義を受け入れてはくれません。("Error: Cannot gess decreasing argument of fix" というエラーになります。)
+   我々が定義したい関数は、終了を保証しないからです。実際に必ずしも終了しません：
+   たとえば、[ceval_fun]の完全なバージョンは、上記の[loop]プログラムを適用した場合、決して終了しません。
+   Coqは関数型プログラミング言語であるだけではなく、一貫した論理そのものであり、終了しない可能性のある関数は排除されなければならないのです。  
+   ここに、もしCoqが終了しない帰納的な関数を許す場合に、どんなおかしなことが起こるかを示す(間違った)Coqのプログラムをあげておきます。
+<<
+     Fixpoint loop_false (n : nat) : False := loop_false n.
+>>
+  すなわち、[False]のような命題が証明可能になってしまします。。(例として、[loop_false 0]は[False]であることの証明である。というように。)
+  Coqの論理的一貫性にとってやっかいなことです。
+  
+  それゆえ、すべての入力について終了が保証出来ないので、[ceval_fun]は決してCoqで書くことが出来ないのです。 -- 少なくとも追加のトリックなしには。
+  (気になるなら、[ImpCEvalFun]の章を見てください。)
+*)
 
 (* #################################### *)
 (*  ** Evaluation as a Relation *)
 (** * 関係としての評価 *)
 
-(** Here's a better way: we define [ceval] as a _relation_ rather than
+(* Here's a better way: we define [ceval] as a _relation_ rather than
     a _function_ -- i.e., we define it in [Prop] instead of [Type], as
     we did for [aevalR] above. *)
+(** ここに改善策があります: [ceval] を関数ではなく関係 (relation) として定義しましょう。
+    つまり、上の aevalR と bevalR と同様に Type ではなく Prop で定義しましょう。 *)
 
-(** This is an important change.  Besides freeing us from the awkward
+(*  This is an important change.  Besides freeing us from the awkward
     workarounds that would be needed to define evaluation as a
     function, it gives us a lot more flexibility in the definition.
     For example, if we added concurrency features to the language,
     we'd want the definition of evaluation to be non-deterministic --
     i.e., not only would it not be total, it would not even be a
     partial function! *)
+(** これは重要な変更です。 ステップ指数をすべての場所で引き回す馬鹿馬鹿しさから解放してくれるのに加え、 
+    定義での柔軟性を与えてくれます。 例えば、もし言語に並行性の要素を導入したら、評価の定義を非決定的に書きたくなるでしょう。
+    つまり、その関数は全関数でないだけでなく、部分関数ですらないかも知れません！ *)
 
-(** We'll use the notation [c / st || st'] for our [ceval] relation:
+
+(*  We'll use the notation [c / st || st'] for our [ceval] relation:
     [c / st || st'] means that executing program [c] in a starting
     state [st] results in an ending state [st'].  This can be
-    pronounced "[c] takes state [st] to [st']".
+    pronounced "[c] takes state [st] to [st']". *)
+(** ceavl 関係に対する表記として c / st ⇓ st' を使います。
+    正確に言うと、c / st || st' と書いたらプログラム c を初期状態 st で評価すると、 
+    その結果は最終状態 st' になる、ということを意味します。 これは「c は状態 st を st' に持っていく」とも言えます。 
                            ----------------                            (E_Skip)
                            SKIP / st || st
 
@@ -1717,8 +1751,9 @@ Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
                     WHILE b DO c END / st || st''
 *)
 
-(** Here is the formal definition.  (Make sure you understand
+(*  Here is the formal definition.  (Make sure you understand
     how it corresponds to the inference rules.) *)
+(** 以下に形式的な定義を挙げます。 (上の推論規則とどのように対応するか、確認しておきましょう。)  *)
 
 Reserved Notation "c1 '/' st '||' st'" (at level 40, st at level 39).
 
@@ -1757,11 +1792,12 @@ Tactic Notation "ceval_cases" tactic(first) ident(c) :=
   | Case_aux c "E_IfTrue" | Case_aux c "E_IfFalse"
   | Case_aux c "E_WhileEnd" | Case_aux c "E_WhileLoop" ].
 
-(** The cost of defining evaluation as a relation instead of a
+(*  The cost of defining evaluation as a relation instead of a
     function is that we now need to construct _proofs_ that some
     program evaluates to some result state, rather than just letting
     Coq's computation mechanism do it for us. *)
-
+(** 評価を関数ではなく関係として定義することのコストは、 あるプログラムを実行した結果がとある状態になる、 
+    というのを Coq の計算機構にやってもらうだけではなく、 その「証明」を構築する必要がある、ということです。 *)
 Example ceval_example1:
     (X ::= ANum 2;;
      IFB BLe (AId X) (ANum 1)
@@ -1780,7 +1816,8 @@ Proof.
       reflexivity.
       apply E_Ass. reflexivity.  Qed.
 
-(** **** Exercise: 2 stars (ceval_example2) *)
+(* **** Exercise: 2 stars (ceval_example2) *)
+(** **** 練習問題: ★★(ceval_example2) *)
 Example ceval_example2:
     (X ::= ANum 0;; Y ::= ANum 1;; Z ::= ANum 2) / empty_state ||
     (update (update (update empty_state X 0) Y 1) Z 2).
@@ -1788,12 +1825,16 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced (pup_to_n) *)
-(** Write an Imp program that sums the numbers from [1] to
+(*  **** Exercise: 3 stars, advanced (pup_to_n) *)
+(** **** 練習問題: ★★★, advanced (pup_to_n) *)
+(* Write an Imp program that sums the numbers from [1] to
    [X] (inclusive: [1 + 2 + ... + X]) in the variable [Y].
    Prove that this program executes as intended for X = 2
    (this latter part is trickier than you might expect). *)
-
+(** [1]からXまでの数を合計([1 + 2 + ... + X]を含みます)して、変数Yに結果を格納するImpプログラムを書きなさい。
+    このプログラムがX = 2のときに意図したとおりに動くことを証明しなさい。
+    後の問題はあなたが考えているよりもトリッキーかもしれません*)
+*)
 Definition pup_to_n : com :=
   (* FILL IN HERE *) admit.
 
