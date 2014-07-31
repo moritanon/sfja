@@ -1936,6 +1936,8 @@ Proof.
      step of the ceval computation - in this case revealing
      that st' must be st extended with the new value of X,
      since plus2 is an assignment *)
+  (* Hevalをinvertすることは本質的には、Coqにcevalの計算の一ステップを展開させることと同じです。
+     このケースにおいては、plus2は代入であるため、st'がXの新しい値でstに拡大されることが明らかになります。*)
   inversion Heval. subst. clear Heval. simpl.
   apply update_eq.  Qed.
 
@@ -1957,6 +1959,8 @@ Proof.
      [loopdef] terminates.  Most of the cases are immediately
      contradictory (and so can be solved in one step with
      [inversion]). *)
+    (** [loopdef]が終了することを示す仮定の導出についての帰納法で進めなさい。
+        ほとんどのケースにおいては、ただちに矛盾が導かれ(て[inversion]を使った1stepで解決され)ます *)
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
