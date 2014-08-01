@@ -2083,6 +2083,7 @@ Proof.
                   結果をスタックにプッシュする。
      - [SMinus]:  上と同様。ただし引く。
      - [SMult]:   上と同様。ただし掛ける。
+*)
 
 Inductive sinstr : Type :=
 | SPush : nat -> sinstr
