@@ -2185,6 +2185,8 @@ Module BreakImp.
 
     First, we need to enrich the language of commands with an
     additional case. *)
+(** CやJavaのような命令型言語は[break]やそれに類似した、ループ実行を中断するための文法を持っていることがよくあります。
+この練習問題では、[break]をImpにどうやって追加するかを考えましょう。*)
 
 Inductive com : Type :=
   | CSkip : com
@@ -2218,12 +2220,19 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
     enclosing loop (if any) should terminate. If there aren't any
     enclosing loops, then the whole program simply terminates. The
     final state should be the same as the one in which the [BREAK]
-    statement was executed.
-
-    One important point is what to do when there are multiple loops
+    statement was executed. *)
+(** 次に、[BREA]の振舞いを定義する必要があります。非形式的には、[BREAK]がコマンド列の中で実行されたらいつでも、
+   そのシーケンスの実行を中断し、最も最近のループ(もしあれば)は終了するようにシグナルを出します。
+   もし、ループが無ければ、プログラム全体も終了します。
+(*    One important point is what to do when there are multiple loops
     enclosing a given [BREAK]. In those cases, [BREAK] should only
     terminate the _innermost_ loop where it occurs. Thus, after
     executing the following piece of code...
+
+    ... the value of [X] should be [1], and not [0].
+*)
+(** 重要な点は、多重ループにおいて、[BREAK]が現われた場合に、何をすべきか、ということです。これらの場合、
+[BREAK]は最も最近(_innermost_)のループだけを終了させるべきです。それゆえ、次のコードの断片の実行後...
    X ::= 0;
    Y ::= 1;
    WHILE 0 <> Y DO
@@ -2233,12 +2242,16 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
      X ::= 1;
      Y ::= Y - 1
    END
-    ... the value of [X] should be [1], and not [0].
+   ... [X]の値は[0]ではなく、[1]であるべきです。 *)
 
+(*
     One way of expressing this behavior is to add another parameter to
     the evaluation relation that specifies whether evaluation of a
     command executes a [BREAK] statement: *)
-
+(**
+   この振舞いを表現するもう一つの方法は、[BREAK]文を実行するコマンドの評価がどうであるかを特定する評価関係を別のパラメータとして追加することです。
+*)
+   
 Inductive status : Type :=
   | SContinue : status
   | SBreak : status.
@@ -2251,11 +2264,17 @@ Reserved Notation "c1 '/' st '||' s '/' st'"
     that any surrounding loop (or the whole program) should exit
     immediately ([s = SBreak]) or that execution should continue
     normally ([s = SContinue]).
-
-    The definition of the "[c / st || s / st']" relation is very
+*)
+(** 直感的に、[c / st || s / st']は次のことを意味します。もし、[c]が状態[st]で開始しているならば、
+    それは状態[st']で終了し、囲まれているループ(またはプログラム全体)に対し直ちに([s=SBreak]の場合)終了するか、
+    実行を正常どおり([s = SContinue]の場合)続けるかシグナルを出します。
+*)    
+(*    The definition of the "[c / st || s / st']" relation is very
     similar to the one we gave above for the regular evaluation
     relation ([c / st || s / st']) -- we just need to handle the
-    termination signals appropriately:
+    termination signals appropriately: *)
+    
+(** "[c /st || s / st']" の関係の定義は
 
     - If the command is [SKIP], then the state doesn't change, and
       execution of any enclosing loop can continue normally.
