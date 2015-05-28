@@ -1,11 +1,27 @@
-(** * MoreCoq_J:  Coqについてもう少し*)
+(** * MoreCoq_J:  CoqのTacticsについてもう少し*)
 
 Require Export Poly_J.
 
-(*  This chapter introduces several more Coq tactics that,
-    together, allow us to prove many more theorems about the
-    functional programs we are writing. *)
-(** この章は我々が書いている関数型プログラムについて、もっとたくさん証明出来るようにするためのCoqのタクティックをいくつか紹介します。*)
+(** This chapter introduces several more proof strategies and
+    tactics that, together, allow us to prove theorems about the
+    functional programs we have been writing. In particular, we'll
+    reason about functions that work with natural numbers and lists.
+
+    In particular, we will see:
+    - how to use auxiliary lemmas, in both forwards and backwards reasoning;
+    - how to reason about data constructors, which are injective and disjoint;
+    - how to create a strong induction hypotheses (and when
+      strengthening is required); and
+    - how to reason by case analysis.
+ *)
+(** この章で、いくつかの証明戦略とタクティックを消化します。それによって、我々がこれまで書いてきた関数型プログラムについて、証明が容易になります。取り分け、自然数とリストについての関数について推論しやすくなるでしょう。
+
+    - 前向き推論と後ろ向き推論の両方において、補題(補助的な証明)の使い方。
+    - データコンストラクタについての推論をどのように行うか。 単射であったりお互いが素であることもあります。。
+    - 強力な帰納法の仮定の生成の仕方。(強力さが求められる場合に。)
+    - ケース分析による推論の仕方。
+*)
+
 (* ###################################################### *)
 (** * The [apply] Tactic *)
 
@@ -111,14 +127,14 @@ Proof.
   apply H.  Qed.         
 
 (** **** 練習問題: ★★★, recommended (apply_exercise1) *)
+(* Hint: you can use [apply] with previously defined lemmas, not
+    just hypotheses in the context.  Remember that [SearchAbout] is
+    your friend. *)
+(** ヒント: コンテスキト中の補題以外にも、以前に定義した補題を [apply] することができます。こんなときには [SearchAbout] を使うのでしたね。*)
 Theorem rev_exercise1 : forall (l l' : list nat),
      l = rev l' ->
      l' = rev l.
 Proof.
-  (* Hint: you can use [apply] with previously defined lemmas, not
-    just hypotheses in the context.  Remember that [SearchAbout] is
-    your friend. *)
-   (* ヒント: コンテスキト中の補題以外にも、以前に定義した補題を [apply] することができます。こんなときには [SearchAbout] を使うのでしたね。*)
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -179,7 +195,7 @@ Proof.
      by adding [with (m:=[c,d])] to the invocation of
      [apply]. *)
    (* ここで単純に[apply trans_eq]とすると（その補題の結論をゴールにマッチすることで）[X]を[[nat]]に、[n]を[[a,b]]に、[o]を[[e,f]]にあてはめようとします。しかしこのマッチングでは、[m]に何をあてはめるかを決めることができません。そこで、[with (m:=[c,d])]を明示的に情報として追加することで[apply]を動かします。 *)
-	 apply trans_eq with (m:=[c;d]). apply eq1. apply eq2.   Qed.
+  apply trans_eq with (m:=[c;d]). apply eq1. apply eq2.   Qed.
 
 (*  Actually, we usually don't have to include the name [m]
     in the [with] clause; Coq is often smart enough to
@@ -187,7 +203,7 @@ Proof.
     instead write: [apply trans_eq with [c,d]]. *)
 (**  実際には、このように名前[m]を[with]に与えるということはそれほど多くありません。Coqは多くの場合賢く振舞って、我々の要求を実現してくれます。ちなみにこの上の[apply]はapply trans_eq with [c,d]と書くこともできます。 *)
 
-(** **** 練習問題: ★★★, recommended (apply_exercises) *)
+(** **** 練習問題: ★★★, recommended (apply_with_exercises) *)
 Example trans_eq_exercise : forall (n m o p : nat),
      m = (minustwo o) ->
      (n + p) = m ->
@@ -336,30 +352,14 @@ Theorem f_equal : forall (A B : Type) (f: A -> B) (x y: A),
     x = y -> f x = f y. 
 Proof. intros A B f x y eq. rewrite eq.  reflexivity.  Qed. 
 
-(* Here's another illustration of [inversion].  This is a slightly
-    roundabout way of stating a fact that we have already proved
-    above.  The extra equalities force us to do a little more
-    equational reasoning and exercise some of the tactics we've seen
-    recently. *)
-(** [inversion]のもう一つの使われかたを見てみましょう。これは既に上で証明した事実の遠回りして述べています。余分な等式があることで、少し等式の推論と見て来たタクティックの練習になります。*)
-Theorem length_snoc' : forall (X : Type) (v : X)
-                              (l : list X) (n : nat),
-     length l = n ->
-     length (snoc l v) = S n. 
-Proof.
-  intros X v l. induction l as [| v' l'].
-  Case "l = []". intros n eq. rewrite <- eq. reflexivity.
-  Case "l = v' :: l'". intros n eq. simpl. destruct n as [| n'].
-    SCase "n = 0". inversion eq.
-    SCase "n = S n'".
-      apply f_equal. apply IHl'. inversion eq. reflexivity. Qed.
+
+
 
 
 (** **** 練習問題: ★★, optional (practice) *)
 (** A couple more nontrivial but not-too-complicated proofs to work
-    together in class, or for you to work as exercises.  They may
-    involve applying lemmas from earlier lectures or homeworks. *)
-(*二三の些細ではないけれどそれほど入り組んでもいない証明にクラスで一緒に、あるいは、練習として取り組んでみましょう。それらは以前の講義か宿題でやった補題の適用を伴うかもしれません。*) 
+    together in class, or for you to work as exercises. *)
+(*二三の些細ではないけれどそれほど入り組んでもいない証明にクラスで一緒に、あるいは、練習として取り組んでみましょう。*) 
 
 Theorem beq_nat_0_l : forall n,
    beq_nat 0 n = true -> n = 0.
@@ -488,9 +488,7 @@ Proof.
   Case "n = S n'". intros eq. destruct m as [| m'].
     SCase "m = O". inversion eq.
     SCase "m = S m'".  apply f_equal. 
-      (* Here we are stuck.  The induction hypothesis, [IHn'], does
-         not give us [n' = m'] -- there is an extra [S] in the
-         way -- so the goal is not provable. *)
+      (* ここでつまってしまいました。  帰納法の仮定 [IHn']は n' = m' を与えてくれません。 --  邪魔で余計なSがあります。 そのためゴールは証明不可能です。*)
       Abort.
 
 (* What went wrong? *)
@@ -767,13 +765,9 @@ _Proof_: Let [m] be a [nat]. We prove by induction on [m] that, for
     to show. [] *)
 (**
 この定理の非形式な証明を見てみましょう。なお [n]を限量化したまま帰納法によって命題を証明する箇所は、形式的な証明では generalize dependent を使う箇所に対応します。
-
 _Theorem_: すべての自然数 [n] と [m] について、 [double n = double m] ならば [n = m]。
-
 _Proof_: [m]を[nat]とする。 [m]に関する帰納法によって、 すべての[n] に対して [double n = double m] ならば [n = m] を示す。
-
   - 最初に [m = 0] と仮定し、[n] を [double n = double m] をみたす数とし、 [n = 0] を示す。
-
     [m = 0]なので、[double]の定義より[double n = 0]。
     [n] について2つの場合分けが考えれる。
     [n = 0] ならば、それが示したいことなので、すでに終了している。
@@ -781,19 +775,79 @@ _Proof_: [m]を[nat]とする。 [m]に関する帰納法によって、 すべ�
     [double]の定義により[n = S (S (double n'))]だが、これは仮定 [dobule n = 0] と矛盾する。
 
   - そうでない場合、[m = S m'] と仮定し、[n]は再び [double n = double m] をみたす数とする。 [n = S m']を示すために、 帰納法の仮定「 すべての数 [s] に対して [double s = double m']ならば[s = m']」を用いる。
-
     [m = S m']と[double]の定義により、[double n = S (S (double m'))]。 [n]に関して2つの場合分けが考えられる。
 
     [n = 0]ならば、定義により[double n = 0]となり、矛盾を導ける。
     なので、[n = S n']となる[n']があると仮定すると、再び[double]の定義により、
     [S (S (double n')) = S (S (double m'))]。 ここでinversionにより[double n' = dobule m']。
-
     帰納法の仮定を[n']をあてはめることで、[n' = m']という結論を導ける。
     [S n' = n]かつ[S m' = m]なので、これにより示せる。 [] 
 *)
-(** **** 練習問題: ★★★ (gen_dep_practice) *)
 
-(* Prove this by induction on [l]. *)
+
+
+(*  Here's another illustration of [inversion] and using an
+    appropriately general induction hypothesis.  This is a slightly
+    roundabout way of stating a fact that we have already proved
+    above.  The extra equalities force us to do a little more
+    equational reasoning and exercise some of the tactics we've seen
+    recently. *)
+(** [inversion]と一般的な帰納法の仮定の適切な使用法をもう一つ示しておきましょう。これは既に上で証明した事実の遠回りして述べています。余分な等式があることで、等式の推論とこれまでに見て来たタクティックの練習になります。*)
+
+
+Theorem length_snoc' : forall (X : Type) (v : X)
+                              (l : list X) (n : nat),
+     length l = n ->
+     length (snoc l v) = S n. 
+Proof.
+  intros X v l. induction l as [| v' l'].
+
+  Case "l = []". 
+    intros n eq. rewrite <- eq. reflexivity.
+
+  Case "l = v' :: l'". 
+    intros n eq. simpl. destruct n as [| n'].
+    SCase "n = 0". inversion eq.
+    SCase "n = S n'".
+      apply f_equal. apply IHl'. inversion eq. reflexivity. Qed.
+
+(*  It might be tempting to start proving the above theorem
+    by introducing [n] and [eq] at the outset.  However, this leads
+    to an induction hypothesis that is not strong enough.  Compare
+    the above to the following (aborted) attempt: *)
+(** 上記の定理を証明するために、nとeqをコンテキストに上げてから始めてみたくなるかもしれません。しかし、これは、十分に強力でない帰納法の仮定につながります。上記の証明を次の(失敗する)試みとくらべてみましょう。
+*)
+Theorem length_snoc_bad : forall (X : Type) (v : X)
+                              (l : list X) (n : nat),
+     length l = n ->
+     length (snoc l v) = S n. 
+Proof.
+  intros X v l n eq. induction l as [| v' l'].
+
+  Case "l = []". 
+    rewrite <- eq. reflexivity.
+
+  Case "l = v' :: l'". 
+    simpl. destruct n as [| n'].
+    SCase "n = 0". inversion eq.
+    SCase "n = S n'".
+      apply f_equal. Abort. (* apply IHl'. *) (* IH が適用出来ない! *)
+
+
+(*  As in the double examples, the problem is that by
+    introducing [n] before doing induction on [l], the induction
+    hypothesis is specialized to one particular natural number, namely
+    [n].  In the induction case, however, we need to be able to use
+    the induction hypothesis on some other natural number [n'].
+    Retaining the more general form of the induction hypothesis thus
+    gives us more flexibility.
+
+    In general, a good rule of thumb is to make the induction hypothesis
+    as general as possible. *)
+(** doubleの例で見たように、問題は、[l]についての帰納法を始める前に、[n]をコンテキストに導入することです。そのため帰納法の仮定はある特定の[n]という名前の数に特化されてしまいました。しかし帰納法の場合には、他の数[n']についての帰納法の仮定を使えることが必要になります。 帰納法の仮定の一般化された形式を保ち続けることで、我々は柔軟に扱えるようになります。
+*)
+(** **** 練習問題: ★★★ (gen_dep_practice) *)
+(*  Prove this by induction on [l]. *)
 (** [l]に関する帰納法で以下を示しなさい。 *)
 
 Theorem index_after_last: forall (n : nat) (X : Type) (l : list X),
@@ -816,7 +870,6 @@ Proof.
 *)
 (** **** 練習問題: ★★★, optional (index_after_last_informal) *)
 (** [index_after_last]のCoqによる証明に対応する非形式的な証明を書きなさい。
-
      _Theorem_: すべてのSet [X], リスト [l : list X], 自然数[n]に対して、[length l = n] ならば [index (S n) l = None]。
 
      _Proof_:
@@ -825,12 +878,13 @@ Proof.
 *)
 
 (** **** 練習問題: ★★★, optional (gen_dep_practice_more) *)
-(** [l]に関する帰納法で示しなさい。 *)
+(*  Prove this by induction on [l]. *)
+(** [l]に関する帰納法で証明しなさい。 *)
 
-Theorem length_snoc''' : forall (n : nat) (X : Type)
+Theorem length_snoc''' : forall (n : nat) (X : Type) 
                               (v : X) (l : list X),
      length l = n ->
-     length (snoc l v) = S n.
+     length (snoc l v) = S n. 
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
@@ -855,6 +909,22 @@ Theorem app_length_twice : forall (X:Type) (n:nat) (l:list X),
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
+
+(** **** 練習問題: ★★★, optional (double_induction)  *)
+(*  Prove the following principle of induction over two naturals. *)
+(** 次の二つの自然数についての帰納法の原理を証明しなさい *)
+
+Theorem double_induction: forall (P : nat -> nat -> Prop), 
+  P 0 0 ->
+  (forall m, P m 0 -> P (S m) 0) ->
+  (forall n, P 0 n -> P 0 (S n)) ->
+  (forall m n, P m n -> P (S m) (S n)) ->
+  forall m n, P m n.
+Proof.
+  (* FILL IN HERE *) Admitted.
+(** [] *)
+
 
 (* ###################################################### *)
 (** * Using [destruct] on Compound Expressions *)
@@ -901,7 +971,7 @@ Proof.
 
 (** 上の証明で[sillyfun]を展開すると、[if (beq_nat n 3) then ... else ...]で行き詰まることがわかります。そこで、[n]が[3]である場合とそうでない場合とに[destruct (beq_nat n 3)]を使って二つのケースに分け、証明を行います。 
 
-
+一般的に、[destruct]タクティックは任意の計算の結果のケース分析を行うために使用されます。もし[e]が式で、その式の型が帰納的に定義された型[T]であるような場合、[T]のそれぞれのコンストラクタ[c]について、[destruct e]は[e]のすべての文節に対応するサブゴールを生成し、、起こりえる全ての（ゴールやコンテキストにある）eの状態をコンストラクタcで網羅的に置き換えます。 
 *)
 
 (** **** 練習問題: ★ (override_shadow) *)
@@ -1238,7 +1308,7 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
-(* $Date: 2013-07-17 16:19:11 -0400 (Wed, 17 Jul 2013) $ *)
+(** $Date: 2014-12-31 16:01:37 -0500 (Wed, 31 Dec 2014) $ *)
 
 
 
