@@ -3,6 +3,8 @@
 
 Require Export MoreCoq_J. 
 
+
+
 (* Coq's built-in logic is very small: the only primitives are
     [Inductive] definitions, universal quantification ([forall]), and
     implication ([->]), while all the other familiar logical
@@ -31,15 +33,17 @@ Require Export MoreCoq_J.
 *)
 (* In Coq, the type of things that can (potentially) 
     be proven is [Prop]. *)
-(** Coqにおいて、(潜在的に)証明されるものの型は、[Prop]です。
-*)
+(** Coqにおいて、(潜在的に)証明されるものの型は、[Prop]です。*)
+
 (* Here is an example of a provable proposition: *)
 (** 証明可能な命題の例です。*)
+
 Check (3 = 3).
 (* ===> Prop *)
 
 (* Here is an example of an unprovable proposition: *)
 (** 次は、証明不可能な命題の例です。*)
+
 Check (forall (n:nat), n = 2).
 (* ===> Prop *)
 
@@ -93,21 +97,23 @@ Print silly.
 
 (* Here, the [eq_refl] proof term witnesses the equality. (More on equality later!)*)
 (** この[eq_refl」は同値性を証明する証明termです。 (同値性について詳しくは後述!)*)
+
 (* ** Implications _are_ functions *)
-(** ** 含意は関数なのです *)
+(** ** 含意_は_関数なのです *)
 (* Just as we can implement natural number multiplication as a
 function:
 [
 mult : nat -> nat -> nat 
 ]
 
-The _proof term_ for an implication [P -> Q] is a _function_ that takes evidence for [P] as input and produces evidence for [Q] as its output.
+The _proof term_ for an implication [P -> Q] is a _function_ that
+takes evidence for [P] as input and produces evidence for [Q] as its output.
 *)     
 (** ここで、自然数のかけ算を関数として実装してみましょう 
 [
 mult : nat -> nat -> nat
 ]
-[P -> Q]という含意のための_証明term_は、[P]のための根拠を入力としてとり、出力としてQの根拠を生成する_関数_なのです。
+[P -> Q]という含意を表す_項_は、[P]のための根拠を入力としてとり、出力としてQの根拠を生成する_関数_なのです。
 *)
 
 Lemma silly_implication : (1 + 1) = 2  ->  0 * 3 = 0.
@@ -115,7 +121,7 @@ Proof. intros H. reflexivity. Qed.
 
 (* We can see that the proof term for the above lemma is indeed a
 function: *)
-(** 上記補題の証明termが確かに関数であることが分かります: *)
+(** 上記補題の proof termが確かに関数であることが分かります: *)
 
 Print silly_implication.
 (* ===> silly_implication = fun _ : 1 + 1 = 2 => eq_refl
@@ -143,9 +149,11 @@ _ユーザ定義の_命題もまた作ることが出来ます。
     that say how to construct _evidence_ for the truth of the
     proposition from other evidence.
 
-    - Typically, rules are defined _inductively_, just like any other datatype.
+    - Typically, rules are defined _inductively_, just like any other
+      datatype.
 
-    - Sometimes a proposition is declared to be true without substantiating evidence.  Such propositions are called _axioms_.  
+    - Sometimes a proposition is declared to be true without
+      substantiating evidence.  Such propositions are called _axioms_.  
 
 
     In this, and subsequence chapters, we'll see more about how these
@@ -354,9 +362,11 @@ Proof.
 (** Coqのいくつかのタクティックは、証明の際に低レベルな操作を避けるため[iff] を特別扱いします。 特に [rewrite] を [iff] に使うと、単なる等式以上のものとして扱ってくれます。 *)
 
 (* ############################################################ *)
-(* * Disjunction *)
+(* * Disjunction (Logical "or") *)
 (** * 論理和、選言（Disjunction、OR） *)
 
+(*  ** Implementing disjunction *)
+(** ** 論理和の実装 *)
 (*  Disjunction ("logical or") can also be defined as an
     inductive proposition. *)
 (** 論理和（Disjunction、OR）も、帰納的な命題として定義できます。 *)
@@ -489,11 +499,13 @@ Theorem andb_false : forall b c,
 Proof. 
   (* FILL IN HERE *) Admitted.
 
+(** **** 練習問題: ★★, optional (orb_false)  *)
 Theorem orb_prop : forall b c,
   orb b c = true -> b = true \/ c = true.
 Proof.
   (* FILL IN HERE *) Admitted.
 
+(** **** 練習問題: ★★, optional (orb_false_elim)  *)
 Theorem orb_false_elim : forall b c,
   orb b c = false -> b = false /\ c = false.
 Proof. 
@@ -533,6 +545,7 @@ Proof.
     hence, there are no possible subgoals and the proof is done. *)
 (** これはどういうことでしょうか？ [inversion] タクティックは仮定 [contra] をその取りうるケースに分解し、それぞれにサブゴールを生成します。ここで[contra] が [False] の根拠となっているため、そこから取りうるケースは存在しません。このため、証明に値するサブゴールがなくなり、そこで証明が終わってしまうのです。*)
 
+(** *** *)
 (*  Conversely, the only way to prove [False] is if there is already
     something nonsensical or contradictory in the context: *)
 (** 逆に、[False] を証明する唯一の方法は、コンテキストに何か矛盾がないかを探すことです。*)
@@ -714,10 +727,14 @@ Definition implies_to_or := forall P Q:Prop,
 (* FILL IN HERE *)
 (** [] *)
 
-Exercise: 3 stars (excluded_middle_irrefutable)
-This theorem implies that it is always safe to add a decidability axiom (i.e. an instance of excluded middle) for any particular Prop P. Why? Because we cannot prove the negation of such an axiom; if we could, we would have both ¬ (P ∨ ¬P) and ¬ ¬ (P ∨ ¬P), a contradiction.
-
-Theorem excluded_middle_irrefutable: ∀(P:Prop), ¬ ¬ (P ∨ ¬ P).
+(** **** **** 練習問題: ★★★ (excluded_middle_irrefutable) *)
+(* This theorem implies that it is always safe to add a decidability
+axiom (i.e. an instance of excluded middle) for any _particular_ Prop [P].
+Why? Because we cannot prove the negation of such an axiom; if we could,
+we would have both [~ (P \/ ~P)] and [~ ~ (P \/ ~P)], a contradiction. *)
+(** この定理は、決定可能な公理(たとえば、排中律のような)を任意の_部分_命題[P]として、いつでも安全につけくわえることが出来ることを意味しています。 
+どうしてそんなことが可能であるかと言えば、我々はそのような公理の否定命題を証明出来ないためです; もしそれが可能であるとすると、[~ (P \/ ~P)] と [~ ~ (P \/ ~P)]の両方を持つことが出来てしまいますが、これは矛盾です。*)
+Theorem excluded_middle_irrefutable:  forall (P:Prop), ~ ~ (P \/ ~ P).  
 Proof.
   (* FILL IN HERE *) Admitted.
 
@@ -757,7 +774,6 @@ Proof.
     apply ex_falso_quodlibet.
     apply H. reflexivity.   Qed.
 
-(** *** *)
 
 (** *** *)
 
@@ -767,6 +783,7 @@ Proof.
 
 (** *** *)
 
+(** *** *)
 
 (** **** 練習問題: ★★ (false_beq_nat) *)
 Theorem false_beq_nat : forall n m : nat,
@@ -784,4 +801,5 @@ Proof.
 (** [] *)
 
 
-(* $Date: 2014-06-05 07:22:21 -0400 (Thu, 05 Jun 2014) $ *)
+(** $Date: 2014-12-31 11:17:56 -0500 (Wed, 31 Dec 2014) $ *)
+
