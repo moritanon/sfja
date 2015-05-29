@@ -1,33 +1,83 @@
 (* * Prop: Propositions and Evidence *)
-(** Prop_J: 命題と根拠 *)
-Require Export MoreCoq_J.
+(** * Prop_J: 命題と根拠 *)
 
-(* In previous chapters, we have seen many examples of factual
-    claims (_propositions_) and ways of presenting evidence of their
-    truth (_proofs_).  In particular, we have worked extensively with
-    _equality propositions_ of the form [e1 = e2], with
-    implications ([P -> Q]), and with quantified propositions 
-    ([forall x, P]).  
+Require Export Logic_J.
 
-    This chapter will take us on a first tour of the
-    propositional (logical) side of Coq.
-    In particular, we will expand our repertoire of primitive
-    propositions to include _user-defined_ propositions, not just
-    equality propositions (which are more-or-less "built in" to Coq). 
+(* ####################################################### *)
+(* * Inductively Defined Propositions *)
+(** * 帰納的に定義された命題 *)
+
+(* In chapter [Basics] we defined a _function_ [evenb] that tests a
+    number for evenness, yielding [true] if so.  We can use this
+    function to define the _proposition_ that some number [n] is
+    even: *)
+(** [Basics_J]の章において、与えられた数が偶数であればtrueを返却することでテストする[evenb]関数を定義しました。我々はこの関数を「ある数字[n]は偶数である」という命題を定義するために使用出来ます。*)
+Definition even (n:nat) : Prop := 
+  evenb n = true.
+
+(* That is, we can define "[n] is even" to mean "the function [evenb]
+    returns [true] when applied to [n]."  
+
+    Note that here we have given a name
+    to a proposition using a [Definition], just as we have
+    given names to expressions of other sorts. This isn't a fundamentally
+    new kind of proposition;  it is still just an equality. *)
+(** すなわち、「[n]は偶数である」という意味の命題を「関数[evenb]に[n]が適用されたとき[true]を返却する。」という意味で定義することが出来ます。
+命題に[Definition]を使用して、他の種類の式に名前を与えるのと同じように、名前を与えたことに注意してください。
+これは基本的に、新しい種類の命題ではありません。単なる等式です。
 *)
-(**
-以前の章で、事実の主張（命題）とそれらが真であるという証拠を表現する方法（証明）の多くの例を見てきました。とりわけ、e1 = e2という形の等価命題、P → Q という形の含意、そして、∀ x , P という量化命題を広く使用してきました。
 
-この章において、Coqの命題の(論理の)側面の最初のツアーを開始します。特に、プリミティブな等式を持つ命題だけなく、ユーザが定義する命題へと(大なり小なりCoqにビルトインされているのですが)レパートリーを増やして行きます。*)
+(* Another alternative is to define the concept of evenness
+    directly.  Instead of going via the [evenb] function ("a number is
+    even if a certain computation yields [true]"), we can say what the
+    concept of evenness means by giving two different ways of
+    presenting _evidence_ that a number is even. *)
+(** 他の方法として、偶数であるという概念を直接定義することも出来ます。
+ [evenb]関数を経由して間接的に定義するかわりに、ある数が偶数であるという根拠を二つの異なった方法で提示することで、偶数という概念が何を意味するかを言うことが出来ます。*)
+
+Inductive ev : nat -> Prop :=
+  | ev_0 : ev O
+  | ev_SS : forall n:nat, ev n -> ev (S (S n)).
+
+
+(*  The first line declares that [ev] is a proposition -- or,
+    more formally, a family of propositions "indexed by" natural
+    numbers.  (That is, for each number [n], the claim that "[n] is
+    even" is a proposition.)  Such a family of propositions is
+    often called a _property_ of numbers.  
+    The last two lines declare the two ways to give evidence that a
+    number [m] is even.  First, [0] is even, and [ev_0] is evidence
+    for this.  Second, if [m = S (S n)] for some [n] and we can give
+    evidence [e] that [n] is even, then [m] is also even, and [ev_SS n
+    e] is the evidence.
+*)
+(** 最初の行は、[ev]が命題であること --- あるいは、もっと形式的には、自然数によってインデクス付けされた命題の仲間であることを宣言しています。そのような命題の一群をしばしば数の属性と呼びます。
+最後の二行は、ある数[m]が偶数であるという根拠を与える二つの方法があることを述べています。一つめは、[0]は偶数であり、[ev_0]がその根拠になります。二つめは、もし、[m = S (S n)]となる[n]があり、[n]が偶数であるという根拠[e]を与えることが出来るならば、[m]は偶数であり、[ev_SS n e]が根拠になります。*)
+
+(** **** 練習問題 ★, (double_even)  *)
+
+Theorem double_even : forall n,
+  ev (double n).
+Proof.
+  (* FILL IN HERE *) Admitted.
+(** [] *)
+
+
 
 (* ##################################################### *)
-(* * Inductively Defined Propositions *)
-(** 帰納的に定義された命題 *)
 
-(*  As a running example, let's
+(*  For [ev], we had already defined [even] as a function (returning a
+   boolean), and then defined an inductive relation that agreed with
+   it. However, we don't necessarily need to think about propositions
+   first as boolean functions, we can start off with the inductive
+   definition.
+*)
+(** (booleanを返却する)関数として[even]をすでに定義しており、それから帰納的な関係として定義しました。しかしながら、必ずしもブール値の関数として命題について最初に考える必要はありませんし、帰納的な定義から始めることが出来ます。*)
+
+(*  As another example of an inductively defined proposition, let's
     define a simple property of natural numbers -- we'll call it
     "[beautiful]." *)
-(** この章の最初の部分のexampleを実行するにあたって、自然数に関するシンプルな命題を定義し、その自然数を[beautiful]と呼ぶこととしましょう。 *)
+(** 帰納的に定義された命題のもう一つの例として、自然数に関するシンプルな命題を定義し、その自然数を[beautiful]と呼ぶこととしましょう。 *)
 
 (* Informally, a number is [beautiful] if it is [0], [3], [5], or the
     sum of two [beautiful] numbers.  
@@ -168,7 +218,13 @@ Proof.
 Qed.
   
 
-(** **** 練習問題 ★★ (b_timesm) *)
+(** **** 練習問題 ★★ (b_times2) *)
+Theorem b_times2: forall n, beautiful n -> beautiful (2*n).
+Proof.
+    (* FILL IN HERE *) Admitted.
+(** [] *)
+
+(** **** 練習問題 ★★★ (b_timesm) *)
 Theorem b_timesm: forall n m, beautiful n -> beautiful (m*n).
 Proof.
    (* FILL IN HERE *) Admitted.
@@ -240,12 +296,36 @@ Proof.
    (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(** *** *)
 (*  It seems intuitively obvious that, although [gorgeous] and
     [beautiful] are presented using slightly different rules, they are
     actually the same property in the sense that they are true of the
     same numbers.  Indeed, we can prove this. *)
 (** 直感的に[gorgeous]と[beautiful]はわずかに違うルールを使用している表現されているけれども、実際は同じ数が真になるという意味において同じ性質であるように見えます。確かにこのことは証明出来ます。
 *)	
+Theorem gorgeous__beautiful_FAILED : forall n, 
+  gorgeous n -> beautiful n.
+Proof.
+   intros. induction n as [| n'].
+   Case "n = 0". apply b_0.
+   Case "n = S n'". (*  詰った! *)
+Abort.
+
+(*  The problem here is that doing induction on [n] doesn't yield a
+    useful induction hypothesis. Knowing how the property we are
+    interested in behaves on the predecessor of [n] doesn't help us
+    prove that it holds for [n]. Instead, we would like to be able to
+    have induction hypotheses that mention other numbers, such as [n -
+    3] and [n - 5]. This is given precisely by the shape of the
+    constructors for [gorgeous]. *)
+(** ここで起る問題は、[n]についての帰納法を行うことは、役に立つ帰納法の仮定を生みださないことです。我々が興味を持っている性質が[n]の一つ前において(n = S n' と置いた時の。n'の時)どのように振る舞うかを知ることは,それが[n]について成り立つことを証明することの役に立ちません。代わりに我々は、帰納法の仮定が他の数について述べる帰納法の仮定を持てるようになることです。例えば、[n-3]や[n-5]のように。これは[gorgeous]のコンスタクタの形とぴったり合います。
+*)
+
+(** *** *)
+
+(** Let's see what happens if we try to prove this by induction on the evidence [H]
+   instead of on [n]. *)
+(**  もし根拠[H]による帰納法ではなく、[n]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
 
 Theorem gorgeous__beautiful : forall n, 
   gorgeous n -> beautiful n.
@@ -261,28 +341,8 @@ Proof.
        apply b_sum. apply b_5. apply IHgorgeous. 
 Qed.
 
-(* Notice that the argument proceeds by induction on the _evidence_ [H]! *) 
-(** この証明が根拠[H]による帰納法によって始まることに気をつけてください *)
-(*  Let's see what happens if we try to prove this by induction on [n]
-   instead of induction on the evidence [H]. *)
-(**  もし根拠[H]による帰納法ではなく、[n]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
-Theorem gorgeous__beautiful_FAILED : forall n, 
-  gorgeous n -> beautiful n.
-Proof.
-   intros. induction n as [| n'].
-   Case "n = 0". apply b_0.
-   Case "n = S n'". (* 詰った! *)
-Abort.
-
-(* The problem here is that doing induction on [n] doesn't yield a
-    useful induction hypothesis. Knowing how the property we are
-    interested in behaves on the predecessor of [n] doesn't help us
-    prove that it holds for [n]. Instead, we would like to be able to
-    have induction hypotheses that mention other numbers, such as [n -
-    3] and [n - 5]. This is given precisely by the shape of the
-    constructors for [gorgeous]. *)
-(** ここで起る問題は、[n]についての帰納法を行うことは、役に立つ帰納法の仮定を生みださないことです。我々が興味を持っている性質が[n]の一つ前において(n = S n' と置いた時の。n'の時)どのように振る舞うかを知ることは,それが[n]について成り立つことを証明することの役に立ちません。代わりに我々は、帰納法の仮定が他の数について述べる帰納法の仮定を持てるようになることです。例えば、[n-3]や[n-5]のように。これは[gorgeous]のコンスタクタの形とぴったり合います。
-*)
+(* These exercises also require the use of induction on the evidence. *)
+(* これらの演習もまた根拠についての帰納法の使用を必要とします。*)
 
 (** **** 練習問題 ★★ (gorgeous_sum) *)
 Theorem gorgeous_sum : forall n m,
@@ -297,11 +357,15 @@ Proof.
  (* FILL IN HERE *) Admitted.
 (** [] *)
 
+
+
+
 (** **** 練習問題 ★★★, optional (g_times2) *)
 (* Prove the [g_times2] theorem below without using [gorgeous__beautiful].
     You might find the following helper lemma useful. *)
 (** [g_times2]定理を[gorgeous__beautiful]を使用せずに証明しなさい。
     次の補題が役に立つかもしれません。*)
+
 Lemma helper_g_times2 : forall x y z, x + (z + y)= z + x + y.
 Proof.
    (* FILL IN HERE *) Admitted.
@@ -325,34 +389,6 @@ Proof.
 Definition even (n:nat) : Prop := 
   evenb n = true.
 
-(* That is, we can define "[n] is even" to mean "the function [evenb]
-    returns [true] when applied to [n]."  
-    Note that here we have given a name
-    to a proposition using a [Definition], just as we have
-    given names to expressions of other sorts. This isn't a fundamentally
-    new kind of proposition;  it is still just an equality. *)
-(** すなわち、「[n]は偶数である」という意味の命題を「関数[evenb]に[n]が適用されたとき[true]を返却する。」という意味で定義することが出来ます。
-命題に[Definition]を使用して、他の種類の式に名前を与えるのと同じように、名前を与えたことに注意してください。
-これは基本的に、新しい種類の命題ではありません。単なる等式です。
-*)
-
-(* Another alternative is to define the concept of evenness
-    directly.  Instead of going via the [evenb] function ("a number is
-    even if a certain computation yields [true]"), we can say what the
-    concept of evenness means by giving two different ways of
-    presenting _evidence_ that a number is even. *)
-(** 他の方法として、偶数であるという概念を直接定義することも出来ます。
- [evenb]関数を経由して間接的に定義するかわりに、ある数が偶数であるという根拠を二つの異なった方法で提示することで、偶数という概念が何を意味するかを言うことが出来ます。*)
-Inductive ev : nat -> Prop :=
-  | ev_0 : ev O
-  | ev_SS : forall n:nat, ev n -> ev (S (S n)).
-
-(** This definition says that there are two ways to give
-    evidence that a number [m] is even.  First, [0] is even, and
-    [ev_0] is evidence for this.  Second, if [m = S (S n)] for some
-    [n] and we can give evidence [e] that [n] is even, then [m] is
-    also even, and [ev_SS n e] is the evidence. *)
-(* この定義は、ある数[m]が偶数であるという根拠を与える二つの方法があることを述べています。一つめは、[0]は偶数であり、[ev_0]がその根拠になります。二つめは、もし、[m = S (S n)]となる[n]があり、[n]が偶数であるという根拠[e]を与えることが出来るならば、[m]は偶数であり、[ev_SS n e]が根拠になります。*)
 
 (** **** 練習問題 ★ (double_even) *)
 
@@ -363,44 +399,6 @@ Proof.
 (** [] *)
 
 
-(* *** Discussion: Computational vs. Inductive Definitions *)
-(** 議論: 計算 vs. 帰納的定義 *)
-(* We have seen that the proposition "[n] is even" can be
-    phrased in two different ways -- indirectly, via a boolean testing
-    function [evenb], or directly, by inductively describing what
-    constitutes evidence for evenness.  These two ways of defining
-    evenness are about equally easy to state and work with.  Which we
-    choose is basically a question of taste.
-
-    However, for many other properties of interest, the direct
-    inductive definition is preferable, since writing a testing
-    function may be awkward or even impossible.  
-
-    One such property is [beautiful].  This is a perfectly sensible
-    definition of a set of numbers, but we cannot translate its
-    definition directly into a Coq Fixpoint (or into a recursive
-    function in any other common programming language).  We might be
-    able to find a clever way of testing this property using a
-    [Fixpoint] (indeed, it is not too hard to find one in this case),
-    but in general this could require arbitrarily deep thinking.  In
-    fact, if the property we are interested in is uncomputable, then
-    we cannot define it as a [Fixpoint] no matter how hard we try,
-    because Coq requires that all [Fixpoint]s correspond to
-    terminating computations.
-
-    On the other hand, writing an inductive definition of what it
-    means to give evidence for the property [beautiful] is
-    straightforward. *)
-(**これまで、「ある数が偶数である」という命題が二つの異った方法で表現されうることを見てきました。すなわち、
-evenbを使用した間接的な方法と、 偶数であることの根拠を構成するものを帰納的に描写する直接的な方法とです。これらの二つの偶数であることを定義する方法は、ほとんど同じような表現で同じように機能します。どちらを選ぶかも、基本的には趣味の問題です。
-
-しかし、興味深いほかの性質、例えば「テスト用の関数を書くのが難しかったり不可能だったりする」ようなことがあることを考えると、直接的な帰納的な定義のほうが好ましいと言えます。
-
-そのような性質の一つは、たとえば[beautiful]です。これは数の集合の定義としてはなんの問題もありませんが、この定義をそのままCoqのFixPointに変換することはできません。(それだけでなく他の言語の再帰関数に変換することもできません。)[Fixpoint] を用いてこの性質をテストするうまい方法を見つけられるかもしれません。(実際のところ、この場合はそれほど難しいことではありません) しかし、一般的にこういうことをしようとすると、かなりあれこれ考える必要があるでしょう。
-実際、Coqの [Fixpoint] は停止する計算しか定義できないので、定義しようとする性質が計算不能なものだった場合、どれだけがんばっても [Fixpoint] では定義できません。
-
-    一方、性質 [beautiful] がどのようなものかの根拠を与える帰納的な定義を書くことは、非常に簡単です。
-*)
 
 (** **** 練習問題 ★ (ev__even) *)
 (* Here is a proof that the inductive definition of evenness implies
@@ -501,7 +499,9 @@ Proof.
   inversion E as [| n' E']. 
   apply E'. Qed.
 
-(* These uses of [inversion] may seem a bit mysterious at first.
+(*  ** The Inversion Tactic Revisited *)
+(** ** Inversionタクティック再訪 *)
+(** These uses of [inversion] may seem a bit mysterious at first.
     Until now, we've only used [inversion] on equality
     propositions, to utilize injectivity of constructors or to
     discriminate between different constructors.  But we see here
@@ -579,12 +579,88 @@ Proof.
 (** [] *)
 
 
+(* ####################################################### *)
+(*  * Discussion and Variations *)
+(** * 議論とバリエーション *)
+(*  ** Discussion: Computational vs. Inductive Definitions *)
+(** ** 議論: 計算 vs. 帰納的定義 *)
 
+(* We have seen that the proposition "[n] is even" can be
+    phrased in two different ways -- indirectly, via a boolean testing
+    function [evenb], or directly, by inductively describing what
+    constitutes evidence for evenness.  These two ways of defining
+    evenness are about equally easy to state and work with.  Which we
+    choose is basically a question of taste.
 
+    However, for many other properties of interest, the direct
+    inductive definition is preferable, since writing a testing
+    function may be awkward or even impossible.  
+
+    One such property is [beautiful].  This is a perfectly sensible
+    definition of a set of numbers, but we cannot translate its
+    definition directly into a Coq Fixpoint (or into a recursive
+    function in any other common programming language).  We might be
+    able to find a clever way of testing this property using a
+    [Fixpoint] (indeed, it is not too hard to find one in this case),
+    but in general this could require arbitrarily deep thinking.  In
+    fact, if the property we are interested in is uncomputable, then
+    we cannot define it as a [Fixpoint] no matter how hard we try,
+    because Coq requires that all [Fixpoint]s correspond to
+    terminating computations.
+
+    On the other hand, writing an inductive definition of what it
+    means to give evidence for the property [beautiful] is
+    straightforward. *)
+(**これまで、「ある数が偶数である」という命題が二つの異った方法で表現されうることを見てきました。すなわち、
+evenbを使用した間接的な方法と、 偶数であることの根拠を構成するものを帰納的に描写する直接的な方法とです。これらの二つの偶数であることを定義する方法は、ほとんど同じような表現で同じように機能します。どちらを選ぶかも、基本的には趣味の問題です。
+
+しかし、興味深いほかの性質、例えば「テスト用の関数を書くのが難しかったり不可能だったりする」ようなことがあることを考えると、直接的な帰納的な定義のほうが好ましいと言えます。
+
+そのような性質の一つは、たとえば[beautiful]です。これは数の集合の定義としてはなんの問題もありませんが、この定義をそのままCoqのFixPointに変換することはできません。(それだけでなく他の言語の再帰関数に変換することもできません。)[Fixpoint] を用いてこの性質をテストするうまい方法を見つけられるかもしれません。(実際のところ、この場合はそれほど難しいことではありません) しかし、一般的にこういうことをしようとすると、かなりあれこれ考える必要があるでしょう。
+実際、Coqの [Fixpoint] は停止する計算しか定義できないので、定義しようとする性質が計算不能なものだった場合、どれだけがんばっても [Fixpoint] では定義できません。
+
+    一方、性質 [beautiful] がどのようなものかの根拠を与える帰納的な定義を書くことは、非常に簡単です。
+*)
 
 (* ####################################################### *)
-(* * Additional Exercises *)
-(** * 追加練習問題 *)
+(** ** Parameterized Data Structures *)
+
+(** So far, we have only looked at propositions about natural numbers. However, 
+   we can define inductive predicates about any type of data. For example, 
+   suppose we would like to characterize lists of _even_ length. We can 
+   do that with the following definition.  *)
+
+Inductive ev_list {X:Type} : list X -> Prop :=
+  | el_nil : ev_list []
+  | el_cc  : forall x y l, ev_list l -> ev_list (x :: y :: l).
+
+(** Of course, this proposition is equivalent to just saying that the
+length of the list is even. *)
+
+Lemma ev_list__ev_length: forall X (l : list X), ev_list l -> ev (length l).
+Proof. 
+    intros X l H. induction H.
+    Case "el_nil". simpl. apply ev_0.
+    Case "el_cc".  simpl.  apply ev_SS. apply IHev_list.
+Qed.
+
+(** However, because evidence for [ev] contains less information than
+evidence for [ev_list], the converse direction must be stated very
+carefully. *)
+
+Lemma ev_length__ev_list: forall X n, ev n -> forall (l : list X), n = length l -> ev_list l.
+Proof.
+  intros X n H. 
+  induction H.
+  Case "ev_0". intros l H. destruct l.
+    SCase "[]". apply el_nil. 
+    SCase "x::l". inversion H.
+  Case "ev_SS". intros l H2. destruct l. 
+    SCase "[]". inversion H2. destruct l.
+    SCase "[x]". inversion H2.
+    SCase "x :: x0 :: l". apply el_cc. apply IHev. inversion H2. reflexivity.
+Qed.
+    
 (** **** 練習問題 ★★★★ (palindromes) *)
 (* A palindrome is a sequence that reads the same backwards as
     forwards.
@@ -593,12 +669,12 @@ Proof.
       captures what it means to be a palindrome. (Hint: You'll need
       three cases.  Your definition should be based on the structure
       of the list; just having a single constructor
-    c : forall l, l = rev l -> pal l
+        c : forall l, l = rev l -> pal l
       may seem obvious, but will not work very well.)
  
-    - Prove that 
+    - Prove [pal_app_rev] that 
        forall l, pal (l ++ rev l).
-    - Prove that 
+    - Prove [pal_rev] that 
        forall l, pal l -> l = rev l.
 *)
 (**  palindrome（回文）は、最初から読んでも逆から読んでも同じになるような シーケンスです。 
@@ -948,6 +1024,56 @@ Inductive R : nat -> nat -> nat -> Prop :=
 (** [] *)
 
 End R.
+
+(** **** Exercise: 4 stars, advanced (subsequence)  *)
+(** A list is a _subsequence_ of another list if all of the elements
+    in the first list occur in the same order in the second list,
+    possibly with some extra elements in between. For example,
+    [1,2,3]
+    is a subsequence of each of the lists
+    [1,2,3]
+    [1,1,1,2,2,3]
+    [1,2,7,3]
+    [5,6,1,9,9,2,7,3,8]
+    but it is _not_ a subsequence of any of the lists
+    [1,2]
+    [1,3]
+    [5,6,2,1,7,3,8]
+
+    - Define an inductive proposition [subseq] on [list nat] that
+      captures what it means to be a subsequence. (Hint: You'll need
+      three cases.)
+
+    - Prove [subseq_refl] that subsequence is reflexive, that is, 
+      any list is a subsequence of itself.  
+
+    - Prove [subseq_app] that for any lists [l1], [l2], and [l3], 
+      if [l1] is a subsequence of [l2], then [l1] is also a subsequence
+      of [l2 ++ l3].
+
+    - (Optional, harder) Prove [subseq_trans] that subsequence is 
+      transitive -- that is, if [l1] is a subsequence of [l2] and [l2] 
+      is a subsequence of [l3], then [l1] is a subsequence of [l3].  
+      Hint: choose your induction carefully!
+*)
+
+(* FILL IN HERE *)
+(** [] *)
+
+(** **** Exercise: 2 stars, optional (R_provability)  *)
+(** Suppose we give Coq the following definition:
+    Inductive R : nat -> list nat -> Prop :=
+      | c1 : R 0 []
+      | c2 : forall n l, R n l -> R (S n) (n :: l)
+      | c3 : forall n l, R (S n) l -> R n l.
+    Which of the following propositions are provable?
+
+    - [R 2 [1,0]]
+    - [R 1 [1,2,1,0]]
+    - [R 6 [3,2,1,0]]
+*)
+
+(** [] *)
 
 
 (* ##################################################### *)
