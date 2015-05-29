@@ -121,13 +121,14 @@ Proof.
                               beautiful (n+m)   
 *)
 
-(* Each of the textual rules above is reformatted here as an
+(** *** *)
+(*  Each of the textual rules above is reformatted here as an
     inference rule; the intended reading is that, if the _premises_
     above the line all hold, then the _conclusion_ below the line
     follows.  For example, the rule [b_sum] says that, if [n] and [m]
     are both [beautiful] numbers, then it follows that [n+m] is
     [beautiful] too.  If a rule has no premises above the line, then
-    its conclusion hold unconditionally.
+    its conclusion holds unconditionally.
 
     These rules _define_ the property [beautiful].  That is, if we
     want to convince someone that some particular number is [beautiful],
@@ -148,9 +149,12 @@ Proof.
          beautiful 3         beautiful 5
          ------------------------------- (b_sum)
                    beautiful 8   
-    
+*)
+(** *** *)
+(**     
 もちろん、[8]が[beautiful]であることを示すための規則の用いかたは他にもあります。たとえば、
 
+    [8] is [beautiful], for instance:
          ----------- (b_5)   ----------- (b_3)
          beautiful 5         beautiful 3
          ------------------------------- (b_sum)
@@ -165,30 +169,26 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
+(* ####################################################### *)
+(** ** Constructing Evidence *)
+
 (* In Coq, we can express the definition of [beautiful] as
     follows: *)
 (** Coqにおいて、[beautiful]の定義は次のように表現します。*)
+
 Inductive beautiful : nat -> Prop :=
   b_0   : beautiful 0
 | b_3   : beautiful 3
 | b_5   : beautiful 5
 | b_sum : forall n m, beautiful n -> beautiful m -> beautiful (n+m).
 
-
-(* The first line declares that [beautiful] is a proposition -- or,
-    more formally, a family of propositions "indexed by" natural
-    numbers.  (That is, for each number [n], the claim that "[n] is
-    [beautiful]" is a proposition.)  Such a family of propositions is
-    often called a _property_ of numbers.  Each of the remaining lines
-    embodies one of the rules for [beautiful] numbers.
-
+(** *** *)
+(* 
     The rules introduced this way have the same status as proven 
     theorems; that is, they are true axiomatically. 
     So we can use Coq's [apply] tactic with the rule names to prove 
     that particular numbers are [beautiful].  *)
-(** 最初のラインは beautifulが命題であることを、あるいはもっと形式的に、自然数によってインデクス付けされた命題の仲間であることを宣言しています。そのような命題の一群をしばしば数の属性と呼びます。残りのそれぞれの行は、beautiful数ための規則のひとつを構成しています。
-
-この方法で導入された規則は証明された定理と同じ状態を持っています。すなわち、公理的に真なのです。そのため、Coqの[apply]タクティックを規則の名前と共に特定の数が[beautiful]であることを証明するために使用することが出来ます。*)
+(** この方法で導入された規則は証明された定理と同じ状態を持っています。すなわち、公理的に真なのです。そのため、Coqの[apply]タクティックを規則の名前と共に特定の数が[beautiful]であることを証明するために使用することが出来ます。*)
 
 Theorem three_is_beautiful: beautiful 3.
 Proof.
@@ -205,10 +205,11 @@ Proof.
    apply b_5.
 Qed.
 
-(* As you would expect, we can also prove theorems that have
+(** *** *)
+(*  As you would expect, we can also prove theorems that have
 hypotheses about [beautiful]. *)
-(** 期待したとおり、[beautiful]についての仮説を持つ定理の証明も行うことが出来ます。
-*)
+(** 期待したとおり、[beautiful]についての仮説を持つ定理の証明も行うことが出来ます。*)
+
 Theorem beautiful_plus_eight: forall n, beautiful n -> beautiful (8+n).
 Proof.
   intros n B.
@@ -232,7 +233,9 @@ Proof.
 
 
 (* ####################################################### *)
-(* ** Induction Over Evidence *)
+(* * Using Evidence in Proofs *)
+(** * 証明の中での根拠の使用 *)
+(* ** Induction over Evidence *)
 (** ** 根拠上の帰納法 *)
 
 (* Besides _constructing_ evidence that numbers are beautiful, we can
@@ -241,7 +244,7 @@ Proof.
 (* The fact that we introduced [beautiful] with an [Inductive]
     declaration tells Coq not only that the constructors [b_0], [b_3],
     [b_5] and [b_sum] are ways to build evidence, but also that these
-    two constructors are the _only_ ways to build evidence that
+    four constructors are the _only_ ways to build evidence that
     numbers are beautiful. *)
 (**  [beautiful]を[inductive]な宣言を以て導入したという事実は、Coqに[b_0],[b_3],[b_5][b_sum]というコンストラクタが根拠を構築する方法であると教えるだけでなく、これらの二つ？のコンストラクタ以外に数がbeautifulであるという根拠を構築する方法がないということを教えます。
 *)
@@ -263,8 +266,9 @@ Proof.
       - [E] は [b_sum n1 n2 E1 E2] (かつ [n] is [n1+n2], このなかで、 [E1] は
          [n1]  は beautiful を示す根拠でありかつ [E2] は [n2]
         が beautifulであるという根拠である). *)
- 
-(* This permits us to _analyze_ any hypothesis of the form [beautiful
+
+(** *** *)    
+(*  This permits us to _analyze_ any hypothesis of the form [beautiful
     n] to see how it was constructed, using the tactics we already
     know.  In particular, we can use the [induction] tactic that we
     have already seen for reasoning about inductively defined _data_
@@ -273,8 +277,8 @@ Proof.
     To illustrate this, let's define another property of numbers: *)
 (** [beautiful n]という形をしたどのような仮説も、既に知っているタクティックを使用してそれがどのように構築されているかをこれまで見ることで、解析出来るようになります。特に帰納的に定義されたデータを扱うためにこれまでに使用してきた[induction]タクティックを帰納的に定義された根拠を論理的に考えることにも使えます。
 
-これを確かめるために、もう一つ別の数の性質を定義してみましょう。
-*)
+これを確かめるために、もう一つ別の数の性質を定義してみましょう。*)
+
 Inductive gorgeous : nat -> Prop :=
   g_0 : gorgeous 0
 | g_plus3 : forall n, gorgeous n -> gorgeous (3+n)
@@ -378,29 +382,6 @@ Proof.
 (** [] *)
 
 
-(* ####################################################### *)
-(* ** From Boolean Functions to Propositions *)
-(** ** ブール型を返す関数から命題へ *)
-(* In chapter [Basics] we defined a _function_ [evenb] that tests a
-    number for evenness, yielding [true] if so.  We can use this
-    function to define the _proposition_ that some number [n] is
-    even: *)
-(** [Basics_J]の章において、与えられた数が偶数であればtrueを返却することでテストする[evenb]関数を定義しました。我々はこの関数を「ある数字[n]は偶数である」という命題を定義するために使用出来ます。*)
-Definition even (n:nat) : Prop := 
-  evenb n = true.
-
-
-(** **** 練習問題 ★ (double_even) *)
-
-Theorem double_even : forall n,
-  ev (double n).
-Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
-
-
-
-(** **** 練習問題 ★ (ev__even) *)
 (* Here is a proof that the inductive definition of evenness implies
     the computational one. *)
 (**  ここに偶数性の帰納的な定義が計算的定義を包含するという定理があります。*)
@@ -690,6 +671,10 @@ Qed.
 (* FILL IN HERE *)
 (** [] *)
 
+(* Again, the converse direction is much more difficult, due to the
+lack of evidence. *)
+(** もう一度言いますが、逆方向は大変難しいです。根拠が足りないせいです。*)
+
 (** **** 練習問題 ★★★★★, optional (palindrome_converse) *)
 (* Using your definition of [pal] from the previous exercise, prove
     that
@@ -699,85 +684,6 @@ Qed.
      forall l, l = rev l -> pal l.
 *)
 (* FILL IN HERE *)
-(** [] *)
-
-(** **** 練習問題 ★★★★, advanced (subsequence) *)
-(* A list is a _subsequence_ of another list if all of the elements
-    in the first list occur in the same order in the second list,
-    possibly with some extra elements in between. For example,
-    [1,2,3]
-    is a subsequence of each of the lists
-    [1,2,3]
-    [1,1,1,2,2,3]
-    [1,2,7,3]
-    [5,6,1,9,9,2,7,3,8]
-    but it is _not_ a subsequence of any of the lists
-    [1,2]
-    [1,3]
-    [5,6,2,1,7,3,8]
-
-    - Define an inductive proposition [subseq] on [list nat] that
-      captures what it means to be a subsequence. (Hint: You'll need
-      three cases.)
-
-    - Prove that subsequence is reflexive, that is, any list is a
-      subsequence of itself.  
-
-    - Prove that for any lists [l1], [l2], and [l3], if [l1] is a
-      subsequence of [l2], then [l1] is also a subsequence of [l2 ++
-      l3].
-
-    - (Optional, harder) Prove that subsequence is transitive -- that
-      is, if [l1] is a subsequence of [l2] and [l2] is a subsequence
-      of [l3], then [l1] is a subsequence of [l3].  Hint: choose your
-      induction carefully!
-*)
-(**あるリストが、別のリストのサブシーケンス（ _subsequence_ ）であるとは、最初のリストの要素が全て二つ目のリストに同じ順序で現れるということです。ただし、その間に何か別の要素が入ってもかまいません。例えば、
-    [1,2,3]
-    は、次のいずれのリストのサブシーケンスでもあります。
-    [1,2,3]
-    [1,1,1,2,2,3]
-    [1,2,7,3]
-    [5,6,1,9,9,2,7,3,8]
-    しかし、次のいずれのリストのサブシーケンスでもありません。
-    [1,2]
-    [1,3]
-    [5,6,2,1,7,3,8]
-
-    - list nat] 上に、そのリストがサブシーケンスであることを意味するような命題 [subseq] を定義しなさい。（ヒント：三つのケースが必要になります）
-
-    -サブシーケンスである、という関係が「反射的」であることを証明しなさい。つまり、どのようなリストも、それ自身のサブシーケンスであるということです。
-
-    - 任意のリスト [l1]、 [l2]、 [l3] について、もし [l1] が [l2] のサブシーケンスならば、 [l1] は [l2 ++ l3] のサブシーケンスでもある、ということを証明しなさい。
-	
-    -（これは少し難しいですので、任意とします）サブシーケンスという関係は推移的である、つまり、 [l1] が [l2] のサブシーケンスであり、 [l2] が [l3] のサブシーケンスであるなら、 [l1] は [l3] のサブシーケンスである、というような関係であることを証明しなさい。（ヒント：何について帰納法を適用するか、よくよく注意して下さい!）
-*)
-(* FILL IN HERE *)
-(** [] *)
-
-(** **** 練習問題 ★★, optional (R_provability) *)
-(* Suppose we give Coq the following definition:
-    Inductive R : nat -> list nat -> Prop :=
-      | c1 : R 0 []
-      | c2 : forall n l, R n l -> R (S n) (n :: l)
-      | c3 : forall n l, R (S n) l -> R n l.
-    Which of the following propositions are provable?
-
-    - [R 2 [1,0]]
-    - [R 1 [1,2,1,0]]
-    - [R 6 [3,2,1,0]]
-*)
-(** Coq に次のような定義を与えたとします：
-    Inductive R : nat -> list nat -> Prop :=
-      | c1 : R 0 []
-      | c2 : forall n l, R n l -> R (S n) (n :: l)
-      | c3 : forall n l, R (S n) l -> R n l.
-    次のうち、証明可能なのはどの命題でしょうか？
-
-    - [R 2 [1,0]]
-    - [R 1 [1,2,1,0]]
-    - [R 6 [3,2,1,0]]
-*)
 (** [] *)
 
 
@@ -1007,7 +913,7 @@ Inductive R : nat -> nat -> nat -> Prop :=
       sentence) explain your answer.
 
 (* FILL IN HERE *)
-(** [] *)
+[]
 *)
 
 (* **** Exercise: 3 stars, optional (R_fact) *)  
@@ -1056,7 +962,26 @@ End R.
       is a subsequence of [l3], then [l1] is a subsequence of [l3].  
       Hint: choose your induction carefully!
 *)
+(**あるリストが、別のリストのサブシーケンス（ _subsequence_ ）であるとは、最初のリストの要素が全て二つ目のリストに同じ順序で現れるということです。ただし、その間に何か別の要素が入ってもかまいません。例えば、
+    [1,2,3]
+    は、次のいずれのリストのサブシーケンスでもあります。
+    [1,2,3]
+    [1,1,1,2,2,3]
+    [1,2,7,3]
+    [5,6,1,9,9,2,7,3,8]
+    しかし、次のいずれのリストのサブシーケンスでもありません。
+    [1,2]
+    [1,3]
+    [5,6,2,1,7,3,8]
 
+    - list nat] 上に、そのリストがサブシーケンスであることを意味するような命題 [subseq] を定義しなさい。（ヒント：三つのケースが必要になります）
+
+    -サブシーケンスである、という関係が「反射的」であることを証明しなさい。つまり、どのようなリストも、それ自身のサブシーケンスであるということです。
+
+    - 任意のリスト [l1]、 [l2]、 [l3] について、もし [l1] が [l2] のサブシーケンスならば、 [l1] は [l2 ++ l3] のサブシーケンスでもある、ということを証明しなさい。
+	
+    -（これは少し難しいですので、任意とします）サブシーケンスという関係は推移的である、つまり、 [l1] が [l2] のサブシーケンスであり、 [l2] が [l3] のサブシーケンスであるなら、 [l1] は [l3] のサブシーケンスである、というような関係であることを証明しなさい。（ヒント：何について帰納法を適用するか、よくよく注意して下さい!）
+*)
 (* FILL IN HERE *)
 (** [] *)
 
@@ -1072,13 +997,25 @@ End R.
     - [R 1 [1,2,1,0]]
     - [R 6 [3,2,1,0]]
 *)
+(** **** 練習問題 ★★, optional (R_provability) *)
+(** Coq に次のような定義を与えたとします：
+    Inductive R : nat -> list nat -> Prop :=
+      | c1 : R 0 []
+      | c2 : forall n l, R n l -> R (S n) (n :: l)
+      | c3 : forall n l, R (S n) l -> R n l.
+    次のうち、証明可能なのはどの命題でしょうか？
+
+    - [R 2 [1,0]]
+    - [R 1 [1,2,1,0]]
+    - [R 6 [3,2,1,0]]
+*)
 
 (** [] *)
 
 
 (* ##################################################### *)
-(*  * Programming with Propositions Revisited *)
-(** * 命題を使用したプログラミング 再訪 *)
+(*  * Programming with Propositions *)
+(** * 命題を使用したプログラミング *)
 
 (** As we have seen, a _proposition_ is a statement expressing a factual claim,
     like "two plus two equals four."  In Coq, propositions are written
