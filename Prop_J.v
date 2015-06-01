@@ -45,6 +45,7 @@ Inductive ev : nat -> Prop :=
     numbers.  (That is, for each number [n], the claim that "[n] is
     even" is a proposition.)  Such a family of propositions is
     often called a _property_ of numbers.  
+
     The last two lines declare the two ways to give evidence that a
     number [m] is even.  First, [0] is even, and [ev_0] is evidence
     for this.  Second, if [m = S (S n)] for some [n] and we can give
@@ -53,6 +54,7 @@ Inductive ev : nat -> Prop :=
 *)
 (** 最初の行は、[ev]が命題であること --- あるいは、もっと形式的には、自然数によってインデクス付けされた命題の仲間であることを宣言しています。そのような命題の一群をしばしば数の属性と呼びます。
 最後の二行は、ある数[m]が偶数であるという根拠を与える二つの方法があることを述べています。一つめは、[0]は偶数であり、[ev_0]がその根拠になります。二つめは、もし、[m = S (S n)]となる[n]があり、[n]が偶数であるという根拠[e]を与えることが出来るならば、[m]は偶数であり、[ev_SS n e]が根拠になります。*)
+
 
 (** **** 練習問題 ★, (double_even)  *)
 
@@ -327,7 +329,7 @@ Abort.
 
 (** *** *)
 
-(** Let's see what happens if we try to prove this by induction on the evidence [H]
+(*  Let's see what happens if we try to prove this by induction on the evidence [H]
    instead of on [n]. *)
 (**  もし根拠[H]による帰納法ではなく、[n]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
 
@@ -512,7 +514,7 @@ Proof.
     produced an auxiliary equality, which happens to be useless here.)
     We'll begin exploring this more general behavior of inversion in
     what follows. *)
-(** このような [inversion] の使い方は最初はちょっと謎めいて思えるかもしれません。これまでは、 [inversion] は等号に関する命題に対して使い、コンストラクタから元のデータを取り出すためか、別のコンストラクタを区別するためににしか使っていませんでした。しかし、ここでは [inversion] が 帰納的に定義された命題に対する根拠を分析するためにも使えることを紹介しました。
+(** このような [inversion] の使い方は最初はちょっと謎めいて思	えるかもしれません。これまでは、 [inversion] は等号に関する命題に対して使い、コンストラクタから元のデータを取り出すためか、別のコンストラクタを区別するためににしか使っていませんでした。しかし、ここでは [inversion] が 帰納的に定義された命題に対する根拠を分析するためにも使えることを紹介しました。
 
 ( もしかしたら、[destruct]タクティックがもっとここで使うには相応しいと思うかもしれません。確かに、[destruct]を使用することは可能です。しかし、[destruct]は必要な情報をしばしば捨ててしまいますし、[eqn:]のような変数もここでは大して役に立ちません。)
 
