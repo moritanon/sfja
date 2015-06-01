@@ -41,7 +41,7 @@ Inductive ev : nat -> Prop :=
 
 
 (*  The first line declares that [ev] is a proposition -- or,
-    more formally, a family of propositions "indexed by" natural
+    more formally	, a family of propositions "indexed by" natural
     numbers.  (That is, for each number [n], the claim that "[n] is
     even" is a proposition.)  Such a family of propositions is
     often called a _property_ of numbers.  
@@ -198,7 +198,8 @@ Qed.
 
 Theorem eight_is_beautiful: beautiful 8.
 Proof.
-   (* まず[b_sum]規則を使用します。Coqは[n]と[m]を証拠として示すように言ってきます。First we use the rule [b_sum], telling Coq how to instantiate [n] and [m]. *)
+   (* まず[b_sum]規則を使用します。Coqは[n]と[m]を証拠として示すように言ってきます。First we use the rule [b_sum], telling Coq how to
+      instantiate [n] and [m]. *)
    apply b_sum with (n:=3) (m:=5).
    (* [b_sum]によって生成されたサブゴールを解くために、[beautiful 3]と[beautiful 5]の根拠を提示しなければなりません。幸運なことに、われわれは両方の根拠を生成する規則を持っています。*)
    apply b_3.
@@ -329,7 +330,7 @@ Abort.
 
 (** Let's see what happens if we try to prove this by induction on the evidence [H]
    instead of on [n]. *)
-(**  もし根拠[H]による帰納法ではなく、[n]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
+(**  もし[n]による帰納法の代わりに、根拠[H]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
 
 Theorem gorgeous__beautiful : forall n, 
   gorgeous n -> beautiful n.
@@ -454,8 +455,8 @@ Proof.
     right tactic turns out to be [inversion].  *)
 (** 「[n] が偶数ならば [pred(pred n)] も偶数である」という偶数に関する根拠を分析したいとします。このケースでは、帰納法による証明は必要ありません。使うべき正しいタクティックは[inversion]になります。
 *)
-Theorem ev_minus2: forall n,
-  ev n -> ev (pred (pred n)). 
+
+Theorem ev_minus2: forall n,  ev n -> ev (pred (pred n)). 
 Proof.
   intros n E.
   inversion E as [| n' E'].
@@ -604,20 +605,21 @@ evenbを使用した間接的な方法と、 偶数であることの根拠を�
 *)
 
 (* ####################################################### *)
-(** ** Parameterized Data Structures *)
-
-(** So far, we have only looked at propositions about natural numbers. However, 
+(*  ** Parameterized Data Structures *)
+(** ** パラメータ化されたデータ構造 *)
+(*  So far, we have only looked at propositions about natural numbers. However, 
    we can define inductive predicates about any type of data. For example, 
    suppose we would like to characterize lists of _even_ length. We can 
    do that with the following definition.  *)
+(** これまで自然数についての命題だけを見てきましたが、じつのところあらゆるデータ型についての述語を帰納的に定義することが出来ます。例えば、偶数の長さを持つという特徴を持つリストというものを考えることが出来ます。これは次のように定義出来ます。*)
 
 Inductive ev_list {X:Type} : list X -> Prop :=
   | el_nil : ev_list []
   | el_cc  : forall x y l, ev_list l -> ev_list (x :: y :: l).
 
-(** Of course, this proposition is equivalent to just saying that the
+(*  Of course, this proposition is equivalent to just saying that the
 length of the list is even. *)
-
+(** もちろんこの命題は、リストの長さが偶数であると言っているのと全く同じです。 *)
 Lemma ev_list__ev_length: forall X (l : list X), ev_list l -> ev (length l).
 Proof. 
     intros X l H. induction H.
@@ -628,7 +630,7 @@ Qed.
 (** However, because evidence for [ev] contains less information than
 evidence for [ev_list], the converse direction must be stated very
 carefully. *)
-
+(** しかし、もちろん[ev]の根拠が[ev_list]の根拠よりも情報が少ないので、反対方向はもっと注意深く記述する必要があります。
 Lemma ev_length__ev_list: forall X n, ev n -> forall (l : list X), n = length l -> ev_list l.
 Proof.
   intros X n H. 
