@@ -45,7 +45,6 @@ Inductive ev : nat -> Prop :=
     numbers.  (That is, for each number [n], the claim that "[n] is
     even" is a proposition.)  Such a family of propositions is
     often called a _property_ of numbers.  
-
     The last two lines declare the two ways to give evidence that a
     number [m] is even.  First, [0] is even, and [ev_0] is evidence
     for this.  Second, if [m = S (S n)] for some [n] and we can give
@@ -54,7 +53,6 @@ Inductive ev : nat -> Prop :=
 *)
 (** 最初の行は、[ev]が命題であること --- あるいは、もっと形式的には、自然数によってインデクス付けされた命題の仲間であることを宣言しています。そのような命題の一群をしばしば数の属性と呼びます。
 最後の二行は、ある数[m]が偶数であるという根拠を与える二つの方法があることを述べています。一つめは、[0]は偶数であり、[ev_0]がその根拠になります。二つめは、もし、[m = S (S n)]となる[n]があり、[n]が偶数であるという根拠[e]を与えることが出来るならば、[m]は偶数であり、[ev_SS n e]が根拠になります。*)
-
 
 (** **** 練習問題 ★, (double_even)  *)
 
@@ -330,7 +328,7 @@ Abort.
 
 (** *** *)
 
-(*  Let's see what happens if we try to prove this by induction on the evidence [H]
+(** Let's see what happens if we try to prove this by induction on the evidence [H]
    instead of on [n]. *)
 (**  もし[n]による帰納法の代わりに、根拠[H]による帰納法で証明しようとすると何が起こるか見てみましょう。*)
 
@@ -515,7 +513,7 @@ Proof.
     produced an auxiliary equality, which happens to be useless here.)
     We'll begin exploring this more general behavior of inversion in
     what follows. *)
-(** このような [inversion] の使い方は最初はちょっと謎めいて思	えるかもしれません。これまでは、 [inversion] は等号に関する命題に対して使い、コンストラクタから元のデータを取り出すためか、別のコンストラクタを区別するためににしか使っていませんでした。しかし、ここでは [inversion] が 帰納的に定義された命題に対する根拠を分析するためにも使えることを紹介しました。
+(** このような [inversion] の使い方は最初はちょっと謎めいて思えるかもしれません。これまでは、 [inversion] は等号に関する命題に対して使い、コンストラクタから元のデータを取り出すためか、別のコンストラクタを区別するためににしか使っていませんでした。しかし、ここでは [inversion] が 帰納的に定義された命題に対する根拠を分析するためにも使えることを紹介しました。
 
 ( もしかしたら、[destruct]タクティックがもっとここで使うには相応しいと思うかもしれません。確かに、[destruct]を使用することは可能です。しかし、[destruct]は必要な情報をしばしば捨ててしまいますし、[eqn:]のような変数もここでは大して役に立ちません。)
 
@@ -794,12 +792,12 @@ Notation "m < n" := (lt m n).
 Inductive square_of : nat -> nat -> Prop :=
   sq : forall n:nat, square_of n (n * n).
 
-Inductive next_nat (n:nat) : nat -> Prop :=
-  | nn : next_nat n (S n).
+Inductive next_nat : nat -> nat -> Prop :=
+  | nn : forall n:nat, next_nat n (S n).
 
-Inductive next_even (n:nat) : nat -> Prop :=
-  | ne_1 : ev (S n) -> next_even n (S n)
-  | ne_2 : ev (S (S n)) -> next_even n (S (S n)).
+Inductive next_even : nat -> nat -> Prop :=
+  | ne_1 : forall n, ev (S n) -> next_even n (S n)
+  | ne_2 : forall n, ev (S (S n)) -> next_even n (S (S n)).
 
 (* **** Exercise: 2 stars (total_relation) *)
 (** **** 練習問題: ★★, recommended (total_relation) *)
@@ -813,7 +811,7 @@ Inductive next_even (n:nat) : nat -> Prop :=
 
 (* **** Exercise: 2 stars (empty_relation) *)
 (** **** 練習問題: ★★ (empty_relation) *)
-(* Define an inductive binary relation [empty_relation] (on numbers)
+(*  Define an inductive binary relation [empty_relation] (on numbers)
     that never holds. *)
 (** 自然数の間では決して成り立たない関係 [empty_relation] を帰納的に
     定義しなさい。 *)
@@ -827,8 +825,8 @@ Inductive next_even (n:nat) : nat -> Prop :=
     practice exercises. *)
 (** ここで [<=] や [<] といった関係についての事実をいくつか書き溜めていくことにしましょう。それらはここから先に進む際に必要になってくるばかりでなく、その証明自体がとてもよい練習問題になってくれます。 *)
 
-Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
-Proof.
+	Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
+	Proof.
   (* FILL IN HERE *) Admitted.
 
 Theorem O_le_n : forall n,
@@ -875,13 +873,13 @@ Theorem le_ble_nat : forall n m,
   n <= m ->
   ble_nat n m = true.
 Proof.
-  (* Hint: This may be easiest to prove by induction on [m]. *)
+  (* ヒント: [m]に関する帰納法を使えばもっと簡単に証明出来るかもしれません *)
   (* FILL IN HERE *) Admitted.
 
 Theorem ble_nat_true_trans : forall n m o,
   ble_nat n m = true -> ble_nat m o = true -> ble_nat n o = true.                               
 Proof.
-  (* Hint: This theorem can be easily proved without using [induction]. *)
+  (* ヒント: この定理は、inductionを使わずに簡単に証明出来ます。 *)
   (* FILL IN HERE *) Admitted.
 
 (** **** Exercise: 2 stars, optional (ble_nat_false) *)
@@ -890,6 +888,7 @@ Theorem ble_nat_false : forall n m,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 
 (** **** Exercise: 3 stars (R_provability2) *)
 Module R.
@@ -997,9 +996,9 @@ End R.
       | c3 : forall n l, R (S n) l -> R n l.
     Which of the following propositions are provable?
 
-    - [R 2 [1,0]]
-    - [R 1 [1,2,1,0]]
-    - [R 6 [3,2,1,0]]
+    - [R 2 [1;0]]
+    - [R 1 [1;2;1;0]]
+    - [R 6 [3;2;1;0]]
 *)
 (** **** 練習問題 ★★, optional (R_provability) *)
 (** Coq に次のような定義を与えたとします：
@@ -1009,9 +1008,9 @@ End R.
       | c3 : forall n l, R (S n) l -> R n l.
     次のうち、証明可能なのはどの命題でしょうか？
 
-    - [R 2 [1,0]]
-    - [R 1 [1,2,1,0]]
-    - [R 6 [3,2,1,0]]
+    - [R 2 [1;0]]
+    - [R 1 [1;2;1;0]]
+    - [R 6 [3;2;1;0]]
 *)
 
 (** [] *)
@@ -1180,9 +1179,9 @@ Definition natural_number_induction_valid : Prop :=
 Definition combine_odd_even (Podd Peven : nat -> Prop) : nat -> Prop :=
   (* FILL IN HERE *) admit.
 
-(** To test your definition, see whether you can prove the following
+(*  To test your definition, see whether you can prove the following
     facts: *)
-
+(** あなたの定義をテストするために、次の事実が証明出来るかどうか確かめてみましょう。*)
 Theorem combine_odd_even_intro : 
   forall (Podd Peven : nat -> Prop) (n : nat),
     (oddb n = true -> Podd n) ->
@@ -1218,10 +1217,10 @@ Proof.
     exercise gives a slightly contrived example. *)
 (** 冒険心を満足させるために、もう少し脱線してみましょう。 Definition でパラメータ化された命題を定義できるなら、 Fixpoint でも 定義できていいのではないでしょうか？もちろんできます！しかし、この種の 「再帰的なパラメータ化」は、日常的に使われる数学の分野と必ずしも調和するわけでは ありません。そんなわけで次の練習問題は、例としてはいささか不自然かもしれません。 *)
 (** **** Exercise: 4 stars, optional (true_upto_n__true_everywhere) *)
-(** Define a recursive function
+(*  Define a recursive function
     [true_upto_n__true_everywhere] that makes
     [true_upto_n_example] work. *)
-
+(** [true_upto_n_example]を動作させる、再帰的な関数 [true_upto_n__true_everywhere]を定義してください。
 (* 
 Fixpoint true_upto_n__true_everywhere
 (* FILL IN HERE *)
@@ -1233,6 +1232,6 @@ Proof. reflexivity.  Qed.
 *)
 (** [] *)
 
-(* $Date: 2014-06-05 07:22:21 -0400 (Thu, 05 Jun 2014) $ *)
+(** $Date: 2014-12-31 11:17:56 -0500 (Wed, 31 Dec 2014) $ *)
 
 
