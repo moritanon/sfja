@@ -1,6 +1,7 @@
-(** * ProofObjects: Working with Explicit Evidence in Coq *)
+(*  * ProofObjects: Working with Explicit Evidence in Coq *)
+(** * 証明オブジェクト: Coqの中での明示的根拠の働き *)
 
-Require Export MoreLogic.
+Require Export MoreLogic_J.
 
 (* ##################################################### *)
 
@@ -476,6 +477,7 @@ Definition beautiful_iff_gorgeous :
 (* Recall that we model an existential for a property as a pair consisting of 
 a witness value and a proof that the witness obeys that property. 
 We can choose to construct the proof explicitly. 
+
 For example, consider this existentially quantified proposition: *)
 (** 
  根拠となる値とその値が性質を満たす証明からなるペアとして、存在することをモデル化したことを思いだしましょう。
@@ -518,9 +520,9 @@ using a lemma or hypothesis with one or more quantifiers or
 assumptions already instantiated in order to direct what
 happens.  For example: *)
 (** 
-タクティックを使用した証明を使用するときにおいてすら、含意や全称量化の基底となる関数的な本質を理解しやすいと思います。
+タクティックを使用した証明を使用するときでも、含意や全称量化の基底となる関数的な本質を理解していることは、たいへん有用なことです。
 
-よく分からん
+たとえば、一つ以上の量化された補題や仮説、インスタンス化された仮定を使用する[apply]や[rewrite] で何が起こっているかを理解するために、しばしば役に立ちます。
 *)
 Check plus_comm.
 (* ==> 
