@@ -1,19 +1,35 @@
 (** * Rel_J:関係の性質 *)
 
-(* $Date: 2013-04-01 09:15:45 -0400 (Mon, 01 Apr 2013) $ *)
 Require Export SfLib_J.
 
-(** (二項)関係(_relation_)はパラメータを持った命題にほかなりません。
-    大学の離散数学の講義で習っているように、関係を「一般的に」議論し記述する方法がいくつもあります。
-    -- 関係を分類する方法(反射的か、推移的か、など)、関係のクラスについて一般的に証明できる定理、
-    関係からの別の関係の構成、などです。ここでちょっと立ち止まって、
-    後で有用になるいくつかをふりかえってみましょう。 *)
+(* This short, optional chapter develops some basic definitions and a
+    few theorems about binary relations in Coq.  The key definitions
+    are repeated where they are actually used (in the [Smallstep]
+    chapter), so readers who are already comfortable with these ideas
+    can safely skim or skip this chapter.  However, relations are also
+    a good source of exercises for developing facility with Coq's
+    basic reasoning facilities, so it may be useful to look at it just
+    after the [Logic] chapter. *)
+(** この短い、補助的な章において、Coqにおける二項関係についての基本的な定義と二、三の定理を展開します。 鍵となる定義は繰り返し([Smallste]などで)使われますし、そのため、十分に理解のある読者はざっと読んでスキップしてもらってもかまいません。しかし、(二項)関係は、Coqの推論機能についてのよい練習問題になりますので、[Logic]の章の後でこの章を読むことは役にたつでしょう。*)
 
-(** 集合[X]の「上の」関係は、[X]2つをパラメータとする命題です。-- 
+(*  A (binary) _relation_ on a set [X] is a family of propositions
+    parameterized by two elements of [X] -- i.e., a proposition about
+    pairs of elements of [X].  *)
+
+(** 集合[X]の「上の」(二項)関係は、[X]2つをパラメータとする命題です。-- 
     つまり、集合[X]の2つの要素に関する論理的主張です。*)
 
 Definition relation (X: Type) := X->X->Prop.
 
+(*  Somewhat confusingly, the Coq standard library hijacks the generic
+    term "relation" for this specific instance. To maintain
+    consistency with the library, we will do the same.  So, henceforth
+    the Coq identifier [relation] will always refer to a binary
+    relation between some set and itself, while the English word
+    "relation" can refer either to the specific Coq concept or the
+    more general concept of a relation between any number of possibly
+    different sets.  The context of the discussion should always make
+    clear which is meant. *)
 (** 若干まぎらわしいことに、Coqの標準ライブラリでは、一般的な用語"関係(relation)"を、
     この特定の場合(つまり1つの集合上の二項関係)を指すためだけに使っています。
     ライブラリとの整合性を保つために、ここでもそれに従います。
@@ -28,34 +44,53 @@ Definition relation (X: Type) := X->X->Prop.
 (** [nat]における関係の実例として、[le]を挙げます。通常[n1 <= n2]のように記述する、小さいかまたは等しいことを示す関係です。
 
 Print le.
-(* ====>
-Inductive le (n : nat) : nat -> Prop :=
-    le_n : n <= n
-  | le_S : forall m : nat, n <= m -> n <= S m
-*)
+(* ====> Inductive le (n : nat) : nat -> Prop :=
+             le_n : n <= n
+           | le_S : forall m : nat, n <= m -> n <= S m *)
 Check le : nat -> nat -> Prop.
 Check le : relation nat.
 
 (* ######################################################### *)
 (** * 関係の基本性質 *)
 
+(** As anyone knows who has taken an undergraduate discrete math
+    course, there is a lot to be said about relations in general --
+    ways of classifying relations (are they reflexive, transitive,
+    etc.), theorems that can be proved generically about classes of
+    relations, constructions that build one relation from another,
+    etc.  For example... *)
+(**  大学の離散数学の講義で習っているように、関係を「一般的に」議論し記述する方法がいくつもあります。 -- 関係を分類する方法(反射的か、推移的か、など)、関係のクラスについて一般的に証明できる定理、 関係からの別の関係の構成、などです。例えば、*)
+(*  A relation [R] on a set [X] is a _partial function_ if, for every
+    [x], there is at most one [y] such that [R x y] -- i.e., if [R x
+    y1] and [R x y2] together imply [y1 = y2]. *)
 (** 集合[X]上の関係[R]は、次の条件を満たすとき、部分関数(_partial function_)です。
     条件とは、すべての[x]に対して、[R x y]となる[y]は高々1つであるということ
     -- つまり、[R x y1]かつ[R x y2]ならば [y1 = y2] となることです。*)
 
 Definition partial_function {X: Type} (R: relation X) :=
-  forall x y1 y2 : X, R x y1 -> R x y2 -> y1 = y2.
+  forall x y1 y2 : X, R x y1 -> R x y2 -> y1 = y2. 
 
+(*  For example, the [next_nat] relation defined earlier is a partial
+    function. *)
 (** 例えば、Logic_J.vで定義されている[next_nat]関係は部分関数です。*)
+Print next_nat.
+(* ====> Inductive next_nat (n : nat) : nat -> Prop := 
+           nn : next_nat n (S n) *)
+Check next_nat : relation nat.
 
-Theorem next_nat_partial_function :
+Theorem next_nat_partial_function : 
    partial_function next_nat.
-Proof.
+Proof. 
   unfold partial_function.
-  intros x y1 y2 P Q.
-  inversion P. inversion Q.
-  reflexivity.  Qed.
+  intros x y1 y2 H1 H2.
+  inversion H1. inversion H2.
+  reflexivity.  Qed. 
 
+(*  However, the [<=] relation on numbers is not a partial function.
+    In short: Assume, for a contradiction, that [<=] is a partial
+    function.  But then, since [0 <= 0] and [0 <= 1], it follows that
+    [0 = 1].  This is nonsense, so our assumption was
+    contradictory. *)
 (** しかし、数値上の[<=]関係は部分関数ではありません。
 
     これは矛盾を導くことで示すことができます。簡単にいうと: [<=]が部分関数であると仮定します。
@@ -65,15 +100,17 @@ Proof.
 Theorem le_not_a_partial_function :
   ~ (partial_function le).
 Proof.
-  unfold not. unfold partial_function. intros H.
+  unfold not. unfold partial_function. intros Hc.
   assert (0 = 1) as Nonsense.
    Case "Proof of assertion".
-   apply H with 0.
-     apply le_n.
-     apply le_S. apply le_n.
+   apply Hc with (x := 0). 
+     apply le_n. 
+     apply le_S. apply le_n. 
   inversion Nonsense.   Qed.
 
 (** **** 練習問題:★★, optional *)
+(*  Show that the [empty_relation] defined earlier is a partial
+    function. *)
 (** Logic_J.v に定義された [total_relation] が部分関数ではないことを示しなさい。 *)
 
 (* FILL IN HERE *)
@@ -113,10 +150,10 @@ Proof.
 
 Theorem lt_trans:
   transitive lt.
-Proof.
-  unfold lt. unfold transitive.
+Proof. 
+  unfold lt. unfold transitive. 
   intros n m o Hnm Hmo.
-  apply le_S in Hnm.
+  apply le_S in Hnm. 
   apply le_trans with (a := (S n)) (b := (S m)) (c := o).
   apply Hnm.
   apply Hmo. Qed.
@@ -152,7 +189,7 @@ Proof.
     有用な事実を証明するのに使うことができます... *)
 
 Theorem le_Sn_le : forall n m, S n <= m -> n <= m.
-Proof.
+Proof. 
   intros n m H. apply le_trans with (S n).
     apply le_S. apply le_n.
     apply H.  Qed.
@@ -219,7 +256,7 @@ Theorem le_step : forall n m p,
   n < m ->
   m <= S p ->
   n <= p.
-Proof.
+Proof. 
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -244,10 +281,10 @@ Definition preorder {X:Type} (R: relation X) :=
 Theorem le_order :
   order le.
 Proof.
-  unfold order. split.
+  unfold order. split. 
     Case "refl". apply le_reflexive.
-    split.
-      Case "antisym". apply le_antisymmetric.
+    split. 
+      Case "antisym". apply le_antisymmetric. 
       Case "transitive.". apply le_trans.  Qed.
 
 (* ########################################################### *)
@@ -260,7 +297,9 @@ Inductive clos_refl_trans {A: Type} (R: relation A) : relation A :=
     | rt_step : forall x y, R x y -> clos_refl_trans R x y
     | rt_refl : forall x, clos_refl_trans R x x
     | rt_trans : forall x y z,
-          clos_refl_trans R x y -> clos_refl_trans R y z -> clos_refl_trans R x z.
+          clos_refl_trans R x y ->
+          clos_refl_trans R y z ->
+          clos_refl_trans R x z.
 
 (** 例えば、[next_nat]関係の反射推移閉包は[le]関係となります。*)
 
@@ -270,16 +309,17 @@ Proof.
   intros n m. split.
     Case "->".
       intro H. induction H.
-         apply rt_refl.
-         apply rt_trans with m. apply IHle. apply rt_step. apply nn.
+      SCase "le_n". apply rt_refl.
+      SCase "le_S".
+        apply rt_trans with m. apply IHle. apply rt_step. apply nn.
     Case "<-".
       intro H. induction H.
-        SCase "rt_step".  inversion H. apply le_S.  apply le_n.
-        SCase "rt_refl". apply le_n.
-        SCase "rt_trans".
-           apply le_trans with y.
-           apply IHclos_refl_trans1.
-           apply IHclos_refl_trans2.  Qed.
+      SCase "rt_step". inversion H. apply le_S. apply le_n.
+      SCase "rt_refl". apply le_n.
+      SCase "rt_trans".
+        apply le_trans with y.
+        apply IHclos_refl_trans1.
+        apply IHclos_refl_trans2. Qed.
 
 (** 上の反射推移閉包の定義は自然です。--定義は[R]の反射推移閉包が
     [R]を含み反射律と推移律について閉じている最小の関係であることを明示的に述べています。
@@ -288,10 +328,8 @@ Proof.
 
     以下は、より使いやすい定義です... *)
 
-Inductive refl_step_closure {X:Type} (R: relation X)
-                            : X -> X -> Prop :=
-  | rsc_refl  : forall (x : X),
-                 refl_step_closure R x x
+Inductive refl_step_closure {X:Type} (R: relation X) : relation X :=
+  | rsc_refl  : forall (x : X), refl_step_closure R x x
   | rsc_step : forall (x y z : X),
                     R x y ->
                     refl_step_closure R y z ->
@@ -302,7 +340,7 @@ Inductive refl_step_closure {X:Type} (R: relation X)
 
 Tactic Notation "rt_cases" tactic(first) ident(c) :=
   first;
-  [ Case_aux c "rt_step" | Case_aux c "rt_refl"
+  [ Case_aux c "rt_step" | Case_aux c "rt_refl" 
   | Case_aux c "rt_trans" ].
 
 Tactic Notation "rsc_cases" tactic(first) ident(c) :=
@@ -321,8 +359,8 @@ Tactic Notation "rsc_cases" tactic(first) ident(c) :=
 Theorem rsc_R : forall (X:Type) (R:relation X) (x y : X),
        R x y -> refl_step_closure R x y.
 Proof.
-  intros X R x y r.
-  apply rsc_step with y. apply r. apply rsc_refl.   Qed.
+  intros X R x y H.
+  apply rsc_step with y. apply H. apply rsc_refl.   Qed.
 
 (** **** 練習問題:★★, optional(rsc_trans) *)
 Theorem rsc_trans :
