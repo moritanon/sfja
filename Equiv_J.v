@@ -6,28 +6,29 @@
 
 Require Export Imp_J.
 
-(* *** Some general advice for homework assignments
+(*  *** Some general advice for working on exercises:
 
-    - We've tried to make sure that most of the Coq proofs we ask you
-      to do are similar to proofs that we've provided.  Before
-      starting to work on the homework problems, take the time to work
-      through our proofs (both informally, on paper, and in Coq) and
-      make sure you understand them in detail.  This will save you a
-      lot of time.
+    - Most of the Coq proofs we ask you to do are similar to proofs
+      that we've provided.  Before starting to work on the homework
+      problems, take the time to work through our proofs (both
+      informally, on paper, and in Coq) and make sure you understand
+      them in detail.  This will save you a lot of time.
 
     - The Coq proofs we're doing now are sufficiently complicated that
-      it is more or less impossible to complete them simply by
-      "following your nose" or random hacking.  You need to start with
-      an idea about why the property is true and how the proof is
+      it is more or less impossible to complete them simply by random
+      experimentation or "following your nose."  You need to start
+      with an idea about why the property is true and how the proof is
       going to go.  The best way to do this is to write out at least a
       sketch of an informal proof on paper -- one that intuitively
       convinces you of the truth of the theorem -- before starting to
-      work on the formal one.
+      work on the formal one.  Alternately, grab a friend and try to
+      convince them that the theorem is true; then try to formalize
+      your explanation.
 
     - Use automation to save work!  Some of the proofs in this
       chapter's exercises are pretty long if you try to write out all
       the cases explicitly. *)
-(** *** 宿題割当てについての一般的アドバイス
+(** *** 練習問題を行う上での一般的アドバイス
 
     - Coqによる証明問題は、そこまでに文中で行ってきた証明となるべく同じようにできるようにしています。
       宿題に取り組む前に、そこまでの証明を自分でも(紙上とCoqの両方で)やってみなさい。
@@ -39,6 +40,8 @@ Require Export Imp_J.
       なぜその性質が真で、どう進めば証明になるかを最初に考える必要があります。
       そのための一番良い方法は、形式的な証明を始める前に、
       紙の上に非形式的な証明をスケッチでも良いので書いてみることです。
+      またあるいは、友達をつかまえ、その定理が真であることの説得を試みて、
+      そしてそれから、あなたの説明を形式化するのです。
       そうすることで、定理が成立することを直観的に確信できます。
 
     - 仕事を減らすために自動化を使いなさい。この章の練習問題の証明のいくつかは、
@@ -52,13 +55,15 @@ Require Export Imp_J.
     simple program transformation: the [optimize_0plus] function.  The
     programming language we were considering was the first version of
     the language of arithmetic expressions -- with no variables -- so
-    it was very easy to define what it _means_ for a program
-    transformation to be correct: it should always yield a program
-    that evaluates to the same number as the original.
 
-    To talk about the correctness of program transformations in the
-    full Imp language, we need to think about the role of variables
-    and the state. *)
+    in that setting it was very easy to define what it _means_ for a
+    program transformation to be correct: it should always yield a
+    program that evaluates to the same number as the original.  
+
+    To go further and talk about the correctness of program
+    transformations in the full Imp language, we need to consider the
+    role of variables and state. *)
+
 (** 前の章で、簡単なプログラム変換の正しさを調べました。
     [optimize_0plus]関数です。
     対象としたプログラミング言語は、算術式の言語の最初のバージョンでした。
@@ -74,24 +79,25 @@ Require Export Imp_J.
 (* ** Definitions *)
 (** ** 定義 *)
 
-(* For [aexp]s and [bexp]s, the definition we want is clear.  We say
+(** For [aexp]s and [bexp]s with variables, the definition we want is
+    clear.  We say
     that two [aexp]s or [bexp]s are _behaviorally equivalent_ if they
     evaluate to the same result _in every state_. *)
-(** [aexp]と[bexp]については、どう定義すれば良いかは明らかです。
+(** 変数を伴う[aexp]と[bexp]については、どう定義すれば良いかは明らかです。
     2つの[aexp]または[bexp]が振る舞い同値である(_behaviorally equivalent_)とは、
     「すべての状態で」2つの評価結果が同じになることです。*)    
 
 Definition aequiv (a1 a2 : aexp) : Prop :=
-  forall (st:state),
+  forall (st:state), 
     aeval st a1 = aeval st a2.
 
 Definition bequiv (b1 b2 : bexp) : Prop :=
-  forall (st:state),
+  forall (st:state), 
     beval st b1 = beval st b2.
 
 (* For commands, the situation is a little more subtle.  We can't
     simply say "two commands are behaviorally equivalent if they
-    evaluate to the same ending state whenever they are run in the
+    evaluate to the same ending state whenever they are started in the
     same initial state," because some commands (in some starting
     states) don't terminate in any final state at all!  What we need
     instead is this: two commands are behaviorally equivalent if, for
@@ -111,7 +117,7 @@ Definition bequiv (b1 b2 : bexp) : Prop :=
     逆もまた成り立つ」となります。*)
 
 Definition cequiv (c1 c2 : com) : Prop :=
-  forall (st st':state),
+  forall (st st' : state), 
     (c1 / st || st') <-> (c2 / st || st').
 
 (* **** Exercise: 2 stars, optional (pairs_equiv) *)
@@ -187,6 +193,10 @@ and
 (* ** Examples *)
 (** ** 例 *)
 
+(*  Here are some simple examples of equivalences of arithmetic
+    and boolean expressions. *)
+(** 
+
 Theorem aequiv_example:
   aequiv (AMinus (AId X) (AId X)) (ANum 0).
 Proof.
@@ -194,36 +204,42 @@ Proof.
 Qed.
 
 Theorem bequiv_example:
-  bequiv (BEq (AMinus (AId X) (AId X)) (ANum 0)) BTrue.
-Proof.
+  bequiv (BEq (AMinus (AId X) (AId X)) (ANum 0)) BTrue. 
+Proof. 
   intros st. unfold beval.
   rewrite aequiv_example. reflexivity.
 Qed.
 
-(* For examples of command equivalence, let's start by looking at
-    trivial transformations involving [SKIP]: *)
+(*  For examples of command equivalence, let's start by looking at
+    some trivial program transformations involving [SKIP]: *)
 (** コマンドの同値性の例として、
     [SKIP]にからんだ自明な変換から見てみましょう: *)
 
 Theorem skip_left: forall c,
-  cequiv
-     (SKIP; c)
+  cequiv 
+     (SKIP;; c) 
      c.
-Proof.
+Proof. 
+  (* WORKED IN CLASS *)
   intros c st st'.
   split; intros H.
-  Case "->".
-    inversion H. subst.
-    inversion H2. subst.
+  Case "->". 
+    inversion H. subst. 
+    inversion H2. subst. 
     assumption.
-  Case "<-".
+  Case "<-". 
     apply E_Seq with st.
-    apply E_Skip.
-    assumption.
+    apply E_Skip. 
+    assumption.  
 Qed.
 
 (* **** Exercise: 2 stars (skip_right) *)
 (** **** 練習問題: ★★ (skip_right) *)
+(*  Prove that adding a SKIP after a command results in an equivalent
+    program *)
+(**
+*)
+
 Theorem skip_right: forall c,
   cequiv
     (c; SKIP)
@@ -362,6 +378,11 @@ Proof.
 
 (* **** Exercise: 3 stars (swap_if_branches) *)
 (** **** 練習問題: ★★★ (swap_if_branches) *)
+(*  Show that we can swap the branches of an IF by negating its
+    condition *)
+(** *)
+
+
 Theorem swap_if_branches: forall b e1 e2,
   cequiv
     (IFB b THEN e1 ELSE e2 FI)
@@ -890,7 +911,7 @@ Proof.
           - [E_WhileEnd]: この場合、
             規則の形から[beval st b1 = false]かつ[st = st']となる。
             しかし[b1]と[b1']が同値であることから
-            [beval st b1' = c1' END / st || st']になる。
+            [beval st b1' = false]になる。
             さらに[E-WhileEnd]を適用すると
             証明すべき[WHILE b1' DO c1' END / st || st']が得られる。
 
