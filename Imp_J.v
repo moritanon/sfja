@@ -2183,7 +2183,13 @@ Proof. reflexivity. Qed.
     behaves correctly.  You will need to start by stating a more
     general lemma to get a usable induction hypothesis; the main
     theorem will then be a simple corollary of this lemma. *)
+(** この練習問題の課題は、前の練習問題で実装した計算機の正当性を証明することです。
+スタックが 2 つ未満の要素しか含まずに [SPlus] や [SMinus]、[SMult] 命令に至った場合にどうすべきかを明示していない仕様であったことを思い出してください。(あなたは、正当性の証明をより易しく行うために、実装に戻って使いやすいように変更したくなるかもしれません!)
 
+次の定理を証明しなさい。この定理は、[compile]関数が正しく振る舞うことを述べています。
+使いやすい帰納法の仮定を得るために、もっと一般的な補題からとりかかる必要があるでしょう。
+問題となる定理は、その補題の単純な帰結となるはずです。
+*)
 
 Theorem s_compile_correct : forall (st : state) (e : aexp),
   s_execute st [] (s_compile e) = [ aeval st e ].
@@ -2191,7 +2197,8 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 5 stars, advanced (break_imp) *)
+(*  **** Exercise: 5 stars, advanced (break_imp)  *)
+(** **** 練習問題: ★★★★★, advanced (break_imp)  *)
 Module BreakImp.
 
 (** Imperative languages such as C or Java often have a [break] or
@@ -2222,7 +2229,7 @@ Notation "'BREAK'" :=
   CBreak.
 Notation "x '::=' a" :=
   (CAss x a) (at level 60).
-Notation "c1 ; c2" :=
+Notation "c1 ;; c2" :=
   (CSeq c1 c2) (at level 80, right associativity).
 Notation "'WHILE' b 'DO' c 'END'" :=
   (CWhile b c) (at level 80, right associativity).
@@ -2236,7 +2243,7 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
     enclosing loops, then the whole program simply terminates. The
     final state should be the same as the one in which the [BREAK]
     statement was executed. *)
-(** 次に、[BREA]の振舞いを定義する必要があります。非形式的には、[BREAK]がコマンド列の中で実行されたらいつでも、
+(** 次に、[BREAK]の振舞いを定義する必要があります。非形式的には、[BREAK]がコマンド列の中で実行されたらいつでも、
    そのシーケンスの実行を中断し、最も最近のループ(もしあれば)は終了するようにシグナルを出します。
    もし、ループが無ければ、プログラム全体も終了します。
 (*    One important point is what to do when there are multiple loops
@@ -2248,13 +2255,13 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
 *)
 (** 重要な点は、多重ループにおいて、[BREAK]が現われた場合に、何をすべきか、ということです。これらの場合、
 [BREAK]は最も最近(_innermost_)のループだけを終了させるべきです。それゆえ、次のコードの断片の実行後...
-   X ::= 0;
-   Y ::= 1;
+   X ::= 0;;
+   Y ::= 1;;
    WHILE 0 <> Y DO
      WHILE TRUE DO
        BREAK
-     END;
-     X ::= 1;
+     END;;
+     X ::= 1;;
      Y ::= Y - 1
    END
    ... [X]の値は[0]ではなく、[1]であるべきです。 *)
@@ -2279,17 +2286,11 @@ Reserved Notation "c1 '/' st '||' s '/' st'"
     that any surrounding loop (or the whole program) should exit
     immediately ([s = SBreak]) or that execution should continue
     normally ([s = SContinue]).
-*)
-(** 直感的に、[c / st || s / st']は次のことを意味します。もし、[c]が状態[st]で開始しているならば、
-    それは状態[st']で終了し、囲まれているループ(またはプログラム全体)に対し直ちに([s=SBreak]の場合)終了するか、
-    実行を正常どおり([s = SContinue]の場合)続けるかシグナルを出します。
-*)    
-(*    The definition of the "[c / st || s / st']" relation is very
+
+    The definition of the "[c / st || s / st']" relation is very
     similar to the one we gave above for the regular evaluation
     relation ([c / st || s / st']) -- we just need to handle the
-    termination signals appropriately: *)
-    
-(** "[c /st || s / st']" の関係の定義は
+    termination signals appropriately:
 
     - If the command is [SKIP], then the state doesn't change, and
       execution of any enclosing loop can continue normally.
@@ -2323,9 +2324,26 @@ Reserved Notation "c1 '/' st '||' s '/' st'"
       same as the one resulting from the execution of the current
       iteration. In either case, since [BREAK] only terminates the
       innermost loop, [WHILE] signals [SContinue]. *)
+(** 直感的に、[c / st || s / st']は次のことを意味します。もし、[c]が状態[st]で開始しているならば、それは状態[st']で終了し、囲まれているループ(またはプログラム全体)に対し直ちに([s=SBreak]の場合)終了するか、実行を正常どおり([s = SContinue]の場合)続けるかシグナルを出します。
+  "[c / st || s / st']" 関係の定義は、上記で通常の関係の評価として我々が与えた一つ	([c / st || s / st']) にとてもよく似ています。 -- 必要になるのは、終了シグナルを適切にハンドルすることだけです。
+   
+*)    
+    - [SKIP]コマンドの場合、状態は変更されませんし、どんな外部ループも正常に実行を続けることが出来ます。
 
-(** Based on the above description, complete the definition of the
+    - [BREAK]コマンドの場合、状態は不変のままですが、[SBreak]シグナルを送出します。
+
+    - 代入コマンドの場合は、状態の中にある変数の束縛を代入コマンドに従って更新します。そして正常に実行を続けることが出来ます。
+
+    - コマンドが[IF b THEN c1 ELSE c2 FI]の形をしている場合、状態はImpの元々の意味で更新されます。選択された枝の実行からのシグナルを伝播することを除いて。
+
+    - 複文コマンド[c1 ;; c2]の場合、最初にまず[c1]を実行します。もしc1が[SBreak]を送出するなら、c2の実行をスキップして、囲まれている文脈にたいして、[SBreak]シグナルを送出します。その結果として状態は、ただ[c1]だけを実行したものと同じになります。また、[c1]を実行して得た状態の元で、[c2]を実行した場合は、そこで生成されたシグナルを伝播します。
+
+    - 最後に、[WHILE b DO c END]の形のループをとりあげます。そのセマンティクスは、これまでのものとほとんど同じです。違いはただ、[b]がtrueと評価された場合に、[c]を実行し、送出されてるシグナルのチェックを行うことだけです。もし、シグナルが[SContinue]である場合は、元のImpと同じ意味になりますし、[SBreak]の場合は、ループの実行を止めて、状態が結果として、現在の繰り返しの実行による状態と同じなります。いずれにせよ、[BREAK]は最も内側のループだけを終了させ、[WHILE]そのものは、[SContinue]シグナルを送出します。
+*)
+
+(*  Based on the above description, complete the definition of the
     [ceval] relation. *)
+(** 上記の記述に基いて、[ceval]関係の定義を完成させなさい。*)
 
 Inductive ceval : com -> state -> status -> state -> Prop :=
   | E_Skip : forall st,
@@ -2340,8 +2358,8 @@ Tactic Notation "ceval_cases" tactic(first) ident(c) :=
   (* FILL IN HERE *)
   ].
 
-(** Now the following properties of your definition of [ceval]: *)
-
+(*  Now the following properties of your definition of [ceval]: *)
+(** あなたの[ceval]の定義が次の性質を満たしているか確認しなさい *)
 Theorem break_ignore : forall c st st' s,
      (BREAK;; c) / st || s / st' ->
      st = st'.
@@ -2361,7 +2379,8 @@ Theorem while_stops_on_break : forall b c st st',
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(** **** Exercise: 3 stars, advanced, optional (while_break_true)  *)
+(*  **** Exercise: 3 stars, advanced, optional (while_break_true)  *)
+(** **** 練習問題: ★★★, advanced, optional (while_break_true)  *)
 Theorem while_break_true : forall b c st st',
   (WHILE b DO c END) / st || SContinue / st' ->
   beval st' b = true ->
@@ -2369,7 +2388,8 @@ Theorem while_break_true : forall b c st st',
 Proof.
 (* FILL IN HERE *) Admitted.
 
-(** **** Exercise: 4 stars, advanced, optional (ceval_deterministic)  *)
+(*  **** Exercise: 4 stars, advanced, optional (ceval_deterministic)  *)
+(** **** 練習問題: ★★★★, advanced, optional (ceval_deterministic)  *)
 Theorem ceval_deterministic: forall (c:com) st st1 st2 s1 s2,
      c / st || s1 / st1  ->
      c / st || s2 / st2 ->
