@@ -200,6 +200,7 @@ Definition equiv_classes : list (list com) :=
 
 (*  Here are some simple examples of equivalences of arithmetic
     and boolean expressions. *)
+(** 算術式とブール式の同値性の簡単な例をあげてみます。*)
 
 Theorem aequiv_example:
   aequiv (AMinus (AId X) (AId X)) (ANum 0).
@@ -433,7 +434,7 @@ Proof.
 
 (* **** Exercise: 2 stars (WHILE_false_informal) *)
 (** **** 練習問題: ★★ (WHILE_false_informal) *)
-(* Write an informal proof of WHILE_false.
+(*  Write an informal proof of WHILE_false.
 
 (* FILL IN HERE *)
 []
