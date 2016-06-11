@@ -1,35 +1,117 @@
 (** * Basics_J: Coqにおける関数プログラミング *)
 
-(* このライブラリの定義は、Coq8.3以前のためのもので、現在はCoqに含まれています。
-   どうか無視してください。 *)
 
+(* REMINDER:
+
+          #####################################################
+          ###  PLEASE DO NOT DISTRIBUTE SOLUTIONS PUBLICLY  ###
+          #####################################################
+
+   (See the [Preface] for why.) 
+
+*)
+(* リマインダ:
+
+          #####################################################
+          ###  どうか答えを公けに配布しないでください      ###
+          #####################################################
+
+   (なぜかは前書きを見てください)
+
+*)
+
+
+(* [Admitted] is Coq's "escape hatch" that says accept this definition
+   without proof.  We use it to mark the 'holes' in the development
+   that should be completed as part of your homework exercises.  In
+   practice, [Admitted] is useful when you're incrementally developing
+   large proofs. *)
+(* [Admitted] はCoqにおける"脱出口"のようなものです。Admittedが書かれている定義を証明なしに受け入れることが出来ます。あなたの宿題の一部として完成させるべき証明の穴であることを示すためにそれを我々は使用します。とりわけ、[Admitted]は大きな証明を段階的に構築する時に役に立ちます。*)
 Definition admit {T: Type} : T.  Admitted.
 
+(* ###################################################################### *)
 (** * 導入 *)
 
+(*  The functional programming style brings programming closer to
+    simple, everyday mathematics: If a procedure or method has no side
+    effects, then (ignoring efficiency) all we need to understand
+    about it is how it maps inputs to outputs -- that is, we can think
+    of it as just a concrete method for computing a mathematical
+    function.  This is one sense of the word "functional" in
+    "functional programming."  The direct connection between programs
+    and simple mathematical objects supports both formal correctness
+    proofs and sound informal reasoning about program behavior.
+
+    The other sense in which functional programming is "functional" is
+    that it emphasizes the use of functions (or methods) as
+    _first-class_ values -- i.e., values that can be passed as
+    arguments to other functions, returned as results, included in
+    data structures, etc.  The recognition that functions can be
+    treated as data in this way enables a host of useful and powerful
+    idioms.
+
+    Other common features of functional languages include _algebraic
+    data types_ and _pattern matching_, which make it easy to
+    construct and manipulate rich data structures, and sophisticated
+    _polymorphic type systems_ supporting abstraction and code reuse.
+    Coq shares all of these features.
+
+    The first half of this chapter introduces the most essential
+    elements of Coq's functional programming language.  The second
+    half introduces some basic _tactics_ that can be used to prove
+    simple properties of Coq programs. *)
 (**
   関数型プログラミングのスタイルはプログラミングを数学に近付けます: もしプロシージャやメソッドが副作用を持たないならば、それに関して理解するために必要なものは、入力と出力の対応だけです。すなわち、それらは、数学的な関数を計算するのと全く同じ振舞いであると考えることが出来ます。これは 関数型プログラミングにおいて、"関数型"という単語の一つの理由です。このプログラムと単純な数学的オブジェクトとの直接的な関係は、妥当な非形式的な理由付けと形式的な正当性の証明の両方をサポートします。
 
   関数型プログラミングが"関数型"である別の意味は、関数(またはメソッド)を_第一級_の値としての使用を重要視することです。すなわち、関数は、他の関数の引数として渡すことが出来る値であり、結果として返されもし、データ構造として格納されます。等々。関数がこのような方法でデータとして扱われうるという認識は、たくさんの有用な表現を可能にします。これからそれを見ていきます。
 
 関数型言語に共通する他の特徴は、_代数的なデータ型_と_パターンマッチ_、それらは、リッチなデータ構造の構築と操作を可能にします。そして、コードの抽象化再利用を可能にする洗練された_多相的な型システム_です。Coqはこれらの特徴を全て備えています。
+
+  この章の最初の半分で、Coqのプログラミング言語としての最も本質的な要素を紹介します。残りの半分は、Coq言語の単純な命題を証明するために使用することの出来る基本的なタクティックの紹介を行います。
 *)
 
 
 (* ###################################################################### *)
+(*  * Enumerated Types *)
 (** * 列挙型 *)
 
-(** プログラミング言語Coqには、ほとんど何も（ブール型や数値型すら）ビルトインされていません。その代わりCoqには、新しい型やそれを処理するための強力なツールが用意されています。 
+(*  One unusual aspect of Coq is that its set of built-in
+    features is _extremely_ small.  For example, instead of providing
+    the usual palette of atomic data types (booleans, integers,
+    strings, etc.), Coq offers a powerful mechanism for defining new
+    data types from scratch, from which all these familiar types arise
+    as instances.
+
+    Naturally, the Coq distribution comes with an extensive standard
+    library providing definitions of booleans, numbers, and many
+    common data structures like lists and hash tables.  But there is
+    nothing magic or primitive about these library definitions.  To
+    illustrate this, we will explicitly recapitulate all the
+    definitions we need in this course, rather than just getting them
+    implicitly from the library.
+
+    To see how this definition mechanism works, let's start with a
+    very simple example. *)
+
+(** 
+Coqの普通でない特徴の一つは、ビルトインされている機能が極端に小さいことです。例えば、アトミックなデータタイプのよくある一揃い（ブール型や数値型など）の代わりにCoqには、新しい型をスクラッチで定義するための協力な機構が用意されており、その機構によって全てのよくあるこれらの型を表すことが出来ます。
  
   当然のことですが、Coqのディストリビューションには、品揃え豊富な標準ライブラリが付属しており、その中で、ブール型、数値型、その他多くのリストやハッシュテーブルに似たデータ構造を提供しています。しかしながら、それらのライブラリ定義のための魔法やプリミティブは存在しません。それらは、通常のユーザコードです。
+このことを説明するために、暗黙的にライブラリからそれらをただ使用するのではなく、明示的に我々がこのコースで必要とする全ての定義を反復して行くことにします。
 
-これがどう動作するか見る為に、とても単純な例から始めましょう。
+この定義の仕組みがどう動作するか見る為に、とても単純な例から始めましょう。
 *)
 
 (* ###################################################################### *)
+(*  ** Days of the Week *)
 (** ** 曜日の表し方 *)
 
+(*  The following declaration tells Coq that we are defining
+    a new set of data values -- a _type_. *)
 (** 次の宣言は、Coqに対して、新しいデータ値のセット（集合）である'型'を定義しています。*)
+
+Inductive day : Type :=
+  | monday : day
 
 Inductive day : Type :=
   | monday : day
@@ -40,6 +122,12 @@ Inductive day : Type :=
   | saturday : day
   | sunday : day.
 
+(*  The type is called [day], and its members are [monday],
+    [tuesday], etc.  The second and following lines of the definition
+    can be read "[monday] is a [day], [tuesday] is a [day], etc."
+
+    Having defined [day], we can write functions that operate on
+    days. *)
 (** その型は[day]で、要素は[monday]、[tuesday]...などです。その定義の1行は以下のようにも読めます。"[monday]は[day]。[tuesday]は[day]"といった具合です。
  
  "[day]"が何かを定義できれば、それを利用して関数を書くこともできるでしょう。 *)
