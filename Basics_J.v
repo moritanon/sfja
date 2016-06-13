@@ -112,9 +112,6 @@ Coqの普通でない特徴の一つは、ビルトインされている機能�
 
 Inductive day : Type :=
   | monday : day
-
-Inductive day : Type :=
-  | monday : day
   | tuesday : day
   | wednesday : day
   | thursday : day
@@ -134,45 +131,90 @@ Inductive day : Type :=
 
 Definition next_weekday (d:day) : day :=
   match d with
-  | monday => tuesday
-  | tuesday => wednesday
+  | monday    => tuesday
+  | tuesday   => wednesday
   | wednesday => thursday
-  | thursday => friday
-  | friday => monday
-  | saturday => monday
-  | sunday => monday
+  | thursday  => friday
+  | friday    => monday
+  | saturday  => monday
+  | sunday    => monday
   end.
+
+(*  One thing to note is that the argument and return types of
+    this function are explicitly declared.  Like most functional
+    programming languages, Coq can often figure out these types for
+    itself when they are not given explicitly -- i.e., it performs
+    _type inference_ -- but we'll include them to make reading
+    easier. *)
 
 (** 一つ注意しておかなければならないことがあります。この関数の定義では、引数の型と戻り値の型が明示されていることです。他の多くの関数型プログラミング言語と同様、Coqはこのように型を明示的に書かずともちゃんと動くようになっています。それはいわゆる「型推論」という機構によって実現されていますが、型を明示した方がプログラムを読みやすくできると判断するなら、いつでもそうしてかまいません。 *)
 
-(** 関数の定義ができたら、いくつかの例を挙げてそれが正しいものであることをチェックしなければなりません。それを実現するために、Coqには三つの方法が用意されています。一つ目は「[Eval compute]」コマンドを使って、関数[next_weekday]を含んだ式を評価させることです。*)
+(*  Having defined a function, we should check that it works on
+    some examples.  There are actually three different ways to do this
+    in Coq.
 
-Eval compute in (next_weekday friday).
+    First, we can use the command [Compute] to evaluate a compound
+    expression involving [next_weekday]. *)
+
+(** 関数の定義ができたら、いくつかの例を挙げてそれが正しいものであることをチェックしなければなりません。それを実現するために、Coqには三つの方法が用意されています。一つ目の方法は「[Compute]」コマンドを使って、関数[next_weekday]を含んだ式を評価させることです。*)
+
+Compute in (next_weekday friday).
 (* ==> monday : day *)
-Eval compute in (next_weekday (next_weekday saturday)).
+Compute in (next_weekday (next_weekday saturday)).
 (* ==> tuesday : day *)
 
-(** もし今手元にコンピュータがあるなら、CoqのIDEのうち好きなもの（CoqIDEやProofGeneralなどから）を選んで起動し、実際に上のコマンドを入力し動かしてみるといいでしょう。付録の「[Basic.v]」ファイルから上のサンプルを探してCoqに読み込ませ、結果を観察してください。 *)
+(*  (We show Coq's responses in comments, but, if you have a
+    computer handy, this would be an excellent moment to fire up the
+    Coq interpreter under your favorite IDE -- either CoqIde or Proof
+    General -- and try this for yourself.  Load this file, [Basics.v],
+    from the book's accompanying Coq sources, find the above example,
+    submit it to Coq, and observe the result.)
 
-(** 「[compute]」というキーワードは、Coqに対して「我々が与えた式を正確に評価せよ」という命令です。しばらくの間、「[compute]」コマンドは我々にとって必要な唯一のコマンドになるでしょう。この後でもう少し使い出のある別のコマンドを覚えるまでの間ですが。 *)
+    Second, we can record what we _expect_ the result to be in the
+    form of a Coq example: *)
+(** Coqの応答をコメントの形で示しています。 もし今あなたの手元にコンピュータがあるなら、CoqのIDEのうち好きなもの（CoqIDEやProofGeneralなどから）を選んで起動し、実際に上のコマンドを入力し動かしてみるといいでしょう。付録の「[Basic.v]」ファイルから上のサンプルを探してCoqに読み込ませ、結果を観察してください。
 
-(** 二番目の方法は、評価の結果として我々が"期待"しているものをCoqに対してあらかじめ以下のような形で例示しておくというものです。 *)
+二番目の方法は、評価の結果として我々が"期待"しているものをCoqに対してあらかじめ以下のような形で例示しておくというものです。 *)
 
 Example test_next_weekday:
   (next_weekday (next_weekday saturday)) = tuesday.
+
+(*  This declaration does two things: it makes an
+    assertion (that the second weekday after [saturday] is [tuesday]),
+    and it gives the assertion a name that can be used to refer to it
+    later.
+
+    Having made the assertion, we can also ask Coq to verify it, like
+    this: *)
 
 (** この宣言は二つのことを行っています。ひとつは、[saturday]の次の次にあたる平日が、[tuesday]であるということを確認する必要があるということを示すこと。もう一つは、後で参照しやすいように、その確認事項に[test_next_weekday]という名前を与えていることです。
     この確認事項を定義すれば、次のようなコマンドを流すだけで、Coqによって正しさを検証できます。 *)
 
 Proof. simpl. reflexivity.  Qed.
 
-(** この文について細かいことは今は置いておきますが（じきに戻ってきます）、本質的には以下のような意味になります「我々が作成した確認事項は簡約後の両辺の同値チェックによって証明されました。」 *)
+(** The details are not important for now (we'll come back to
+    them in a bit), but essentially this can be read as "The assertion
+    we've just made can be proved by observing that both sides of the
+    equality evaluate to the same thing, after some simplification."
 
-(** 三番目の方法は、Coqで[定義]したものから、他のより一般的な言語（OcamlやScheme、Haskellといった）のプログラムを抽出してしまうことです。この機能は今主流の言語で完全に確認されたプログラムを実現できる道を開いたという意味でとても興味深いものです。ここではこの件について深入りすることはしませんが、もしより深く知りたいという場合はCoq'Art book（Bertot and Casteran著）か、Coqリファレンスマニュアルを参照してください。 *)
+    Third, we can ask Coq to _extract_, from our [Definition], a
+    program in some other, more conventional, programming
+    language (OCaml, Scheme, or Haskell) with a high-performance
+    compiler.  This facility is very interesting, since it gives us a
+    way to construct _fully certified_ programs in mainstream
+    languages.  Indeed, this is one of the main uses for which Coq was
+    developed.  We'll come back to this topic in later chapters. *)
+
+(** この文について細かいことは今は置いておきますが（じきに戻ってきます）、本質的には以下のような意味になります「我々が作成した確認事項は簡約後の両辺の同値チェックによって証明されました。」
+
+ 三番目の方法は、Coqで[定義]したものから、他のより一般的な言語（OcamlやScheme、Haskellといった）のプログラムを抽出してしまうことです。この機能は今主流の言語で完全に確認されたプログラムを実現できる道を開いたという意味でとても興味深いものです。ここではこの件について深入りすることはしませんが、もしより深く知りたいという場合はCoq'Art book（Bertot and Casteran著）か、Coqリファレンスマニュアルを参照してください。 *)
 
 (* ###################################################################### *)
+(*  ** Booleans *)
 (** ** ブール型 *)
 
+(*  In a similar way, we can define the standard type [bool] of
+    booleans, with members [true] and [false]. *)
 (** 同様にして、[true]と[false]を値としてとる「[bool型]」を定義することができます。 *)
 
 Inductive bool : Type :=
