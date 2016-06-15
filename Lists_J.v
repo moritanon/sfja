@@ -1,72 +1,72 @@
-(** * Lists_J: 構造化データと一緒に *)
 (* * Lists: Working with Structured Data *)
+(** * Lists_J: 構造化データと一緒に *)
 
 Require Export Induction_J.
 
 Module NatList.
 
 (* ###################################################### *)
+(*  * Pairs of Numbers *)
 (** * 数のペア *)
 
+(*  In an [Inductive] type definition, each constructor can take
+    any number of arguments -- none (as with [true] and [O]), one (as
+    with [S]), or more than one, as here: *)
 (**
    [Inductive] による型定義では、各構成子は任意の個数の引数を取ることができました。
    [true] や [O] のように引数のないもの、 [S] のようにひとつのもの、また、ふたつ以上の取るものも以下のように定義することができます。
    *)
 
 Inductive natprod : Type :=
-  pair : nat -> nat -> natprod.
+| pair : nat -> nat -> natprod.
 
-(* This declaration can be read: "There is just one way to
-    construct a pair of numbers: by applying the constructor [pair] to
-    two arguments of type [nat]."*)
-(**
-   この定義は以下のように読めます。すなわち、「数のペアを構成する方法がただひとつある。それは、構成子 [pair] を [nat] 型のふたつの引数に適用することである」。*)
-
-(* We can contruct an element of [natprod] like this: *)
-(** [natprod]型の要素をこのように構築することが出来ます。*)
+(*  This declaration can be read: "There is one way to construct
+    a pair of numbers: by applying the constructor [pair] to two
+    arguments of type [nat]." *)
+(** この定義は以下のように読めます。すなわち、「数のペアを構成する方法がひとつある。それは、構成子 [pair] を [nat] 型のふたつの引数に適用することである」。*)
 
 Check (pair 3 5).
 
-(* Here are two simple function definitions for extracting the
-    first and second components of a pair.  (The definitions also
-    illustrate how to do pattern matching on two-argument
-    constructors.) *)
-(** ここに二つのペアの一つめと二つめの要素を展開する簡単な関数定義があります。(これら定義もまたどのように二引数のコンストラクタにパターンマッチするかを示すものでもあります。)*)
+(*  Here are two simple functions for extracting the first and
+    second components of a pair.  The definitions also illustrate how
+    to do pattern matching on two-argument constructors. *)
+(** ここに二つのペアの一つめと二つめの要素を展開する簡単な関数があります。これら定義もまたどのように二引数のコンストラクタにパターンマッチするかを示しています。)*)
 
 Definition fst (p : natprod) : nat :=
   match p with
   | pair x y => x
   end.
+
 Definition snd (p : natprod) : nat :=
   match p with
   | pair x y => y
   end.
 
-Eval compute in (fst (pair 3 5)).
+Compute (fst (pair 3 5)).
 (* ===> 3 *)
 
-(* Since pairs are used quite a bit, it is nice to be able to
+(*  Since pairs are used quite a bit, it is nice to be able to
     write them with the standard mathematical notation [(x,y)] instead
     of [pair x y].  We can tell Coq to allow this with a [Notation]
     declaration. *)
-(**
-   ペアはよく使うものなので、 [pair x y] ではなく、数学の標準的な記法で [(x, y)] と書けるとよいでしょう。このような記法を使うためには [Notation] 宣言を使います。
+(** ペアはよく使うものなので、 [pair x y] ではなく、数学の標準的な記法で [(x, y)] と書けるとよいでしょう。このような記法を使うためには [Notation] 宣言を使います。
    *)
 
 Notation "( x , y )" := (pair x y).
 
 (* The new notation can be used both in expressions and in
     pattern matches (indeed, we've seen it already in the previous
-    chapter -- this notation is provided as part of the standard
-    library): *)
-(** こうして定義した新しい記法（notation）は、式だけでなくパターンマッチに使うこともできます。（実際には、前章でも見たように、この記法は標準ライブラリの一部として提供されています。） *)
+    chapter -- this works because the pair notation is actually
+    provided as part of the standard library): *)
+(** こうして定義した新しい記法（notation）は、式だけでなくパターンマッチに使うこともできます。（実際には、前章でも見たように、ペアの記法は標準ライブラリの一部として提供されているので、これは動作します。） *)
 
-Eval compute in (fst (3,5)).
+Compute (fst (3,5)).
 
 Definition fst' (p : natprod) : nat :=
   match p with
   | (x,y) => x
   end.
+
 Definition snd' (p : natprod) : nat :=
   match p with
   | (x,y) => y
@@ -77,12 +77,15 @@ Definition swap_pair (p : natprod) : natprod :=
   | (x,y) => (y,x)
   end.
 
-(* Let's try and prove a few simple facts about pairs.  If we
-    state the lemmas in a particular (and slightly peculiar) way, we
-    can prove them with just reflexivity (and its built-in
+(** Let's try to prove a few simple facts about pairs.
+
+    If we state things in a particular (and slightly peculiar) way, we
+    can complete proofs with just reflexivity (and its built-in
     simplification): *)
 (**
-   それでは、数のペアに関する簡単な事実をいくつか証明してみましょう。補題を一定の（一種独特な）形式で書いておけば、単に reflexivity（と組み込みの簡約）だけで証明することができます。
+   それでは、数のペアに関する簡単な事実をいくつか証明してみましょう。
+   
+   もし、特定の(僅かに奇妙な)方法でものごとを述べておけば、単に reflexivity（と組み込みの簡約）だけで証明することができます。
    *)
 
 Theorem surjective_pairing' : forall (n m : nat),
@@ -90,15 +93,15 @@ Theorem surjective_pairing' : forall (n m : nat),
 Proof.
   reflexivity.  Qed.
 
-(* Note that [reflexivity] is not enough if we state the lemma in a more
+(*  But [reflexivity] is not enough if we state the lemma in a more
     natural way: *)
-(** 補題を以下のようにより自然な書き方をした場合は、反射律では足りないことに注意してください。 *)
+(** しかし、補題を以下のようにより自然な書き方をした場合は、反射律では足りないことに注意してください。 *)
 
 Theorem surjective_pairing_stuck : forall (p : natprod),
   p = (fst p, snd p).
 Proof.
   simpl. (* なにも変わらない！ *)
-Admitted.
+Abort.
 
 (* We have to expose the structure of [p] so that [simpl] can
     perform the pattern match in [fst] and [snd].  We can do this with
@@ -154,40 +157,42 @@ Inductive natlist : Type :=
 Definition mylist := cons 1 (cons 2 (cons 3 nil)).
 
 (* As with pairs, it is more convenient to write lists in
-    familiar programming notation.  The following two declarations
+    familiar programming notation.  The following declarations
     allow us to use [::] as an infix [cons] operator and square
     brackets as an "outfix" notation for constructing lists. *)
 (**
-   ペアの場合と同じく、リストをプログラミング言語で馴染んだ記法で書くことができると便利でしょう。次のふたつの宣言では [::] を中置の [cons] 演算子として使えるようにし、角括弧をリストを構成するための外置（outfix）記法として使えるようにしています。
+   ペアの場合と同じく、リストをプログラミング言語で馴染んだ記法で書くことができると便利でしょう。以下の宣言では [::] を中置の [cons] 演算子として使えるようにし、角括弧をリストを構成するための外置（outfix）記法として使えるようにしています。
    *)
 
-Notation "x :: l" := (cons x l) (at level 60, right associativity).
+Notation "x :: l" := (cons x l)
+                     (at level 60, right associativity).
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..).
 
-(* It is not necessary to fully understand these declarations,
-    but in case you are interested, here is roughly what's going on.
-
-    The [right associativity] annotation tells Coq how to parenthesize
-    expressions involving several uses of [::] so that, for example,
-    the next three declarations mean exactly the same thing: *)
+(*  It is not necessary to understand the detail of these
+    declarations, but in case you are interested, here is roughly
+    what's going on.  The [right associativity] annotation tells Coq
+    how to parenthesize expressions involving several uses of [::] so
+    that, for example, the next three declarations mean exactly the
+    same thing: *)
 (**
-   この宣言を完全に理解する必要はありませんが、興味のある読者のために簡単に説明しておきます。
-
+   これら宣言の詳細を理解する必要はありませんが、興味のある読者のために簡単に説明しておきます。
    [right associativity] アノテーションは複数の [::] を使った式にどのように括弧を付けるか指示するものです。例えば、次のみっつの宣言はすべて同じ意味に解釈されます。
    *)
 
-Definition mylist1   := 1 :: (2 :: (3 :: nil)).
-Definition mylist2  := 1 :: 2 :: 3 :: nil.
+Definition mylist1 := 1 :: (2 :: (3 :: nil)).
+Definition mylist2 := 1 :: 2 :: 3 :: nil.
 Definition mylist3 := [1;2;3].
 
 (* The [at level 60] part tells Coq how to parenthesize
     expressions that involve both [::] and some other infix operator.
     For example, since we defined [+] as infix notation for the [plus]
     function at level 50,
-Notation "x + y" := (plus x y)  
-                    (at level 50, left associativity).
-   The [+] operator will bind tighter than [::], so [1 + 2 :: [3]]
+
+  Notation "x + y" := (plus x y)
+                      (at level 50, left associativity).
+
+   the [+] operator will bind tighter than [::], so [1 + 2 :: [3]]
    will be parsed, as we'd expect, as [(1 + 2) :: [3]] rather than [1
    + (2 :: [3])].
 
@@ -259,10 +264,10 @@ Proof. reflexivity.  Qed.
 
 (* Here are two more small examples of programming with lists.
     The [hd] function returns the first element (the "head") of the
-    list, while [tail] returns everything but the first
+    list, while [tl] returns everything but the first
     element.  Of course, the empty list has no first element, so we
     must pass a default value to be returned in that case.  *)
-(** もうふたつリストを使った例を見てみましょう。 [hd] 関数はリストの最初の要素（先頭—— head）を返し、 [tail] は最初の要素を除いたものを返します。空のリストには最初の要素はありませんから、その場合に返す値を引数として渡しておかなければなりません。 *)
+(** もうふたつリストを使った例を見てみましょう。 [hd] 関数はリストの最初の要素（先頭—— head）を返し、 [tl] は最初の要素を除いたものを返します。空のリストには最初の要素はありませんから、その場合に返す値を引数として渡しておかなければなりません。 *)
 
 Definition hd (default:nat) (l:natlist) : nat :=
   match l with
@@ -270,7 +275,7 @@ Definition hd (default:nat) (l:natlist) : nat :=
   | h :: t => h
   end.
 
-Definition tail (l:natlist) : natlist :=
+Definition tl (l:natlist) : natlist :=
   match l with
   | nil => nil
   | h :: t => t
@@ -280,7 +285,7 @@ Example test_hd1:             hd 0 [1;2;3] = 1.
 Proof. reflexivity.  Qed.
 Example test_hd2:             hd 0 [] = 0.
 Proof. reflexivity.  Qed.
-Example test_tail:            tail [1;2;3] = [2;3].
+Example test_tl:            tl [1;2;3] = [2;3].
 Proof. reflexivity.  Qed.
 
 (* **** Exercise: 2 stars, recommended (list_funs) *)
@@ -425,25 +430,32 @@ Fixpoint remove_one (v:nat) (s:bag) : bag :=
   (* [remove_one] を削除すべき数のないバッグに適用した場合は、同じバッグを変更せずに返す *)
   (* FILL IN HERE *) admit.
 
-Example test_remove_one1:         count 5 (remove_one 5 [2;1;5;4;1]) = 0.
- (* FILL IN HERE *) Admitted.
-Example test_remove_one2:         count 5 (remove_one 5 [2;1;4;1]) = 0.
- (* FILL IN HERE *) Admitted.
-Example test_remove_one3:         count 4 (remove_one 5 [2;1;4;5;1;4]) = 2.
- (* FILL IN HERE *) Admitted.
-Example test_remove_one4:         count 5 (remove_one 5 [2;1;5;4;5;1;4]) = 1.
- (* FILL IN HERE *) Admitted.
+Example test_remove_one1:
+  count 5 (remove_one 5 [2;1;5;4;1]) = 0.
+  (* FILL IN HERE *) Admitted.
+
+Example test_remove_one2:
+  count 5 (remove_one 5 [2;1;4;1]) = 0.
+  (* FILL IN HERE *) Admitted.
+
+Example test_remove_one3:
+  count 4 (remove_one 5 [2;1;4;5;1;4]) = 2.
+  (* FILL IN HERE *) Admitted.
+
+Example test_remove_one4:
+  count 5 (remove_one 5 [2;1;5;4;5;1;4]) = 1.
+  (* FILL IN HERE *) Admitted.
 
 Fixpoint remove_all (v:nat) (s:bag) : bag :=
   (* FILL IN HERE *) admit.
 
-Example test_remove_all1:          count 5 (remove_all 5 [2;1;5;4;1]) = 0.
+Example test_remove_all1:  count 5 (remove_all 5 [2;1;5;4;1]) = 0.
  (* FILL IN HERE *) Admitted.
-Example test_remove_all2:          count 5 (remove_all 5 [2;1;4;1]) = 0.
+Example test_remove_all2:  count 5 (remove_all 5 [2;1;4;1]) = 0.
  (* FILL IN HERE *) Admitted.
-Example test_remove_all3:          count 4 (remove_all 5 [2;1;4;5;1;4]) = 2.
+Example test_remove_all3:  count 4 (remove_all 5 [2;1;4;5;1;4]) = 2.
  (* FILL IN HERE *) Admitted.
-Example test_remove_all4:          count 5 (remove_all 5 [2;1;5;4;5;1;4;5;1;4]) = 0.
+Example test_remove_all4:  count 5 (remove_all 5 [2;1;5;4;5;1;4;5;1;4]) = 0.
  (* FILL IN HERE *) Admitted.
 
 Fixpoint subset (s1:bag) (s2:bag) : bool :=
@@ -501,7 +513,7 @@ Proof.
    *)
 
 Theorem tl_length_pred : forall l:natlist,
-  pred (length l) = length (tail l).
+  pred (length l) = length (tl l).
 Proof.
   intros l. destruct l as [| n l'].
   Case "l = nil".
@@ -559,12 +571,12 @@ Proof.
       - First, show that [P] is true of [l] when [l] is [nil].
 
       - Then show that [P] is true of [l] when [l] is [cons n l'] for
-        some number [n] and some smaller list [l'], asssuming that [P]
+        some number [n] and some smaller list [l'], assuming that [P]
         is true for [l'].
 
     Since larger lists can only be built up from smaller ones,
-    eventually reaching [nil], these two things together establish the
-    truth of [P] for all lists [l].  Here's a concrete example: *)
+    eventually reaching [nil], these two arguments together establish
+    the truth of [P] for all lists [l].  Here's a concrete example: *)
 (**
    [natlist] のようなデータ型に対して帰納法で証明をするのは、普通の自然数に対する帰納法よりも馴染みにくさを感じたことでしょう。しかし、基本的な考え方は同じくらい簡単です。 [Inductive] 宣言では、宣言した構成子から構築できるデータ方の集合を定義しています。例えば、ブール値では [true] と [false] のいずれかであり、数では [O] か数に対する [S] のいずれか、リストであれば [nil] か数とリストに対する [cons] のいずれかです。
 
@@ -604,13 +616,19 @@ Proof.
    _Proof_: By induction on [l1].
 
    - First, suppose [l1 = []].  We must show
+
        ([] ++ l2) ++ l3 = [] ++ (l2 ++ l3),
+
      which follows directly from the definition of [++].
 
    - Next, suppose [l1 = n::l1'], with
+
        (l1' ++ l2) ++ l3 = l1' ++ (l2 ++ l3)
+
      (the induction hypothesis). We must show
+
        ((n :: l1') ++ l2) ++ l3 = (n :: l1') ++ (l2 ++ l3).
+
      By the definition of [++], this follows from
        n :: ((l1' ++ l2) ++ l3) = n :: (l1' ++ (l2 ++ l3)),
 ]]
