@@ -402,6 +402,9 @@ Proof.
    replaces (all copies of) expression [t] in the goal by expression
    [u], and generates [t = u] as an additional subgoal. This is often
    useful when a plain [rewrite] acts on the wrong part of the goal.
+
+    Use the [replace] tactic to do a proof of [plus_swap'], just like
+   [plus_swap] but without needing [assert (n + m = m + n)]. *)
 (** [replace]タクティックは、特定のサブタームを置き換えたいものと置き換えることができます。もう少し正確に言うと、[replace (t) with (u)]は、ゴールにある[t]という式を全て[u]にかきかえ、[t = u]というサブゴールを追加します。この機能は、通常の[rewrite]がゴールの思い通りの場所に作用してくれない場合に有効です。
 
 [replace]タクティックを使用して[plus_swap']の証明をしなさい。ただし[plus_swap]のように[assert (n + m = m + n)]を使用しないで証明を完成させなさい。
