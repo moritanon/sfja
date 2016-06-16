@@ -148,15 +148,15 @@ Proof.
    *)
 
 Inductive natlist : Type :=
-  | nil : natlist
+  | nil  : natlist
   | cons : nat -> natlist -> natlist.
 
-(* For example, here is a three-element list: *)
+(*  For example, here is a three-element list: *)
 (** たとえば、次の定義は要素が三つのリストです *)
 
 Definition mylist := cons 1 (cons 2 (cons 3 nil)).
 
-(* As with pairs, it is more convenient to write lists in
+(*  As with pairs, it is more convenient to write lists in
     familiar programming notation.  The following declarations
     allow us to use [::] as an infix [cons] operator and square
     brackets as an "outfix" notation for constructing lists. *)
@@ -196,12 +196,12 @@ Definition mylist3 := [1;2;3].
    will be parsed, as we'd expect, as [(1 + 2) :: [3]] rather than [1
    + (2 :: [3])].
 
-   (By the way, it's worth noting in passing that expressions like "[1
-   + 2 :: [3]]" can be a little confusing when you read them in a .v
-   file.  The inner brackets, around 3, indicate a list, but the outer
-   brackets are there to instruct the "coqdoc" tool that the bracketed
+   (Expressions like "[1 + 2 :: [3]]" can be a little confusing when 
+   you read them in a .v file.  The inner brackets, around 3, indicate 
+   a list, but the outer brackets, which are invisible in the HTML 
+   rendering, are there to instruct the "coqdoc" tool that the bracketed 
    part should be displayed as Coq code rather than running text.)
-   
+
    The second and third [Notation] declarations above introduce the
    standard square-bracket notation for lists; the right-hand side of
    the third one illustrates Coq's syntax for declaring n-ary
@@ -213,12 +213,15 @@ Notation "x + y" := (plus x y)
                     (at level 50, left associativity).
    [+] は [::] よりも強く結合し、 [1 + 2 :: [3]] は期待通り、 [1 + (2 :: [3])] ではなく [(1 + 2) :: [3]] と構文解析されます。
 
-   （ところで、 .v ファイルを読んでいるときには "[1 + 2 :: [3]]" のような書き方は少し読みにくいように感じるでしょう。内側の 3 の左右の角括弧はリストを表すものですが、外側の括弧は coqdoc 用の命令で、角括弧内の部分をそのままのテキストではなく Coq のコードとして表示するよう指示するものです。）
+   ("[1 + 2 :: [3]]" のような式は、.vファイルを読むときに少し混乱させられます。内側の3を囲む括弧はリストを意味していますが、外側の括弧はHTMLレンダリン時に見えなくなりますし、coqdoc 用の命令で、角括弧内の部分をそのままのテキストではなく Coq のコードとして表示するよう指示するものです。）
 
    上の二番目と三番目の [Notation] 宣言は標準的なリストの記法を導入するためのものです。三番目の [Notation] の右辺は、 n 引数の記法を二項構成子の入れ子に変換する記法を定義するための Coq の構文の例です。
    *)
 
-(* A number of functions are useful for manipulating lists.
+(*  *** Repeat *)
+(** *** 繰り返し *)
+
+(*  A number of functions are useful for manipulating lists.
     For example, the [repeat] function takes a number [n] and a
     [count] and returns a list of length [count] where every element
     is [n]. *)
@@ -230,7 +233,9 @@ Fixpoint repeat (n count : nat) : natlist :=
   | S count' => n :: (repeat n count')
   end.
 
-(* The [length] function calculates the length of a list. *)
+(*  *** Length *)
+(** *** 長さ *)
+(*  The [length] function calculates the length of a list. *)
 (** [length] 関数はリストの長さを計算します。 *)
 
 Fixpoint length (l:natlist) : nat :=
@@ -285,36 +290,44 @@ Example test_hd1:             hd 0 [1;2;3] = 1.
 Proof. reflexivity.  Qed.
 Example test_hd2:             hd 0 [] = 0.
 Proof. reflexivity.  Qed.
-Example test_tl:            tl [1;2;3] = [2;3].
+Example test_tl:              tl [1;2;3] = [2;3].
 Proof. reflexivity.  Qed.
 
-(* **** Exercise: 2 stars, recommended (list_funs) *)
+(*  **** Exercise: 2 stars, recommended (list_funs) *)
 (** **** 練習問題: ★★, recommended (list_funs) *)
-(* Complete the definitions of [nonzeros], [oddmembers] and
-    [countoddmembers] below.  *)
-(** 以下の [nonzeros]、 [oddmembers]、 [countoddmembers] の定義を完成させなさい。  *)
+(*  Complete the definitions of [nonzeros], [oddmembers] and
+    [countoddmembers] below. Have a look at the tests to understand
+    what these functions should do. *)
+(** 以下の [nonzeros]、 [oddmembers]、 [countoddmembers] の定義を完成させなさい。そしてtestを見てこれらの関数が何を行なうのか理解しなさい。  *)
 
 Fixpoint nonzeros (l:natlist) : natlist :=
   (* FILL IN HERE *) admit.
 
-Example test_nonzeros:            nonzeros [0;1;0;2;3;0;0] = [1;2;3].
- (* FILL IN HERE *) Admitted.
+Example test_nonzeros:
+  nonzeros [0;1;0;2;3;0;0] = [1;2;3].
+  (* FILL IN HERE *) Admitted.
 
 Fixpoint oddmembers (l:natlist) : natlist :=
   (* FILL IN HERE *) admit.
 
-Example test_oddmembers:            oddmembers [0;1;0;2;3;0;0] = [1;3].
- (* FILL IN HERE *) Admitted.
+Example test_oddmembers:
+  oddmembers [0;1;0;2;3;0;0] = [1;3].
+  (* FILL IN HERE *) Admitted.
 
 Fixpoint countoddmembers (l:natlist) : nat :=
   (* FILL IN HERE *) admit.
 
-Example test_countoddmembers1:    countoddmembers [1;0;3;1;4;5] = 4.
- (* FILL IN HERE *) Admitted.
-Example test_countoddmembers2:    countoddmembers [0;2;4] = 0.
- (* FILL IN HERE *) Admitted.
-Example test_countoddmembers3:    countoddmembers nil = 0.
- (* FILL IN HERE *) Admitted.
+Example test_countoddmembers1:
+  countoddmembers [1;0;3;1;4;5] = 4.
+  (* FILL IN HERE *) Admitted.
+
+Example test_countoddmembers2:
+  countoddmembers [0;2;4] = 0.
+  (* FILL IN HERE *) Admitted.
+
+Example test_countoddmembers3:
+  countoddmembers nil = 0.
+  (* FILL IN HERE *) Admitted.
 (** [] *)
 
 (* **** Exercise: 3 stars (alternate) *)
