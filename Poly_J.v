@@ -1,23 +1,29 @@
+(*  * Poly: Polymorphism and Higher-Order Functions *)
 (** * Poly_J:多相性と高階関数 *)
 
-(* In this chapter we continue our development of basic
+(* REMINDER: Please do not put solutions to the exercises in
+   publicly accessible places.  Thank you!! *)
+(* REMINDER: どうか練習問題の答を公にアクセス出来る場所に置かないで。ありがとう *)
+Require Export Lists.
+
+(* ###################################################### *)
+(*  * Polymorphism *)
+(** * ポリモルフィズム（多相性） *)
+
+(*  In this chapter we continue our development of basic
     concepts of functional programming.  The critical new ideas are
     _polymorphism_ (abstracting functions over the types of the data
     they manipulate) and _higher-order functions_ (treating functions
-    as data).
-*)
-(** この章では、関数型プログラミングの基本的なコンセプトをさらに展開します。重要な、あたらしいアイデアは多相性(複数のデータ型に渡って関数を抽象化すること)と高階関数(データとして関数を取り扱うこと)です。
+    as data).  We begin with polymorphism. *)
+(** この章では、関数型プログラミングの基本的なコンセプトをさらに展開します。重要な、あたらしいアイデアは多相性(複数のデータ型に渡って関数を抽象化すること)と高階関数(データとして関数を取り扱うこと)です。では多相性について始めることにします。
 *)
 
-
-Require Export Lists_J.
 
 (* ###################################################### *)
-(** * ポリモルフィズム（多相性） *)
-(* ###################################################### *)
+(*  ** Polymorphic Lists *)
 (** ** 多相的なリスト *)
 
-(* For the last couple of chapters, we've been working just
+(*  For the last couple of chapters, we've been working just
     with lists of numbers.  Obviously, interesting programs also need
     to be able to manipulate lists with elements from other types --
     lists of strings, lists of booleans, lists of lists, etc.  We
@@ -29,16 +35,14 @@ Inductive boollist : Type :=
   | bool_nil : boollist
   | bool_cons : bool -> boollist -> boollist.
 
-(* ... but this would quickly become tedious, partly because we
+(*  ... but this would quickly become tedious, partly because we
     have to make up different constructor names for each datatype, but
     mostly because we would also need to define new versions of all
     our list manipulating functions ([length], [rev], etc.)  for each
     new datatype definition. *)
 (** ... しかし、こんなことをやっていると、すぐに嫌になってしまうでしょう。その理由の一つは、データ型ごとに違ったコンストラクタの名前をつけなければならないことですが、もっと大変なのは、こういったリストを扱う関数（[length]、[rev]など）を、新しく対応した型ごとに作る必要が出てくることです。 *)
 
-(** *** *)
-
-(* To avoid all this repetition, Coq supports _polymorphic_
+(*  To avoid all this repetition, Coq supports _polymorphic_
     inductive type definitions.  For example, here is a _polymorphic
     list_ datatype. *)
 (** この無駄な繰り返し作業を無くすため、Coqは多相的な帰納的データ型の定義をサポートしています。これを使うと、多相的なリストは以下のように書くことができます。 *)
@@ -47,26 +51,26 @@ Inductive list (X:Type) : Type :=
   | nil : list X
   | cons : X -> list X -> list X.
 
-(* This is exactly like the definition of [natlist] from the
+(*  This is exactly like the definition of [natlist] from the
     previous chapter, except that the [nat] argument to the [cons]
     constructor has been replaced by an arbitrary type [X], a binding
     for [X] has been added to the header, and the occurrences of
     [natlist] in the types of the constructors have been replaced by
     [list X].  (We can re-use the constructor names [nil] and [cons]
     because the earlier definition of [natlist] was inside of a
-    [Module] definition that is now out of scope.) *)
-(** これは、前の章にある[natlist]の定義とほとんどそっくりですが、コンストラクタ[cons]の引数の型が[nat]であったのに対し、任意の型を表す[X]がそれに変わっています。この[X]はヘッダに加えられた[X]と結びつけられ、さらに[natlist]であったものが[list X]に置き換わっています（ここで、コンストラクタに[nil]や[cons]といった名前を付けられるのは、最初に定義した[natlist]が[Module]の中で定義されていて、ここからはスコープの外になっているからです）。 *)
+    [Module] definition that is now out of scope.) 
 
-(* What sort of thing is [list] itself?  One good way to think
+    What sort of thing is [list] itself?  One good way to think
     about it is that [list] is a _function_ from [Type]s to
     [Inductive] definitions; or, to put it another way, [list] is a
     function from [Type]s to [Type]s.  For any particular type [X],
     the type [list X] is an [Inductive]ly defined set of lists whose
     elements are things of type [X]. *)
-(** それでは、[list]とはいったい何なのか、ということを正確に考えて見ましょう。これを考える一つの手がかりは、リストが「型を引数にとり、帰納的な定義を返す関数である」と考えることです。あるいは「型を引数にとり、型を返す関数」と考えてもいいかもしれません。任意の型[X]について、[list X]という型は、帰納的に定義されたリストの集合で、その要素の型が[X]となっているものと考えることもできます。
+(** これは、前の章にある[natlist]の定義とほとんどそっくりですが、コンストラクタ[cons]の引数の型が[nat]であったのに対し、任意の型を表す[X]がそれに変わっています。この[X]はヘッダに加えられた[X]と結びつけられ、さらに[natlist]であったものが[list X]に置き換わっています（ここで、コンストラクタに[nil]や[cons]といった名前を付けられるのは、最初に定義した[natlist]が[Module]の中で定義されていて、ここからはスコープの外になっているからです）。
+ それでは、[list]とはいったい何なのか、ということを正確に考えて見ましょう。これを考える一つの手がかりは、リストが「型を引数にとり、帰納的な定義を返す関数である」と考えることです。あるいは「型を引数にとり、型を返す関数」と考えてもいいかもしれません。任意の型[X]について、[list X]という型は、帰納的に定義されたリストの集合で、その要素の型が[X]となっているものと考えることもできます。
  *)
 
-(* With this definition, when we use the constructors [nil] and
+(*  With this definition, when we use the constructors [nil] and
     [cons] to build lists, we need to tell Coq the type of the
     elements in the lists we are building -- that is, [nil] and [cons]
     are now _polymorphic constructors_.  Observe the types of these
@@ -78,7 +82,15 @@ Check nil.
 Check cons.
 (* ===> cons : forall X : Type, X -> list X -> list X *)
 
-(* The "[forall X]" in these types can be read as an additional
+(** (Side note on notation: In .v files, the "forall" quantifier is
+    spelled out in letters.  In the generated HTML files, [forall] is
+    usually typeset as the usual mathematical "upside down A," but
+    you'll see the spelled-out "forall" in a few places, as in the
+    above comments.  This is just a quirk of typesetting: there is no
+    difference in meaning.) *)
+(** 記法の点から: .vファイル内で、"forall"量化子は文字で綴られてます。生成されたHTMLファイルにおいて、[forall]は通常、数学の"ひっくりかえったA"が見えていると思います。しかし、上記のコメントなど、少数の場所では"forall"がそのまま見えているかもしれません。これは植字のよじれに過ぎません。意味に違いはありません *)
+
+(*  The "[forall X]" in these types can be read as an additional
     argument to the constructors that determines the expected types of
     the arguments that follow.  When [nil] and [cons] are used, these
     arguments are supplied in the same way as the others.  For
@@ -87,22 +99,72 @@ Check cons.
 
 Check (cons nat 2 (cons nat 1 (nil nat))).
 
-(* (We've gone back to writing [nil] and [cons] explicitly here
-    because we haven't yet defined the [ [] ] and [::] notations for
-    the new version of lists.  We'll do that in a bit.) *)
+(*  (We've written [nil] and [cons] explicitly here because we haven't
+    yet defined the [ [] ] and [::] notations for the new version of
+    lists.  We'll do that in a bit.) *)
 (** （ここでは[nil]や[cons]を明示的に記述していますが、それは我々がまだ[[]]や[::]の表記法（Notation）をまだ記述していないからです。この後でやります） *)
 
-(* We can now go back and make polymorphic (or "generic")
-    versions of all the list-processing functions that we wrote
-    before.  Here is [length], for example: *)
-(** それでは少し話を戻して、以前書いたリスト処理関数を多相版に作り直していきましょう。[length]関数は以下のようになります。 *)
+(*  We can now go back and make polymorphic versions of all the
+    list-processing functions that we wrote before.  Here is [repeat],
+    for example: *)
+(** それでは少し話を戻して、以前書いたリスト処理関数を多相版に作り直していきましょう。[repeat]関数は以下のようになります。 *)
 
-Fixpoint length (X:Type) (l:list X) : nat :=
-  match l with
-  | nil      => 0
-  | cons h t => S (length X t)
+Fixpoint repeat (X : Type) (x : X) (count : nat) : list X :=
+  match count with
+  | 0 => nil X
+  | S count' => cons X x (repeat X x count')
   end.
 
+(*  As with [nil] and [cons], we can use [repeat] by applying it
+    first to a type and then to its list argument: *)
+(** [nil]と[cons]も同様に、[repeat]を 最初に型をそして次にリストの引数を適用することで使うことが出来ます。*)   
+
+Example test_repeat1 :
+  repeat nat 4 2 = cons nat 4 (cons nat 4 (nil nat)).
+Proof. reflexivity.  Qed.
+
+(*  To use [repeat] to build other kinds of lists, we simply
+    instantiate it with an appropriate type parameter: *)
+(** [repeat]を他の種類のリストを生成するために使うためには、型パラメータを適切に与えるだけで済みます。*)
+
+Example test_repeat2 :
+  repeat bool false 1 = cons bool false (nil bool).
+Proof. reflexivity.  Qed.
+
+Module MumbleGrumble.
+(* **** Exercise: 2 stars (mumble_grumble) *)
+(*  Consider the following two inductively defined types. *)
+(** **** 練習問題: ★★, optional (mumble_grumble) *)
+(** つぎの、帰納的に定義された二つの型をよく観察してください。 *)
+
+Inductive mumble : Type :=
+  | a : mumble
+  | b : mumble -> nat -> mumble
+  | c : mumble.
+
+Inductive grumble (X:Type) : Type :=
+  | d : mumble -> grumble X
+  | e : X -> grumble X.
+
+(** Which of the following are well-typed elements of [grumble X] for
+    some type [X]?
+      - [d (b a 5)]
+      - [d mumble (b a 5)]
+      - [d bool (b a 5)]
+      - [e bool true]
+      - [e mumble (b c 0)]
+      - [e bool (b c 0)]
+      - [c]
+(* FILL IN HERE *)
+*)
+(** [] *)
+
+End MumbleGrumble.
+
+(** 次の式のうち、ある型[X]について[grumble X]の要素として正しく定義されているものはどれでしょうか。
+- [d (b a 5)]
+- [d mumble (b a 5)]
+- [d bool (b a 5)]
 (* Note that the uses of [nil] and [cons] in [match] patterns
     do not require any type annotations: Coq already knows that the list
     [l] contains elements of type [X], so there's no reason to include
@@ -164,35 +226,7 @@ Example test_rev2:
   rev bool (nil bool) = nil bool.
 Proof. reflexivity.  Qed.
 
-Module MumbleBaz.
-(* **** Exercise: 2 stars (mumble_grumble) *)
-(** **** 練習問題: ★★, optional (mumble_grumble) *)
-(* Consider the following two inductively defined types. *)
-(** つぎの、機能的に定義された二つの型をよく観察してください。 *)
 
-Inductive mumble : Type :=
-  | a : mumble
-  | b : mumble -> nat -> mumble
-  | c : mumble.
-Inductive grumble (X:Type) : Type :=
-  | d : mumble -> grumble X
-  | e : X -> grumble X.
-
-(** Which of the following are well-typed elements of [grumble X] for
-    some type [X]?
-      - [d (b a 5)]
-      - [d mumble (b a 5)]
-      - [d bool (b a 5)]
-      - [e bool true]
-      - [e mumble (b c 0)]
-      - [e bool (b c 0)]
-      - [c] 
-(* FILL IN HERE *)
-*)
-(** 次の式のうち、ある型[X]について[grumble X]の要素として正しく定義されているものはどれでしょうか。
-- [d (b a 5)]
-- [d mumble (b a 5)]
-- [d bool (b a 5)]
 - [e bool true]
 - [e mumble (b c 0)]
 - [e bool (b c 0)]
@@ -205,7 +239,7 @@ Inductive grumble (X:Type) : Type :=
 (* **** Exercise: 2 stars (baz_num_elts)  *)
 (* Consider the following inductive definition: *)
 (** **** 練習問題: ★★, (baz_num_elts) *)
-(** 次の機能的定義について考えなさい *)
+(** 次の帰納的定義について考えなさい *)
 
 Inductive baz : Type :=
    | x : baz -> baz
@@ -215,36 +249,32 @@ Inductive baz : Type :=
 (** 型[baz]はいくつの要素を持つことができるでしょうか？
 (* FILL IN HERE *)
 *)
-(** [] *)
-
-End MumbleBaz.
-
 (* ###################################################### *)
-(* *** Type Annotation Inference *)
+(*  *** Type Annotation Inference *)
 (** *** 型推論 *)
 
-(* Let's write the definition of [app] again, but this time we won't
-    specify the types of any of the arguments. Will Coq still accept
-    it? *)
+(*  Let's write the definition of [repeat] again, but this time we
+    won't specify the types of any of the arguments. Will Coq still
+    accept it? *)
 
-(** それでは、[app]関数の定義をもう一度書いてみましょう。ただし今回は、引数の型を指定しないでおきます。Coqはこれを受け入れてくれるでしょうか？ *)
+(** それでは、[repeat]関数の定義をもう一度書いてみましょう。ただし今回は、引数の型を指定しないでおきます。Coqはこれを受け入れてくれるでしょうか？ *)
 
-Fixpoint app' X l1 l2 : list X :=
-  match l1 with
-  | nil      => l2
-  | cons h t => cons X h (app' X t l2)
+Fixpoint repeat' X x count : list X :=
+  match count with
+  | 0        => nil X
+  | S count' => cons X x (repeat' X x count')
   end.
 
-(* Indeed it will.  Let's see what type Coq has assigned to [app']: *)
-(** うまくいったようです。Coqが[app']にどのような型を設定したのか確認してみましょう。 *)
+(*  Indeed it will.  Let's see what type Coq has assigned to [repeat']: *)
+(** うまくいったようです。Coqが[repeat']にどのような型を設定したのか確認してみましょう。 *)
 
-Check app'.
-(* ===> forall X : Type, list X -> list X -> list X *)
-Check app.
-(* ===> forall X : Type, list X -> list X -> list X *)
+Check repeat'.
+(* ===> forall X : Type, X -> nat -> list X *)
+Check repeat.
+(* ===> forall X : Type, X -> nat -> list X *)
 
-(* It has exactly the same type type as [app].  Coq was able to
-    use a process called _type inference_ to deduce what the types of
+(*  It has exactly the same type type as [repeat].  Coq was able
+    to use a process called _type inference_ to deduce what the types of
     [X], [l1], and [l2] must be, based on how they are used.  For
     example, since [X] is used as an argument to [cons], it must be a
     [Type], since [cons] expects a [Type] as its first argument;
