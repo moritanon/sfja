@@ -146,8 +146,17 @@ Inductive grumble (X:Type) : Type :=
   | d : mumble -> grumble X
   | e : X -> grumble X.
 
-(** Which of the following are well-typed elements of [grumble X] for
+(* Which of the following are well-typed elements of [grumble X] for
     some type [X]?
+      - [d (b a 5)]
+      - [d mumble (b a 5)]
+      - [d bool (b a 5)]
+      - [e bool true]
+      - [e mumble (b c 0)]
+      - [e bool (b c 0)]
+      - [c]
+*)
+(** 次の式のうち、ある型[X]について[grumble X]の要素として正しく定義されているものはどれでしょうか。
       - [d (b a 5)]
       - [d mumble (b a 5)]
       - [d bool (b a 5)]
@@ -274,61 +283,63 @@ Check repeat.
 (* ===> forall X : Type, X -> nat -> list X *)
 
 (*  It has exactly the same type type as [repeat].  Coq was able
-    to use a process called _type inference_ to deduce what the types of
-    [X], [l1], and [l2] must be, based on how they are used.  For
-    example, since [X] is used as an argument to [cons], it must be a
-    [Type], since [cons] expects a [Type] as its first argument;
-    matching [l1] with [nil] and [cons] means it must be a [list]; and
-    so on.
+    to use _type inference_ to deduce what the types of [X], [x], and
+    [count] must be, based on how they are used.  For example, since
+    [X] is used as an argument to [cons], it must be a [Type], since
+    [cons] expects a [Type] as its first argument; matching [count]
+    with [0] and [S] means it must be a [nat]; and so on.
 
     This powerful facility means we don't always have to write
     explicit type annotations everywhere, although explicit type
     annotations are still quite useful as documentation and sanity
-    checks.  You should try to find a balance in your own code between
-    too many type annotations (so many that they clutter and distract)
-    and too few (which forces readers to perform type inference in
-    their heads in order to understand your code). *)
+    checks, so we will continue to use them most of the time.  You
+    should try to find a balance in your own code between too many
+    type annotations (which can clutter and distract) and too
+    few (which forces readers to perform type inference in their heads
+    in order to understand your code). *)
 
-(** 両者は全く同じ型であることが分かります。Coqは型推論という機構を持っていて、これを使い、[X]と[l1]と[l2]の型が何であるべきかを、その使われ方から導き出します。例えば、[X]が[cons]の引数として使われたことがあれば、それは型に違いなく、さらに[cons]の最初に引数で型が指定されていて、[l1]が[nil]や[cons]とマッチされているなら、それは[list]に違いなかろう、といった具合です。
+(** 両者は[repeat]として全く同じ型であることが分かります。Coqは型推論という機構を持っていて、これを使い、[X]と[x]と[count]の型が何であるべきかを、その使われ方から導き出します。例えば、[X]が[cons]の引数として使われたことがあれば、それは型に違いなく、さらに[cons]の最初に引数で型が指定されていて、[l1]が[nil]や[cons]とマッチされているなら、それは[list]に違いなかろう、といった具合です。
 
     このパワフルな機構の存在は、型情報を常にそこら中に書かなければならないわけではない、ということを意味します。とはいえ、型を明示的に書くことは、ドキュメント作成やプログラムの健全性をチェックする際に大いに意味はあるのですが。とにかく、これからは自分の書くコードで、型指定を書くところ、書かないところのバランスを考えていく必要があります（多すぎれば、コードが目障りな型指定で読みにくくなりますし、少なすぎると、プログラムを読む人に型推論の結果をいちいち推測させなければならなくなります）。
 *)
 
 (* ###################################################### *)
+(*  *** Type Argument Synthesis *)
 (** *** 引数の同化（Synthesis） *)
 
-(*  Whenever we use a polymorphic function, we need to pass it
-    one or more types in addition to its other arguments.  For
-    example, the recursive call in the body of the [length] function
-    above must pass along the type [X].  But just like providing
-    explicit type annotations everywhere, this is heavy and verbose.
-    Since the second argument to [length] is a list of [X]s, it seems
-    entirely obvious that the first argument can only be [X] -- why
-    should we have to write it explicitly?
+(*  To we use a polymorphic function, we need to pass it one or
+    more types in addition to its other arguments.  For example, the
+    recursive call in the body of the [repeat] function above must
+    pass along the type [X].  But since the second argument to
+    [repeat] is an element of [X], it seems entirely obvious that the
+    first argument can only be [X] -- why should we have to write it
+    explicitly?
 
     Fortunately, Coq permits us to avoid this kind of redundancy.  In
     place of any type argument we can write the "implicit argument"
-    [_], which can be read as "Please figure out for yourself what
-    type belongs here."  More precisely, when Coq encounters a [_], it
+    [_], which can be read as "Please try to figure out for yourself
+    what belongs here."  More precisely, when Coq encounters a [_], it
     will attempt to _unify_ all locally available information -- the
     type of the function being applied, the types of the other
     arguments, and the type expected by the context in which the
     application appears -- to determine what concrete type should
     replace the [_].
 
-    This may sound similar to type annotation inference -- and,
-    indeed, the two procedures rely on the same underlying mechanisms.
-    Instead of simply omitting the types of some arguments to a
-    function, like
-      app' X l1 l2 : list X :=
-    we can also replace the types with [_], like
-      app' (X : _) (l1 l2 : _) : list X :=
-    which tells Coq to attempt to infer the missing information, just
-    as with argument synthesis.
+    This may sound similar to type annotation inference -- indeed,
+    two procedures rely on the same underlying mechanisms.  Instead of
+    simply omitting the types of some arguments to a function, like
 
-    Using implicit arguments, the [length] function can be written
+      repeat' X x count : list X :=
+
+    we can also replace the types with [_]
+
+      repeat' (X : _) (x : _) (count : _) : list X :=
+
+    to tell Coq to attempt to infer the missing information.
+
+    Using implicit arguments, the [count] function can be written
     like this: *)
-(** 多相的な関数を使うときはいつも、通常の引数に加えて型を一つ以上渡さなければなりません。例えば、[length]関数で自分を再帰している部分には、型[X]として渡されたものをそのまま渡すことになります。しかしこのように、そこらじゅうに明示的に型を書かなければならないとなると、これはとても面倒で冗長な作業です。[length]の二つ目の引数が[X]型のリストなら、最初の引数は[X]以外になり得ないのは明らかなのではないか・・・・ならなぜわざわざそれを書く必要があるのでしょう。
+(** 多相的な関数を使うためには、通常の引数に加えて型を一つ以上渡さなければなりません。例えば、[repeat]関数で自分を再帰している部分には、型[X]として渡されたものをそのまま渡すことになります。しかし[repeat]の二番目の引数は[X]の要素になり、最初の引数は、[X]以外になり得ないのはあきらかに見えます。・・・ならなぜわざわざそれを書く必要があるのでしょう。
 
     幸いなことに、Coqではこの種の冗長性を避けることができます。型を引数に渡すところではどこでも同化した引数"[_]"を書くことができるのです。これは「ここをあるべき型に解釈してください」という意味です。もう少し正確に言うと、Coqが[_]を見つけると、手近に集められる情報を集めます。それは、適用されている関数の型や、その適用が現れている文脈から予想される型などですが、それを使って[_]と置き換えるべき具体的な型を決定するのです。
 
@@ -338,7 +349,12 @@ Check repeat.
       app' (X : _) (l1 l2 : _) : list X :=
     いずれも、Coqに、欠落している情報を推論させるもので、これを引数の同化といいます。
 
-    引数の同化を使うと、[length]関数は以下のように書けます。 *)
+    引数の同化を使うと、[count]関数は以下のように書けます。 *)
+
+Fixpoint repeat'' X x count : list X :=
+  match count with
+  | 0        => nil _
+  | S count' => cons _ x (repeat'' _ x count')
 
 Fixpoint length' (X:Type) (l:list X) : nat :=
   match l with
