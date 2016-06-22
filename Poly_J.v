@@ -518,7 +518,7 @@ Proof.
 (** 次も同様に、前の章で作った数値のペアを多相的にすることを考えます。 *)
 
 Inductive prod (X Y : Type) : Type :=
-  pair : X -> Y -> prod X Y.
+ | pair : X -> Y -> prod X Y.
 
 Arguments pair {X} {Y} _ _.
 
