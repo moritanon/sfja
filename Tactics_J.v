@@ -18,7 +18,7 @@
  - 強力な帰納法の仮定(そのような強力さが必要である場合)の生成の仕方。
  - ケース分析による推論について詳しく。*)
 
-Require Export Poly_J.
+Require Export Poly.
 
 (* ###################################################### *)
 (*  * The [apply] Tactic *)
@@ -964,19 +964,25 @@ Proof.
   rewrite H. rewrite mult_assoc. reflexivity.
 Qed.
 
-(** At this point, a deeper discussion of unfolding and simplification
+(*  At this point, a deeper discussion of unfolding and simplification
     is in order.
 
     You may already have observed that tactics like [simpl],
     [reflexivity], and [apply] will often unfold the definitions of
     functions automatically when it allows them to make progress.  For
     example, if we define [foo m] to be the constant [5], *)
+(** この時点で、unfoldingや簡約のより深い議論は順序よく行なわれています。
+
+すでに[simpl]や[reflexivity]や[apply]のようなタクティックが定義や関数の展開を自動的にしばしば行なうのを見て来られたかもしれません。
+例えば、定数[5]である[foo m]を定義したとしましょう。*)
 
 Definition foo (x: nat) := 5.
 
-(** then the [simpl] in the following proof (or the [reflexivity], if
+(*  then the [simpl] in the following proof (or the [reflexivity], if
     we omit the [simpl]) will unfold [foo m] to [(fun x => 5) m] and
     then further simplify this expression to just [5]. *)
+(** そのとき次の証明の[simpl](または、[simpl]を省略した場合の[reflexivity])で、[foo m]が[(fun x => 5) m]に展開されて、
+さらにこの式がただの[5]にまで簡約されます。*)
 
 Fact silly_fact_1 : forall m, foo m + 1 = foo (m + 1) + 1.
 Proof.
@@ -985,9 +991,10 @@ Proof.
   reflexivity.
 Qed.
 
-(** However, this automatic unfolding is rather conservative.  For
+(*  However, this automatic unfolding is rather conservative.  For
     example, if we define a slightly more complicated function
     involving a pattern match... *)
+(** しかしながら、この自動的な展開はむしろ保守的なものです。たとえば、パターンマッチを含むもう少し複雑な関数を定義したとします。*)
 
 Definition bar x :=
   match x with
@@ -995,7 +1002,8 @@ Definition bar x :=
   | S _ => 5
   end.
 
-(** ...then the analogous proof will get stuck: *)
+(*  ...then the analogous proof will get stuck: *)
+(** ...その似たような証明は行き詰まります。*)
 
 Fact silly_fact_2_FAILED : forall m, bar m + 1 = bar (m + 1) + 1.
 Proof.
@@ -1019,6 +1027,14 @@ Abort.
     more concrete choice of [m] ([O] vs [S _]).  In each case, the
     [match] inside of [bar] can now make progress, and the proof is
     easy to complete. *)
+(** [simpl]ではここで進展しない理由は、試しに[bar m]を展開した後で、変数である[m]がそのまま残されてしまい、[match]節をこれ以上簡約することが出来なくなるためです。
+(二つの[match]の枝が実は同一であるということに気がついてくれるほどには賢くありません) そのため[bar m]を展開することを諦めて、そのままにしておくのです。
+同様に、試しに[bar (m+1)]を展開することは、その[match]先が関数であるような[match]を適用します([+]の定義を展開したあとのような場合であっても
+それ自身は簡単にはなりえません。) そのため、[simpl]をしても何も起こらないのです。
+
+この時点で、証明をするめるための二つの方法があります。一つは、[destruct m]で証明を二つの場合に分けること、それぞれの場合は、
+より具体的な[m]([O]vs[S _])に問題が移ります。それぞれの場合において、[bar]内部の[match]に対して証明を進められますし、
+証明を終らせることは易しいでしょう。*)
 
 Fact silly_fact_2 : forall m, bar m + 1 = bar (m + 1) + 1.
 Proof.
@@ -1028,21 +1044,24 @@ Proof.
   - simpl. reflexivity.
 Qed.
 
-(** This approach works, but it depends on our recognizing that the
+(*  This approach works, but it depends on our recognizing that the
     [match] hidden inside [bar] is what was preventing us from making
     progress.
 
     A more straightforward way to finish the proof is to explicitly
     tell Coq to unfold [bar]. *)
+(* このアプローチは動きますが、[bar]に隠された[match]は証明をすすめる上での障害であるなにかであるという認識に依存しています。
 
+もっと直接に証明を終わらせる方法が、明示的に、Coqに[bar]をunfoldするように指示することなのです。*)
 Fact silly_fact_2' : forall m, bar m + 1 = bar (m + 1) + 1.
 Proof.
   intros m.
   unfold bar.
 
-(** Now it is apparent that we are stuck on the [match] expressions on
+(*  Now it is apparent that we are stuck on the [match] expressions on
     both sides of the [=], and we can use [destruct] to finish the
     proof without thinking too hard. *)
+(** 今や[=]の両側にある[match]式で詰っていることは明らかですので、[destruct]を使って証明を大して考えることなく終わらせることが出来ます。*)
 
   destruct m.
   - reflexivity.
@@ -1050,7 +1069,8 @@ Proof.
 Qed.
 
 (* ###################################################### *)
-(** * Using [destruct] on Compound Expressions *)
+(*  * Using [destruct] on Compound Expressions *)
+(** * [destruct]を複合式で使う *)
 
 (** We have seen many examples where [destruct] is used to
     perform case analysis of the value of some variable.  But
@@ -1058,7 +1078,10 @@ Qed.
     _expression_.  We can also do this with [destruct].
 
     Here are some examples: *)
+(** ここまで[destruct]がいくつかの変数の値について場合分けを行う例をたくさん見てきました。しかし時には、ある式の結果についてケース分析をすることで証明を行う必要があります。このような場合にも[destruct]が使えます。
 
+
+    例を見てください。 *)
 Definition sillyfun (n : nat) : bool :=
   if beq_nat n 3 then false
   else if beq_nat n 5 then false
@@ -1085,6 +1108,9 @@ Proof.
     for each constructor [c] of [T], [destruct e] generates a subgoal
     in which all occurrences of [e] (in the goal and in the context)
     are replaced by [c]. *)
+(** 上の証明で[sillyfun]を展開すると、[if (beq_nat n 3) then ... else ...]で行き詰まることがわかります。そこで、[n]が[3]である場合とそうでない場合とに[destruct (beq_nat n 3)]を使って二つの場合に分け、証明を行います。
+
+一般的に、[destruct]タクティックは任意の計算の結果の場合分けを行うために使用されます。もし[e]が式で、その式の型が帰納的に定義された型[T]であるような場合、[T]のそれぞれのコンストラクタ[c]について、[destruct e]は[e]のすべての文節に対応するサブゴールを生成し、、起こりえる全ての（ゴールやコンテキストにある）eの状態をコンストラクタcで網羅的に置き換えます。 *)
 
 (** **** Exercise: 3 stars, optional (combine_split)  *)
 Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
@@ -1094,11 +1120,13 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** However, [destruct]ing compound expressions requires a bit of
+(*  However, [destruct]ing compound expressions requires a bit of
     care, as such [destruct]s can sometimes erase information we need
     to complete a proof. *)
-(** For example, suppose we define a function [sillyfun1] like
+(** しかし、複合式を[destruct]することは、ほんの少し注意が必要になります。[destruct]が証明を終わらせるのに必要な情報を消去するような場合があるからです。*)
+(*  For example, suppose we define a function [sillyfun1] like
     this: *)
+(**  例えば、次のような関数[sillyfun1]を定義したとします: *)
 
 Definition sillyfun1 (n : nat) : bool :=
   if beq_nat n 3 then true
@@ -1109,6 +1137,7 @@ Definition sillyfun1 (n : nat) : bool :=
     obvious) fact that [sillyfun1 n] yields [true] only when [n] is
     odd.  By analogy with the proofs we did with [sillyfun] above, it
     is natural to start the proof like this: *)
+(** ここで、Coqに[sillyfun1 n]が、[n]が奇数のときだけ[true]となりうることを(当たり前に見えますが)納得させたいとします。先ほど[sillyfun]でやった証明を参考に類推すると、証明はこんな風に始まるのが自然に思えます。 *)
 
 Theorem sillyfun1_odd_FAILED : forall (n : nat),
      sillyfun1 n = true ->
@@ -1116,7 +1145,7 @@ Theorem sillyfun1_odd_FAILED : forall (n : nat),
 Proof.
   intros n eq. unfold sillyfun1 in eq.
   destruct (beq_nat n 3).
-  (* stuck... *)
+  (* 詰まってしまった... *)
 Abort.
 
 (** We get stuck at this point because the context does not
@@ -1133,6 +1162,9 @@ Abort.
     to the context that records which case we are in.  The [eqn:]
     qualifier allows us to introduce such an equation, giving it a
     name that we choose. *)
+(** しかし証明はここで手詰まりになってしまいます。なぜなら、[destruct]を使ったことで、コンテキストからゴールまでたどりつくのに必要な情報がなくなってしまったからです。[destruct]は[beq_nat n 3]の結果起こる事象を全て投げ捨ててしまいますが、我々はそのうち少なくとも一つは残してもらわないと証明が進みません。このケースで必要なのは[beq_nat n 3 = true]で、ここから[n = 3]は明らかで、ここから[n]が奇数であることが導かれます。
+
+実際のところやりたいことは[destruct]を[beq_nat n 3]に直接使ってこの式の結果起こることを全て置き換えてしまうことではなく、置き換えと同時にコンテキストに我々が今いるケースと等しいこと示す等式のレコードを追加してくれることです。[eqn:]という限定子があれば、そのような等式を導入することが出来ます。名前は何でもいいんですが *)
 
 Theorem sillyfun1_odd : forall (n : nat),
      sillyfun1 n = true ->
@@ -1144,6 +1176,7 @@ Proof.
      stuck above, except that the context contains an extra
      equality assumption, which is exactly what we need to
      make progress. *)
+  (* ここで上記で詰ったのと同じところまで来ました。上記と違い、コンテキストには等式の形の仮定が追加されています。それを使って証明を進めることが出来ます。*)
     - (* e3 = true *) apply beq_nat_true in Heqe3.
       rewrite -> Heqe3. reflexivity.
     - (* e3 = false *)
@@ -1151,13 +1184,15 @@ Proof.
         of the function we are reasoning about, we can use
         [eqn:] again in the same way, allow us to finish the
         proof. *)
+     (* 証明中の関数本体の二つ目の同値性のテストに来たとき、[eqn:]を再び同様に使用して証明を終らせることが出来ます。*)
       destruct (beq_nat n 5) eqn:Heqe5.
         + (* e5 = true *)
           apply beq_nat_true in Heqe5.
           rewrite -> Heqe5. reflexivity.
         + (* e5 = false *) inversion eq.  Qed.
 
-(** **** Exercise: 2 stars (destruct_eqn_practice)  *)
+(*  **** Exercise: 2 stars (destruct_eqn_practice)  *)
+(** **** 練習問題: ★★ (destruct_eqn_practicel) *)
 Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
@@ -1166,9 +1201,10 @@ Proof.
 (** [] *)
 
 (* ################################################################## *)
-(** * Review *)
+(*  * Review *)
+(** * レビュー *)
 
-(** We've now seen many of Coq's most fundamental tactics.  We'll
+(*  We've now seen many of Coq's most fundamental tactics.  We'll
     introduce a few more in the coming chapters, and later on we'll
     see some more powerful _automation_ tactics that make Coq help us
     with low-level details.  But basically we've got what we need to
@@ -1227,21 +1263,84 @@ Proof.
       - [generalize dependent x]: move the variable [x] (and anything
         else that depends on it) from the context back to an explicit
         hypothesis in the goal formula *)
+(** ここまでに、たくさんの基本的なタクティックを見てきました。これだけあればしばらくの間は困らずに済
+むはずです。この先数回のレクチャーで2～3新しいものが出てきますが、その先ではさらに強力な「自動化され
+たタクティック」を紹介していきます。それを使うと、多くの低レベルな作業をCoqに処理してもらうことがで>
+きます。しかし基本的に、皆さんはもう必要なことを知っていると考えていいでしょう。
 
+    ここまでに出てきたタクティックの一覧です
+
+      - [intros]:
+        仮定や変数をゴールからコンテキストに移す
+
+      - [reflexivity]:
+        証明を完了させる（ゴールが[e = e]という形になっている場合）
+
+      - [apply]:
+        仮定、補助定理、コンストラクタを使ってゴールを証明する
+
+      - [apply... in H]:
+        仮定、補助定理、コンストラクタを使ってゴールを証明する（前向きの証明）
+
+      - [apply... with...]:
+        パターンマッチだけで決定できなかった変数を、特定の値に明示的に結びつける
+
+      - [simpl]:
+        ゴールの式を簡約する
+
+      - [simpl in H]:
+        ゴール、もしくは仮定Hの式を簡約する
+
+      - [rewrite]:
+        等式の形をした仮定（もしくは定理）を使い、ゴールを書き換える
+
+      - [rewrite ... in H]:
+        等式の形をした仮定（もしくは定理）を使い、ゴールや仮定を書き換える
+
+      - [unfold]:
+        定義された定数を、ゴールの右側の式で置き換える
+
+      - [unfold... in H]:
+        定義された定数を、ゴールや仮定の右側の式で置き換える
+
+      - [destruct... as...]:
+        帰納的に定義された型の値について、ケースごとに解析する
+
+      - [destruct... eqn:...]:
+        等式に名前を導入して、コンテキストに追加する。ケースごとの分析結果を記録する。
+
+      - [induction... as...]:
+        機能的に定義された型の値に帰納法を適用する
+
+      - [inversion]:
+        コンストラクタの単射性と独立性を利用して証明を行う
+
+      - [assert (e) as H]:
+        定義した補助定理(e)をHという名前でコンテキストに導入する
+
+      - [generalize dependent x]:
+        変数[x](とそれに依存する全て)をコンテキストからゴールの式中の明示的な仮説に戻す。
+*)
 (* ###################################################### *)
-(** * Additional Exercises *)
+(*  * Additional Exercises *)
+(** * 追加の練習問題  *)
 
-(** **** Exercise: 3 stars (beq_nat_sym)  *)
+(*  **** Exercise: 3 stars (beq_nat_sym)  *)
+(** **** 練習問題: ★★★ (beq_nat_sym) *)
 Theorem beq_nat_sym : forall (n m : nat),
   beq_nat n m = beq_nat m n.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced, optional (beq_nat_sym_informal)  *)
+(*  **** Exercise: 3 stars, advanced, optional (beq_nat_sym_informal)  *)
+(** **** 練習問題: ★★★, advanced, optional (beq_nat_sym_informal) *)
 (** Give an informal proof of this lemma that corresponds to your
     formal proof above:
 
+   Theorem: For any [nat]s [n] [m], [beq_nat n m = beq_nat m n].
+*)
+(* この補題のあなたの形式的な証明に対応する非形式的な証明を与えなさい:
    Theorem: For any [nat]s [n] [m], [beq_nat n m = beq_nat m n].
 
    Proof:
@@ -1249,7 +1348,8 @@ Proof.
 []
 *)
 
-(** **** Exercise: 3 stars, optional (beq_nat_trans)  *)
+(*  **** Exercise: 3 stars, optional (beq_nat_trans)  *)
+(** **** 練習問題: ★★★, optional (beq_nat_trans) *)
 Theorem beq_nat_trans : forall n m p,
   beq_nat n m = true ->
   beq_nat m p = true ->
@@ -1258,7 +1358,8 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced (split_combine)  *)
+(*  **** Exercise: 3 stars, advanced (split_combine)  *)
+(** **** 練習問題: ★★★, advanced (split_combine) *)
 (** We proved, in an exercise above, that for all lists of pairs,
     [combine] is the inverse of [split].  How would you formalize the
     statement that [split] is the inverse of [combine]?  When is this
@@ -1270,6 +1371,12 @@ Proof.
     your induction hypothesis general by not doing [intros] on more
     things than necessary.  Hint: what property do you need of [l1]
     and [l2] for [split] [combine l1 l2 = (l1,l2)] to be true?)  *)
+(* 我々はすでに、全ての型のリストのペアでcombineがsplitの逆関数であることを証明しました。ではその逆の「splitはcombineの逆関数である」を示すことはできるでしょうか？
+
+   下記の[split]が[combine]の逆関数であることを述べる[split_combine_statement]の定義を完成させなさい
+   。それから、その性質が正しいことを証明しなさい。（なるべくintrosを使うタイミングを遅らせ、帰納法の仮
+   定を一般化させておくといいでしょう。 )
+      ヒント: split combine l1 l2 = (l1,l2)がtrueとなるl1、l2の条件は何でしょう？ *)
 
 Definition split_combine_statement : Prop :=
 (* FILL IN HERE *) admit.
@@ -1281,9 +1388,12 @@ Proof.
 
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced (filter_exercise)  *)
+(*  **** Exercise: 3 stars, advanced (filter_exercise)  *)
+(** **** 練習問題: ★★★, advanced (filter_exercise) *)
 (** This one is a bit challenging.  Pay attention to the form of your
     induction hypothesis. *)
+(* This one is a bit challenging.  Pay attention to the form of your IH. *)
+(** この問題は少し難しいかもしれません。上に上げる仮説の形に注意してください。*)
 
 Theorem filter_exercise : forall (X : Type) (test : X -> bool)
                              (x : X) (l lf : list X),
@@ -1293,8 +1403,9 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced, recommended (forall_exists_challenge)  *)
-(** Define two recursive [Fixpoints], [forallb] and [existsb].  The
+(*  **** Exercise: 4 stars, advanced, recommended (forall_exists_challenge)  *)
+(** **** 練習問題: ★★★★, advanced (forall_exists_challenge) *)
+(*  Define two recursive [Fixpoints], [forallb] and [existsb].  The
     first checks whether every element in a list satisfies a given
     predicate:
 
@@ -1322,9 +1433,31 @@ Proof.
 
     Finally, prove a theorem [existsb_existsb'] stating that
     [existsb'] and [existsb] have the same behavior. *)
+(** 二つの再帰関数[forallb]、[existsb]を定義しなさい。[forallb]は、リストの全ての要素が与えられた条>
+件を満たしているかどうかを返します。:
+      forallb oddb [1;3;5;7;9] = true
 
+      forallb negb [false;false] = true
+
+      forallb evenb [0;2;4;5] = false
+
+      forallb (beq_nat 5) [] = true
+    二つめのexistsbは、リストのなかに与えられた述語を満たす要素が一つ以上あるかどうかをチェックしま>
+す。:
+      existsb (beq_nat 5) [0;2;3;6] = false
+
+      existsb (andb true) [true;true;false] = true
+
+      existsb oddb [1;0;0;0;0;3] = true
+
+      existsb evenb [] = false
+    次に[existsb']を再帰関数としてではなく、[forallb]と[negb]を使って定義しなさい。.
+
+    そして、[existsb']と[existsb]が同じ振る舞いをすることを証明しなさい。
+*)
 (* FILL IN HERE *)
 (** [] *)
 
 (** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
+
 
