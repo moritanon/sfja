@@ -333,7 +333,7 @@ Proof.
     After simplifying the goal state, we see that [beq_nat 0 (S n') =
     true] has become [false = true]: *)
 (** しかし二番目のケースはそんなに単純に見えません。[beq_nat 0 (S n') = true]と仮定した場合、[S n' = 0]を示す必要がありますが、
-これは明らかに矛盾しています！ 仮定のなかはそのままです。？？ ゴールの状態を単純化suruto,[beq_nat 0 (S n')]が[false = true]になります。
+これは明らかに矛盾しています！ 仮定のなかはそのままです。？？ ゴールの状態を単純化すると,[beq_nat 0 (S n')]が[false = true]になります。
   - (* n = S n' *)
     simpl.
 
