@@ -6,7 +6,7 @@ Require Export Logic.
 (*  * Inductively Defined Propositions *)
 (** * 帰納的に定義された命題 *)
 
-(** In the [Logic] chapter we looked at several ways of writing
+(*  In the [Logic] chapter we looked at several ways of writing
     propositions, including conjunction, disjunction, and quantifiers.
     In this chapter, we bring a new tool into the mix: _inductive
     definitions_.
@@ -24,19 +24,19 @@ Require Export Logic.
     to show that [2] is even. This, in turn, is again guaranteed by
     rule [ev_SS], as long as we can show that [0] is even. But this
     last fact follows directly from the [ev_0] rule. *)
-(** [Logic]の章において、命題を書く幾つかの方法を見ました。論理積や論理和や数量子などです。
-この章においては、新しいツールを導入して、まぜこぜにします。帰納的な定義
+(** [Logic]の章において、命題を書く幾つかの方法を見ました。論理積や論理和や数量子などです。 この章においては、新しいツールを導入して、_帰納的な定義_として統合します。
+ある数が偶数であることを述べる二つの方法があったことを思いだしてください: (1) [evenb n = true]であることと (2)[exists k, n = double k]とです。 [n]が偶数であると述べるもっと他の方法があります。そのためには以下の規則に従います。
 
-ある数が偶数であることを述べる二つの方法があったことを思いだしてください: (1) [evenb n = true]であることと
-(2)[exists k, n = double k]とです。 [n]が偶数であると述べるもっと他の方法があります。そのためには以下のルールに従います。
+    - 規則 [ev_0]: 0は偶数である。
+    - 規則 [ev_SS]: もし[n]が偶数であれば、[S (S n)]も偶数である。
 
-    - ルール [ev_0]: 0は偶数である。
-    - ルール [ev_SS]: もし[n]が偶数であれば、[S (S n)]も偶数である。
+この新しい偶数性についての定義がどう働くかを説明するために、[4]が偶数であることをこの規則を用いて示してみましょう。まずは、[ev_SS]です。それには、[2]が偶数であることを示すことが十分(条件？)です。次にここで、[ev_SS]を用いて[0]が偶数であることを示せる限り、保証しなければなりません。しかし、最後の事実はl[ev_0]から直接に導かれます。*)
 
-(** We will see many definitions like this one during the rest
+(*  We will see many definitions like this one during the rest
     of the course.  For purposes of informal discussions, it is
     helpful to have a lightweight notation that makes them easy to
     read and write.  _Inference rules_ are one such notation: *)
+(** このような多くの定義をこのコースの残りを通して見て行きます。また、これらの読み書きを簡単にする手軽な記法があると非形式的な議論のために役にたちます。推論規則の一つは次のように書きます。*)
 (**
 
                               ------------                        (ev_0)
@@ -48,7 +48,7 @@ Require Export Logic.
 
 *)
 
-(** Each of the textual rules above is reformatted here as an
+(*  Each of the textual rules above is reformatted here as an
     inference rule; the intended reading is that, if the _premises_
     above the line all hold, then the _conclusion_ below the line
     follows.  For example, the rule [ev_SS] says that, if [n]
@@ -59,6 +59,9 @@ Require Export Logic.
     We can represent a proof using these rules by combining rule
     applications into a _proof tree_. Here's how we might transcribe
     the above proof that [4] is even: *)
+(** 上記規則のそれぞれは、「もしラインの上にある根拠がすべて有効であるならば、ラインの下の結論が導かれる。」という推論規則として体裁を与えられています。たとえば、規則[ev_SS]は、[n]が[ev]を満たすならば、[S (S n)]もそうであるという意味です。ラインの上に前提を持たない場合は、無条件にその結論が導かれます。
+規則と規則の適用を使って、証明を証明木として表すことが出来ます。上記の[4]が偶数であることを示す証明をどうやって書き換えるかを以下に示します。*)
+
 (**
 
                 ------  (ev_0)
@@ -70,20 +73,23 @@ Require Export Logic.
 
 *)
 
-(** Why call this a "tree" (rather than a "stack", for example)?
+(*  Why call this a "tree" (rather than a "stack", for example)?
     Because, in general, inference rules can have multiple premises.
     We will see examples of this below. *)
+(** なぜこれを"木"と言うのか？(むしろ"棚(stack)"と呼ぶべきなんじゃ？)
+もちろん、一般的には、推論の規則は複数の前提を持つことが出来ます。この例を後で示します。*)
 
-(** Putting all of this together, we can translate the definition of
+(*  Putting all of this together, we can translate the definition of
     evenness into a formal Coq definition using an [Inductive]
     declaration, where each constructor corresponds to an inference
     rule: *)
+(** これらを全部まとめると、偶数性の定義を形式的なCoqの定義に、[Inductive]宣言を使って書き直すことが出来ます。その定義の中の各コンスラクタが先程の推論規則に対応しています。*)
 
 Inductive ev : nat -> Prop :=
 | ev_0 : ev 0
 | ev_SS : forall n : nat, ev n -> ev (S (S n)).
 
-(** This definition is different in one crucial respect from
+(*r This definition is different in one crucial respect from
     previous uses of [Inductive]: its result is not a [Type], but
     rather a function from [nat] to [Prop] -- that is, a property of
     numbers.  Note that we've already seen other inductive definitions
@@ -97,6 +103,9 @@ Inductive ev : nat -> Prop :=
     _globally_, to the _left_ of the colon, forcing the result of
     [nil] and [cons] to be the same ([list X]).  Had we tried to bring
     [nat] to the left in defining [ev], we would have seen an error: *)
+(* この定義は重要な面で、これまでの[Inductive]の使い方を異なっています: その結果が[Type]でなく、むしろ、[nat]から[Prop]への関数 -- すなわち、数の属性であることです。[Type -> Type]という型をもつ[list]型のような、結果が関数であるような他の帰納的な定義を見て来たことに注意してください。
+ここで学ぶ新しいことは、[ev]の引数である[nat]に、_名前がなく_、また[nat]が(:=の直前の)コロンの右側にあるために、コンストラクタが異った値を取ることが許されています。[ev_0]の型のなかにある[0]や、[ev_SS]の型の中にある[S (S n)]のようにです。
+逆に、[list]という定義は、グローバルに、コロンの左側で、[X]という名前をパラメータにつけていて、、[nil]や[cons]の結果が、同じ[List X]という型を持つように強制しています。[ev」の定義において、[nat]をコロンの左側に持ってきたとすると、エラーになるのが分かるでしょう。*)
 
 Fail Inductive wrong_ev (n : nat) : Prop :=
 | wrong_ev_0 : wrong_ev 0
@@ -104,27 +113,33 @@ Fail Inductive wrong_ev (n : nat) : Prop :=
 (* ===> Error: A parameter of an inductive type n is not
         allowed to be used as a bound variable in the type
         of its constructor. *)
+(** ===> エラー: 帰納的な型の中にあるパラメータ n は、そのコンスラクタの型の束縛変数のように使うことが許されていません。*)
 
-(** ("Parameter" here is Coq jargon for an argument on the left of the
+(*  ("Parameter" here is Coq jargon for an argument on the left of the
     colon in an [Inductive] definition; "index" is used to refer to
     arguments on the right of the colon.) *)
+(** ("パラメータ"というのは、Coqにおいて、[Inductive]定義のコロンの左側にある引数のことを表す専門用語です。"index"はコロンの右側にある引数に言及するさいに使われます。)*)
 
-(** We can think of the definition of [ev] as defining a Coq property
+(*  We can think of the definition of [ev] as defining a Coq property
     [ev : nat -> Prop], together with theorems [ev_0 : ev 0] and
     [ev_SS : forall n, ev n -> ev (S (S n))].  Such "constructor
     theorems" have the same status as proven theorems.  In particular,
     we can use Coq's [apply] tactic with the rule names to prove [ev]
     for particular numbers... *)
+(** Coqが属性を定義するように、[ev]の定義[ev : nat -> Prop]について、定理:[ev_0 : ev 0]と
+l[ev_SS: forall n, ev n -> ev (S (S n))]と一緒に考えてみましょう。そのような、"構造化定理"？は証明された定理と同じ状態です。特に、Coqの[apply]タクティックに規則名を渡して、を特定の数が[ev]であることを証明するために使えます。*)
 
 Theorem ev_4 : ev 4.
 Proof. apply ev_SS. apply ev_SS. apply ev_0. Qed.
 
-(** ... or we can use function application syntax: *)
+(*  ... or we can use function application syntax: *)
+(** ... あるいは、関数適用の記法で使うことも出来ます。*)
 
 Theorem ev_4' : ev 4.
 Proof. apply (ev_SS 2 (ev_SS 0 ev_0)). Qed.
 
-(** We can also prove theorems that have hypotheses involving [ev]. *)
+(*  We can also prove theorems that have hypotheses involving [ev]. *)
+(** [ev]を含む仮定を持つ定理の証明をすることも出来ます。*)
 
 Theorem ev_plus4 : forall n, ev n -> ev (4 + n).
 Proof.
@@ -132,9 +147,11 @@ Proof.
   apply ev_SS. apply ev_SS. apply Hn.
 Qed.
 
-(** More generally, we can show that any number multiplied by 2 is even: *)
+(*  More generally, we can show that any number multiplied by 2 is even: *)
+(** もっと一般的に、あらゆる数に2が掛けられると偶数になることを示しましょう: *)
 
-(** **** Exercise: 1 star (ev_double)  *)
+(*  **** Exercise: 1 star (ev_double)  *)
+(** **** 練習問題: ★ (ev_double)  *)
 Theorem ev_double : forall n,
   ev (double n).
 Proof.
@@ -143,8 +160,9 @@ Proof.
 
 (* ####################################################### *)
 (** * Using Evidence in Proofs *)
+(** * 証明中に根拠を使用すること *)
 
-(** Besides _constructing_ evidence that numbers are even, we can also
+(*  Besides _constructing_ evidence that numbers are even, we can also
     _reason about_ such evidence.
 
     Introducing [ev] with an [Inductive] declaration tells Coq not
@@ -152,27 +170,35 @@ Proof.
     build evidence that some number is even, but also that these two
     constructors are the _only_ ways to build evidence that numbers
     are even (in the sense of [ev]). *)
+(** ある数が偶数であるという根拠を構築する際に、そのような根拠について推論することも出来ます。
+    [Inductive]宣言を持つ[ev]を導入することは、Coqにおいて、コンストラクタ[ev_0]と[ev_SS]が、ある数が偶数であるという根拠を構築する正しい方法であるというだけでなく、これら二つのコンスラクタはあらゆる数が偶数であるという根拠になる唯一の方法なのです。([ev]という意味において) *)
 
-(** In other words, if someone gives us evidence [E] for the assertion
+(*  In other words, if someone gives us evidence [E] for the assertion
     [ev n], then we know that [E] must have one of two shapes:
 
       - [E] is [ev_0] (and [n] is [O]), or
       - [E] is [ev_SS n' E'] (and [n] is [S (S n')], where [E'] is
         evidence for [ev n']). *)
+(** 言い換えると、[ev n]という言明に対して、根拠[E]が与えられたら、[E]は、二つのうちどちらかの形をしていなければならないことは、分かっていると思います。
 
+      - [E] は、[ev_0]である(そして、[n]は[O]である。あるいは、
+      - [E] は、[ev_SS n ' E']である'(そして、[n]は[S (S n)]である。そこで、[E']は[ev n']の根拠である.
+*)
 (** This suggests that it should be possible to analyze a hypothesis
     of the form [ev n] much as we do inductively defined data
     structures; in particular, it should be possible to argue by
     _induction_ and _case analysis_ on such evidence.  Let's look at a
     few examples to see what this means in practice. *)
+(** このことは、帰納的に定義されたデータと同じように、[ev n]という形をした仮説を解析することを可能にします。とくに、根拠に対する、帰納や、場合分けによって、根拠を示すことが出来るようになります。これが実際に何を意味すかを少し練習問題をやることで見てみましょう。*)
 
-(** ** Inversion on Evidence *)
-
-(** Subtracting two from an even number yields another even number.
+(*  ** Inversion on Evidence *)
+(** ** 根拠に対するInversion *)
+(*  Subtracting two from an even number yields another even number.
     We can easily prove this claim with the techniques that we've
     already seen, provided that we phrase it in the right way.  If we
     state it in terms of [evenb], for instance, we can proceed by a
     simple case analysis on [n]: *)
+(** ある偶数から、2引くことは、別の偶数を導出します。この主張をこれまでに見た正しい方法で、もっと易しく証明出来ます。もし、[evenb]を使って述べた場合、例えば、[n]について場合分けで証明を進めることが出来ます。*)
 
 Theorem evenb_minus2: forall n,
   evenb n = true -> evenb (pred (pred n)) = true.
@@ -183,21 +209,22 @@ Proof.
   - (* n = n' + 2 *) simpl. intros H. apply H.
 Qed.
 
-(** We can state the same claim in terms of [ev], but this quickly
+(*  We can state the same claim in terms of [ev], but this quickly
     leads us to an obstacle: Since [ev] is defined inductively --
     rather than as a function -- Coq doesn't know how to simplify a
     goal involving [ev n] after case analysis on [n].  As a
     consequence, the same proof strategy fails: *)
+(** 同じ主張を、[ev]を使って述べることも出来ますが、障害にぶちあたります: [ev]は帰納的に定義されている-- 、むしろ関数として定義されている -- ので、Coqは、[n]に関数場合分けをしたとき、[ev n]を含むゴールをどうやって簡約してよいか分からないからです。結果として、同じ戦略では失敗します。
 
 Theorem ev_minus2: forall n,
   ev n -> ev (pred (pred n)).
 Proof.
   intros [ | [ | n' ] ].
   - (* n = 0 *) simpl. intros _. apply ev_0.
-  - (* n = 1; we're stuck! *) simpl.
+  - (* n = 1; 行き詰まりました! *) simpl.
 Abort.
 
-(** The solution is to perform case analysis on the evidence that [ev
+(*  The solution is to perform case analysis on the evidence that [ev
     n] _directly_. By the definition of [ev], there are two cases to
     consider:
 
@@ -210,14 +237,21 @@ Abort.
       [n = S (S n')] and [E'] is evidence for [ev n'].  We must then
       show that [ev (pred (pred (S (S n'))))] holds, which, after
       simplification, follows directly from [E']. *)
+(** この問題の解法は、[ev n]という根拠に対し、_直接_に場合分けを行うことです。[ev]の定義によれば、二つの場合があると考えられます。
 
-(** We can invoke this kind of argument in Coq using the [inversion]
+    - 証拠が、[ev_0]という形をしている場合、[n = 0]であると分かります。それゆえ、[ev (pred (pred 0))]が成り立つことを示すこが出来れば十分です。
+      [pred]の定義によれば、これは、[ev 0]と等しいので、成り立つことが[ev_0]から直接導かれます。
+
+    - そうでない場合、証拠は、[ev_SS n' E']という形をしており、[n = S (S n')]で[E']は、[ev n']の根拠になります。それから、[ev (pred (pred (S (S n'))))]が成り立つことを示さなければなりませんが、簡約を行なうと、それは[E']から直接導かれます。*)
+
+(*  We can invoke this kind of argument in Coq using the [inversion]
     tactic.  Besides allowing us to reason about equalities involving
     constructors, [inversion] provides a case-analysis principle for
     inductively defined propositions.  When used in this way, its
     syntax is similar to [destruct]: We pass it a list of identifiers
     separated by [|] characters to name the arguments to each of the
     possible constructors.  For instance: *)
+(** [inversion]タクティックを使った、Coqにおける、この種の引数の呼び出しを行うことができます。コンスラクタを含む等式に関して推論を行うことに加えて、[inversion]タクティックは帰納的に定義された命題のための場合分けの原理を提供してくれあす。このように[inversion]を使うとき、その構文はdestructに似ています。[|]で分けられた、それぞれのコンストラクタの引数に名前のリストを与えることでパス出来ます。例えば*)
 
 Theorem ev_minus2 : forall n,
   ev n -> ev (pred (pred n)).
@@ -243,17 +277,20 @@ Proof.
     property applied to a complex expression (as opposed to a single
     variable).  Here's is a concrete example.  Suppose that we wanted
     to prove the following variation of [ev_minus2]: *)
+(** ふたつの違いは、[inversion]の方が、(単一変数でないような)複雑な式に適用された帰納的な属性からなる仮説に使用する場合、少し便利であることです。ここに完全な例があります。
+次の[ev_minus2]のバリエーションを証明したいとします:*)
 
 Theorem evSS_ev : forall n,
   ev (S (S n)) -> ev n.
 
-(** Intuitively, we know that evidence for the hypothesis cannot
+(*  Intuitively, we know that evidence for the hypothesis cannot
     consist just of the [ev_0] constructor, since [O] and [S] are
     different constructors of the type [nat]; hence, [ev_SS] is the
     only case that applies.  Unfortunately, [destruct] is not smart
     enough to realize this, and it still generates two subgoals.  Even
     worse, in doing so, it keeps the final goal unchanged, failing to
     provide any useful information for completing the proof.  *)
+(** 帰納的に、仮説の根拠が、[ev_0]コンスオラクタから生成されることはありえないことを知っています。なぜなら、[O]と[S]は異なるnatのコンストラクタであるからです。それゆえに、適用出来るケースは[ev_SS]だけです。残念なことに、[destruct]はこれを実現出来るほど賢くありませんし、サブゴールは二つ作成されたままです。さらに悪いことに、そうなっても最終のゴールは変らないまま、証明を終了させるための有用な情報はなんら得られません。*)
 
 Proof.
   intros n E.
@@ -262,18 +299,21 @@ Proof.
     (* We must prove that [n] is even from no assumptions! *)
 Abort.
 
-(** What happened, exactly?  Calling [destruct] has the effect of
+(*  What happened, exactly?  Calling [destruct] has the effect of
     replacing all occurrences of the property argument by the values
     that correspond to each constructor.  This is enough in the case
     of [ev_minus2'] because that argument, [n], is mentioned directly
     in the final goal. However, it doesn't help in the case of
     [evSS_ev] since the term that gets replaced ([S (S n)]) is not
     mentioned anywhere. *)
+(** 正確には、何が起ったのでしょうか？[destruct]の呼び出しは、それぞれのコンストラクタに対応する値によって、属性の引数の出現すべてを置き換える効果があります。
+これは、[ev_minus2']の場合では、引数[n]が最終のゴールに直接名前が出ているために、十分だったのです。しかし、[evSS_ev]の場合は、[S (S n)]を起きかえられる項がどこにもありません。*)
 
-(** The [inversion] tactic, on the other hand, can detect (1) that the
+(*  The [inversion] tactic, on the other hand, can detect (1) that the
     first case does not apply, and (2) that the [n'] that appears on
     the [ev_SS] case must be the same as [n].  This allows us to
     complete the proof: *)
+(** 一方、[inversion]タクティックは、(1)最初のケースは適用出来ないことを検知出来ます。そして(2)ev_SSのケースに現われる[n']は[n]と同じであるに違いないことを検知します。 これで、証明を終らせることが出来ます。*)
 
 Theorem evSS_ev : forall n,
   ev (S (S n)) -> ev n.
@@ -284,16 +324,19 @@ Proof.
   apply E'.
 Qed.
 
-(** By using [inversion], we can also apply the principle of explosion
+(*  By using [inversion], we can also apply the principle of explosion
     to "obviously contradictory" hypotheses involving inductive
     properties. For example: *)
+(** [inversion]を使うことによって、帰納的な属性を含む"明らかに矛盾した"仮定に対する爆発原理を適用することも出来ます。例えば*)
 
 Theorem one_not_even : ~ ev 1.
 Proof.
   intros H. inversion H. Qed.
 
-(** **** Exercise: 1 star (inversion_practice)  *)
-(** Prove the following results using [inversion]. *)
+(*  **** Exercise: 1 star (inversion_practice)  *)
+(** **** 練習問題: ★ (inversion_practice)  *)
+(*  Prove the following results using [inversion]. *)
+(** 次の結果を[inversion]を用いて証明しなさい。*)
 
 Theorem SSSSev__even : forall n,
   ev (S (S (S (S n)))) -> ev n.
@@ -325,6 +368,9 @@ Proof.
     adds all equations into the proof context that must hold of the
     arguments given to [P] (e.g., [S (S n') = n] in the proof of
     [evSS_ev]). *)
+(** このような [inversion] の使い方は最初はちょっと謎めいて思えるかもしれません。これまでは、 [inversion] は等号に関する命題に対して使い、コンストラクタから元のデータを取り出すためか、別のコンストラクタを区別するためににしか使っていませんでした。しかし、ここでは [inversion] が 帰納的に定義された命題に対する根拠を分析するためにも使えることを紹介しました。
+
+ここで、[inversion] が一般にはどのように動作するかを説明します。 [I] が現在のコンテキストにおいて帰納的に宣言された仮定 [P] を参照しているとします。ここで、[inversion I] は、[P]のコンストラクタごとにサブゴールを生成します。 各サブゴールにおいて、 コンストラクタが [P] を証明するのに必要な条件によって [I] が置き換えられます。サブゴールのうちいくつかは矛盾が存在するので、 [inversion] はそれらを除外します。残っているのは、元のゴールが成り立つことを示すのに必要なサブゴールです。[inversion]は[P]に与えられた引数の全ての等式をコンテキストに加えます。(例、evSS_evの中の[S (S n') = n]のように。)
 
 (* ####################################################### *)
 (** ** Induction on Evidence *)
