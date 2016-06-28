@@ -373,23 +373,26 @@ Proof.
 ここで、[inversion] が一般にはどのように動作するかを説明します。 [I] が現在のコンテキストにおいて帰納的に宣言された仮定 [P] を参照しているとします。ここで、[inversion I] は、[P]のコンストラクタごとにサブゴールを生成します。 各サブゴールにおいて、 コンストラクタが [P] を証明するのに必要な条件によって [I] が置き換えられます。サブゴールのうちいくつかは矛盾が存在するので、 [inversion] はそれらを除外します。残っているのは、元のゴールが成り立つことを示すのに必要なサブゴールです。[inversion]は[P]に与えられた引数の全ての等式をコンテキストに加えます。(例、evSS_evの中の[S (S n') = n]のように。)
 
 (* ####################################################### *)
-(** ** Induction on Evidence *)
+(*  ** Induction on Evidence *)
+(** ** 根拠に対する帰納法 *)
 
-(** The [ev_double] exercise above shows that our new notion of
+(*  The [ev_double] exercise above shows that our new notion of
     evenness is implied by the two earlier ones (since, by
     [even_bool_prop], we already know that those are equivalent to
     each other). To show that all three coincide, we just need the
     following lemma: *)
+(** 上記の[ev_double]練習問題で偶数性の新しい記法が最初の二つによって含意されることを示しました。([even_bool_prop]によって、これでお互いが等価であることが分かりました。)これらが三つがコインの裏表であることを示すために、次の補題が必要になります。*)
 
 Lemma ev_even : forall n,
   ev n -> exists k, n = double k.
 Proof.
 
-(** We could try to proceed by case analysis or induction on [n].  But
+(*  We could try to proceed by case analysis or induction on [n].  But
     since [ev] is mentioned in a premise, this strategy would probably
     lead to a dead end, as in the previous section.  Thus, it seems
     better to first try inversion on the evidence for [ev].  Indeed,
     the first case can be solved trivially. *)
+(**  ここで、[n]に関する場合わけや、帰納法を使って証明を進めたくなるかもしれません。しかし、[ev]が前提として与えられているため、この戦略は前の問題と同じく行き詰まります。それゆえ、根拠である[ev]に対する帰納法を試すのがよい方法に思われます。たしかに、最初の場合は、簡単に解けます。*)
 
   intros n E. inversion E as [| n' E'].
   - (* E = ev_0 *)
@@ -413,12 +416,19 @@ Proof.
     which is the same as the original statement, but with [n'] instead
     of [n].  Indeed, it is not difficult to convince Coq that this
     intermediate result suffices. *)
+(** 残念なことに、二つ目の場合はより難しくなります。示す必要があるのは、[exists k, S (S n')]ですが、利用出来る仮定はただ[E']のみで、それは[ev n']であると述べています。これはそのままでは役に立ちませんので、[E]についてのケース分析を行なうことは時間の無駄のようです。
+二番目のゴールがより厳密に見ることが出来れば、何かもっと面白いことが起こるのが見えたかもしれません。[E]についてのケース分析をすることで、[ev]の根拠の異なる断片を含む元の結果を減らすことが出来ます。一般的に言えば、以下を示すことで、証明を終わらせることが出来ます。
+
+        exists k', n' = double k',
+
+    これは最初の文と同じに見えるかもしれませんが、[n']が,[n]の代わりに使われています。確かに、Coqに中間結果が十分であると納得させることは難しくありません。 *)
 
     assert (I : (exists k', n' = double k') ->
                 (exists k, S (S n') = double k)).
     { intros [k' Hk']. rewrite Hk'. exists (S k').
       reflexivity. }
     apply I. (* reduce the original goal to the new one *)
+
 
 (** If this looks familiar, it is no coincidence: We've encountered
     similar problems in the [Induction] chapter, when trying to use
@@ -432,7 +442,10 @@ Proof.
     the property in question.
 
     Let's try our current lemma again: *)
+(** 以前にも見たような気がするかもしれませんが、気のせいではありません。[Induction]の章で、似たような問題に遭遇しています。そのときは、必要とされる帰納の結果を証明するために、場合わけを用いました。そうその時に用いた解決方法は、帰納です！
 
+根拠に対する[induction]の振舞はデータに対する帰納法と同じようなものです。Coqに根拠を生成するそれぞれのコンストラクタに対応するサブゴールを生成させて、それぞれの再帰的な属性の出現に対して帰納仮説を与えて行きます。
+もう一度、今の補題をやってみましょう: *)
 Abort.
 
 Lemma ev_even : forall n,
@@ -448,13 +461,15 @@ Proof.
     rewrite Hk'. exists (S k'). reflexivity.
 Qed.
 
-(** Here, we can see that Coq produced an [IH] that corresponds to
+(*  Here, we can see that Coq produced an [IH] that corresponds to
     [E'], the single recursive occurrence of [ev] in its own
     definition.  Since [E'] mentions [n'], the induction hypothesis
     talks about [n'], as opposed to [n] or some other number. *)
+(** ここで、Coqが[E']に応答する[IH]を導入しているのが分かります。再帰的な[ev]の出現はその定義のなかで一回きりです。[E']は、[n']に言及しているので、帰納仮説は[n]や他の番号ではなく[n']についてのものです。*)
 
-(** The equivalence between the second and third definitions of
+(*  The equivalence between the second and third definitions of
     evenness now follows. *)
+(** 二番目と三番目の偶数の定義の等価性については以下で示します *)
 
 Theorem ev_even_iff : forall n,
   ev n <-> exists k, n = double k.
@@ -464,19 +479,22 @@ Proof.
   - (* <- *) intros [k Hk]. rewrite Hk. apply ev_double.
 Qed.
 
-(** As we will see in later chapters, induction on evidence is a
+(*  As we will see in later chapters, induction on evidence is a
     recurring technique when studying the semantics of programming
     languages, where many properties of interest are defined
     inductively.  The following exercises provide simple examples of
     this technique, to help you familiarize yourself with it. *)
+(** 後の章で見るように、根拠上の帰納法は、プログラミング言語の意味論を学ぶときに繰り返し出て来るテクニックです。そこで、多くの興味深い属性が帰納的に定義されています。次の練習問題はこのテクニックの簡単な例です。この方法に慣れるのに役立つでしょう。*)
 
-(** **** Exercise: 2 stars (ev_sum)  *)
+(*  **** Exercise: 2 stars (ev_sum)  *)
+(** **** 練習問題: ★★ (ev_sum)  *)
 Theorem ev_sum : forall n m, ev n -> ev m -> ev (n + m).
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced (ev_alternate)  *)
+(*  **** Exercise: 4 stars, advanced (ev_alternate)  *)
+(** **** 練習問題: ★★★★ advanced (ev_alternate)  *)
 (** In general, there may be multiple ways of defining a
     property inductively.  For example, here's a (slightly contrived)
     alternative definition for [ev]: *)
@@ -486,17 +504,20 @@ Inductive ev' : nat -> Prop :=
 | ev'_2 : ev' 2
 | ev'_sum : forall n m, ev' n -> ev' m -> ev' (n + m).
 
-(** Prove that this definition is logically equivalent to
+(*  Prove that this definition is logically equivalent to
     the old one. *)
+(** この定義が論理的に以前の定義と等価なことを証明しなさい。*)
 
 Theorem ev'_ev : forall n, ev' n <-> ev n.
 Proof.
  (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced, recommended (ev_ev__ev)  *)
-(** Finding the appropriate thing to do induction on is a
+(*  **** Exercise: 3 stars, advanced, recommended (ev_ev__ev)  *)
+(** **** 練習問題: ★★★ advanced recommended (ev_ev__ev)  *)
+(*  Finding the appropriate thing to do induction on is a
     bit tricky here: *)
+(**  何に対して帰納法を行えばいいかを探しなさい。(ちょっとトリッキーですが)  *)
 
 Theorem ev_ev__ev : forall n m,
   ev (n+m) -> ev n -> ev m.
@@ -504,10 +525,12 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 3 stars, optional (ev_plus_plus)  *)
-(** This exercise just requires applying existing lemmas.  No
+(*  **** Exercise: 3 stars, optional (ev_plus_plus)  *)
+(** **** 練習問題: ★★★ advanced recommended (ev_ev__ev)  *)
+(*  This exercise just requires applying existing lemmas.  No
     induction or even case analysis is needed, though some of the
     rewriting may be tedious. *)
+(** 既存の補題を適用する必要のある練習問題です。 帰納法も場合分けも不要ですが、書き換えのうちいくつかはちょっと大変です。*)
 
 Theorem ev_plus_plus : forall n m p,
   ev (n+m) -> ev (n+p) -> ev (m+p).
@@ -516,25 +539,28 @@ Proof.
 (** [] *)
 
 (* ####################################################### *)
-(** * Inductive Relations *)
+(*  * Inductive Relations *)
+(** * 帰納的関係 *)
 
-(** A proposition parameterized by a number (such as [ev])
+(*  A proposition parameterized by a number (such as [ev])
     can be thought of as a _property_ -- i.e., it defines
     a subset of [nat], namely those numbers for which the proposition
     is provable.  In the same way, a two-argument proposition can be
     thought of as a _relation_ -- i.e., it defines a set of pairs for
     which the proposition is provable. *)
-
+(** 数値をパラメータとして持つ命題(例えば、[ev]など)は属性 _property_と 見なすこともできます。つまり、それに属する値についてその命題が証明可能である ような nat の部分集合の定義と見ることができるということです。 同様に、引数（パラメータ）を二つ持つ命題は、その二つの「関係」を表していると考えられます。つまり、その命題について証明可能な値のペアの集合の定義、 というわけです。 *)
 Module LeModule.
 
-(** One useful example is the "less than or equal to"
+(*  One useful example is the "less than or equal to"
     relation on numbers. *)
+(** よく使われるものの例として「等しいかまたは小さい」 という関係があります。 *)
 
-(** The following definition should be fairly intuitive.  It
+(*  The following definition should be fairly intuitive.  It
     says that there are two ways to give evidence that one number is
     less than or equal to another: either observe that they are the
     same number, or give evidence that the first is less than or equal
     to the predecessor of the second. *)
+(** この定義はかなり直観的なものになります。これは、ある数値がもう一つの 数値より小さいかまたは等し>い、ということを示すには二つの方法があることを 示しています。一つはそれらが同じ数であるかどうかを確>認すること。もう 一つは最初の数が。二つ目の数の一つ前の数より小さいかまたは等しい、ということの根拠を得ることです。 *)
 
 Inductive le : nat -> nat -> Prop :=
   | le_n : forall n, le n n
@@ -548,7 +574,8 @@ Notation "m <= n" := (le m n).
     goals (e.g., to show that [3<=3] or [3<=6]), and we can use
     tactics like [inversion] to extract information from [<=]
     hypotheses in the context (e.g., to prove that [(2 <= 1) ->
-    2+2=5].) *)
+    2+2=5].) *
+(** コンストラクタ [le_n] と [le_S] を使った [<=] にからむ証明は、前章の [eq] がそうであったように、属性についての証明のいくつかのパターンに倣っています。[<=] の形をしたゴール（例えば [3<=3] や [3<=6] など）に、そのコンストラクタをapply することができますし、inversion のようなタクティックを使って（[(2 <= 1) -> 2+2=5] の証明をしようとする際のように） コンテキストに [<=] を含む仮定から情報を抽出することもできます。*)
 
 (** Here are some sanity checks on the definition.  (Notice that,
     although these are the same kind of simple "unit tests" as we gave
@@ -556,6 +583,7 @@ Notation "m <= n" := (le m n).
     must construct their proofs explicitly -- [simpl] and
     [reflexivity] don't do the job, because the proofs aren't just a
     matter of simplifying computations.) *)
+(** ここで、定義が正しくなされているのかのチェックをしてみましょう。（注意して 欲しいのは、ここでやることが、最初のレクチャーで書いてもらった、ある種のシンプルな「ユニットテスト」のようなものですが、今回のものは以前のものとちょっと違います。今回のものには、[simpl] や [reflexivity] はほとんど役に立ちません。簡約だけで証明できるようなものではないからです。*)
 
 Theorem test_le1 :
   3 <= 3.
@@ -577,14 +605,15 @@ Proof.
 
 (** The "strictly less than" relation [n < m] can now be defined
     in terms of [le]. *)
-
+(** "より小さい"という関係 [n < m]は、[le]を使って定義出来ます。
 End LeModule.
 
 Definition lt (n m:nat) := le (S n) m.
 
 Notation "m < n" := (lt m n).
 
-(** Here are a few more simple relations on numbers: *)
+(*  Here are a few more simple relations on numbers: *)
+(** 数についての簡単な関係をいくつか示します。*)
 
 Inductive square_of : nat -> nat -> Prop :=
   sq : forall n:nat, square_of n (n * n).
@@ -596,25 +625,31 @@ Inductive next_even : nat -> nat -> Prop :=
   | ne_1 : forall n, ev (S n) -> next_even n (S n)
   | ne_2 : forall n, ev (S (S n)) -> next_even n (S (S n)).
 
-(** **** Exercise: 2 stars, recommended (total_relation)  *)
-(** Define an inductive binary relation [total_relation] that holds
+(*  **** Exercise: 2 stars, recommended (total_relation)  *)
+(** **** 練習問題: ★★, recommended (total_relation)  *)
+(*  Define an inductive binary relation [total_relation] that holds
     between every pair of natural numbers. *)
+(** 二つの自然数の全てのペア同士の間に成り立つ帰納的な関係 [total_relation] を
+    定義しなさい。 *)
 
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 2 stars (empty_relation)  *)
-(** Define an inductive binary relation [empty_relation] (on numbers)
+(*  **** Exercise: 2 stars (empty_relation)  *)
+(** **** 練習問題: ★★ (empty_relation)  *)
+(*  Define an inductive binary relation [empty_relation] (on numbers)
     that never holds. *)
-
+(** 自然数の間では決して成り立たない関係 [empty_relation] を帰納的に
+    定義しなさい。 *)
 (* FILL IN HERE *)
 (** [] *)
 
 (** **** Exercise: 3 stars, optional (le_exercises)  *)
-(** Here are a number of facts about the [<=] and [<] relations that
+(** **** 練習問題: ★★★, optional (le_exercises)  *)
+(*  Here are a number of facts about the [<=] and [<] relations that
     we are going to need later in the course.  The proofs make good
     practice exercises. *)
-
+(** 後のコースで必要になる[<=] や [<] といった関係についての事実を示しておきます。その証明自体がとてもよい練習問題になります。*)
 Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
 Proof.
   (* FILL IN HERE *) Admitted.
@@ -657,7 +692,8 @@ Theorem leb_complete : forall n m,
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(** Hint: The next one may be easiest to prove by induction on [m]. *)
+(*  Hint: The next one may be easiest to prove by induction on [m]. *)
+(** ヒント: [m]による帰納法の方が簡単に証明出来ます。 *)
 
 Theorem leb_correct : forall n m,
   n <= m ->
@@ -665,7 +701,8 @@ Theorem leb_correct : forall n m,
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(** Hint: This theorem can easily be proved without using [induction]. *)
+(*  Hint: This theorem can easily be proved without using [induction]. *)
+(** ヒント: この定理は[induction]を使わない方が簡単に証明出来ます。 *)
 
 Theorem leb_true_trans : forall n m o,
   leb n m = true -> leb m o = true -> leb n o = true.
@@ -681,10 +718,13 @@ Proof.
 
 Module R.
 
-(** **** Exercise: 3 stars, recommended (R_provability2)  *)
+(*  **** Exercise: 3 stars, recommended (R_provability2)  *)
+(** **** 練習問題 ★★★, recommended (R_provability2) *)
 (** We can define three-place relations, four-place relations,
     etc., in just the same way as binary relations.  For example,
     consider the following three-place relation on numbers: *)
+(** 次は三つや四つの値の間に成り立つ関係を同じように定義してみましょう。
+    例えば、次のような数値の三項関係が考えられます。 *)
 
 Inductive R : nat -> nat -> nat -> Prop :=
    | c1 : R 0 0 0
@@ -703,16 +743,25 @@ Inductive R : nat -> nat -> nat -> Prop :=
 
     - If we dropped constructor [c4] from the definition of [R],
       would the set of provable propositions change?  Briefly (1
-      sentence) explain your answer.
+      sentence) explain your answer.*)
+(**  - 次の命題のうち、この関係を満たすと証明できると言えるのはどれでしょうか。
+      - [R 1 1 2]
+      - [R 2 2 6]
+
+     - この関係 [R] の定義からコンストラクタ [c5] を取り除くと、証明可能な命題の範囲はどのように変わるでしょうか？端的に（１文で）説明しなさい。
+
+     - この関係 [R] の定義からコンストラクタ [c4] を取り除くと、証明可能な命題の範囲はどのように変わるでしょうか？端的に（１文で）説明しなさい。
 
 (* FILL IN HERE *)
 []
 *)
 
 (** **** Exercise: 3 stars, optional (R_fact)  *)
-(** The relation [R] above actually encodes a familiar function.
+(** **** 練習問題 ★★★, optional (R_fact) *)
+(*  The relation [R] above actually encodes a familiar function.
     Figure out which function; then state and prove this equivalence
     in Coq? *)
+(** 上記の関係[R]は実際に、もっと分かりやすい関数をエンコードしたものです。どの関数か挙げなさい。Coqにおけるその関数と関係について述べて、証明しなさい*)
 
 Definition fR : nat -> nat -> nat :=
   (* FILL IN HERE *) admit.
@@ -759,12 +808,35 @@ End R.
       transitive -- that is, if [l1] is a subsequence of [l2] and [l2]
       is a subsequence of [l3], then [l1] is a subsequence of [l3].
       Hint: choose your induction carefully! *)
+(**あるリストが、別のリストのサブシーケンス（ _subsequence_ ）であるとは、最初のリストの要素が全て二つ目のリストに同じ順序で現れるということです。ただし、その間に何か別の要素が入ってもかまいません。例えば、
 
-(* FILL IN HERE *)
-(** [] *)
+    [1,2,3]
 
-(** **** Exercise: 2 stars, optional (R_provability)  *)
-(** Suppose we give Coq the following definition:
+    は、次のいずれのリストのサブシーケンスでもあります。
+
+    [1,2,3]
+    [1,1,1,2,2,3]
+    [1,2,7,3]
+    [5,6,1,9,9,2,7,3,8]
+
+    しかし、次のいずれのリストのサブシーケンスでもありません。
+
+    [1,2]
+    [1,3]
+    [5,6,2,1,7,3,8]
+
+    - list nat] 上に、そのリストがサブシーケンスであることを意味するような命題 [subseq] を定義しなさい。（ヒント：三つのケースが必要になります）
+
+    -サブシーケンスである、という関係が「反射的」であることを証明しなさい。つまり、どのようなリストも、それ自身のサブシーケンスであるということです。
+
+    - 任意のリスト [l1]、 [l2]、 [l3] について、もし [l1] が [l2] のサブシーケンスならば、 [l1] は [l2 ++ l3] のサブシーケンスでもある、ということを証明しなさい。
+
+    -（これは少し難しいですので、任意とします）サブシーケンスという関係は推移的である、つまり、 [l1] が [l2] のサブシーケンスであり、 [l2] が [l3] のサブシーケンスであるなら、 [l1] は [l3] のサブシーケンスである、というような関係であることを証明しなさい。（ヒント：何について帰納法を適用するか、よくよく注意して下さい!）*)
+    (* FILL IN HERE *)
+    (** [] *)
+
+(** **** 練習問題 ★★, optional (R_provability) *)
+(*  Suppose we give Coq the following definition:
 
     Inductive R : nat -> list nat -> Prop :=
       | c1 : R 0 []
@@ -776,12 +848,22 @@ End R.
     - [R 2 [1;0]]
     - [R 1 [1;2;1;0]]
     - [R 6 [3;2;1;0]]  *)
+(** Coq に次のような定義を与えたとします：
+    Inductive R : nat -> list nat -> Prop :=
+      | c1 : R 0 []
+      | c2 : forall n l, R n l -> R (S n) (n :: l)
+      | c3 : forall n l, R (S n) l -> R n l.
+    次のうち、証明可能なのはどの命題でしょうか？
 
+    - [R 2 [1;0]]
+    - [R 1 [1;2;1;0]]
+    - [R 6 [3;2;1;0]] *)
 (** [] *)
 
 
 (* ############################################################ *)
-(** * Case Study: Regular Expressions *)
+(*  * Case Study: Regular Expressions *)
+(** * ケーススタディ: 正規表現 *)
 
 (** The [ev] property provides a simple example for illustrating
     inductive definitions and the basic techniques for reasoning about
@@ -796,6 +878,9 @@ End R.
     defined as elements of the following inductive type.  (The names
     of the constructors should become clear once we explain their
     meaning below.)  *)
+(** [ev]属性は、帰納的な定義とそれを使う推論の簡単な例を提供します。しかしそれほど興奮するものでもありません。-- 結局、それまでに見た二つの非帰納的な定義と等価ですし、それらを越えるどんな具体的なメリットもありません。帰納的定義のパワーをもっと感じるために、どうやってコンピュータサイエンスの古典的概念 -- 正規表現 -- を帰納的定義を使ってモデル化するかを見てみましょう。
+
+正規表現は、以下の帰納的な型によって定義された文字列を記述するための単純な言語です。(コンストラクタの名前は、以下のように、それぞれの意味を説明する曖昧でないものであるべきです。*)
 
 Inductive reg_exp (T : Type) : Type :=
 | EmptySet : reg_exp T
@@ -842,6 +927,21 @@ Arguments Star {T} _.
       [Star re] matches [s].  (As a special case, the sequence of
       strings may be empty, so [Star re] always matches the empty
       string [[]] no matter what [re] is.) *)
+(** この定義が多相的なものであることに気がついたでしょうか: [req_exp T]中の正規表現は文字列を[T]から採られる文字によって記述します。すなわち、[T]の要素のリストです。(有限の型[T]を必要としない標準的な練習から開始します。その結果正規表現といくらか異なるものになりますが、この違いは、我々の目的からすれば、重要なものではありません)
+
+正規表現と文字列を以下の規則で結び付けます。そのルールは正規表現が文字列にいつマッチするかを定義します:
+
+    - [EmptySet]式はどんな文字列にもマッチしません。
+
+    - [EmptyStr]式は、空の文字列[[]]にマッチします。
+
+    - [Char x]式は、一文字からなる文字列[[x]]にマッチします。
+
+    - もし [re1]が文字列[s1]にマッチして、[re2]が文字列[s2]にマッチするならば、{App re1 re2]は、[s1 ++ s2]にマッチします。
+
+    - もし、[re1]と[re2]の少くともどちらかが文字列[s]にマッチするならば、[Union re1 re2]は[s]にマッチします。
+
+    - 最後に、もし文字列[s]を[s = s_1 ++ ... ++ s_k]のように、文字列の並びの結合として書くことが出来て、正規表現[re]がそれぞれの文字列[s_i]にマッチするならば、[Star re]は[s]にマッチします。(特別な場合として、文字列の並びが空である場合、[Star re]は常に、[re]が何であるかに関係なく、空の文字列[[]]にマッチします。*)
 
 (** We can easily translate this informal definition into an
     [Inductive] one as follows: *)
