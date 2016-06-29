@@ -1,24 +1,7 @@
 (* * Logic: Logic in Coq *)
 (** * Logic_J: Coqにおける論理 *)
 
-Require Export MoreCoq_J. 
-
-
-
-(* Coq's built-in logic is very small: the only primitives are
-    [Inductive] definitions, universal quantification ([forall]), and
-    implication ([->]), while all the other familiar logical
-    connectives -- conjunction, disjunction, negation, existential
-    quantification, even equality -- can be encoded using just these.
-    This chapter explains the encodings and shows how the tactics
-    we've seen can be used to carry out standard forms of logical
-    reasoning involving these connectives. *)
-(** Coqにあらかじめ組み込まれた論理は極めて小さく、帰納的定義([Inductive])、全称量化([forall])、含意([->])だけがプリミティブです。しかしそれ以外の論理結合子（かつ、または、否定、存在量化子、等号など）も、組み込みのものを用いて定義できます。
-    この章では、そのエンコーディング(Coqでどのように表現されるかということか？)を説明し、これまで見て来たタクティックが これらの結合子を含んだ論理的推論の標準形式を実行するためにどのように使用されるのかを示します。*)
-
-(* ########################################################### *)
-(* * Propositions *)
-(** * 命題 *)
+Require Export Tactics. 
 
 (* In previous chapters, we have seen many examples of factual
     claims (_propositions_) and ways of presenting evidence of their
@@ -252,10 +235,6 @@ Proof.
     following commutativity and associativity theorems come in handy
     in such cases. *)
 (** 最後に、and/orの結合の順序を変更することが必要になるときがあります。次の交換法則と結合法則の定理がその場合に役に立つでしょう。*)
-(*  The logical conjunction of propositions [P] and [Q] can be
-    represented using an [Inductive] definition with one
-    constructor. *)
-(** 命題 [P] と [Q] の論理積（ [logical conjunction] ）は、コンストラクタを一つしか持たない [Inductive] を使った定義で表せます。 *)
 Theorem and_commut : forall P Q : Prop,
   P /\ Q -> Q /\ P.
 Proof.
