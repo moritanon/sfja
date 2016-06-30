@@ -620,7 +620,7 @@ Qed.
     we explicitly tell Coq which witness [t] we have in mind by
     invoking the tactic [exists t]; then we prove that [P] holds after
     all occurrences of [x] are replaced by [t].  Here is an example: *)
-(** もう一つの重要な論理結合子は、存在量化子（ _existential quantification_ ）です。ある[T]型の[x]があって、[x]はプロパティ[P]を満たす。みたいな意味で、 [exists x : T, P]と書きます。
+(** もう一つの重要な論理結合子は、存在量化子（ _existential quantification_ ）です。ある[T]型の[x]があって、[x]はプロパティ[P]を満たす、といった意味で、 [exists x : T, P]と書きます。
 [forall]と同じように、型注釈[: T]は、Coqが文脈から推論出来るならば、省略可能です。
 [exists x, P]という形の文を証明するために、[P]を満たす特定の値[x](、存在の証拠になります)を示す必要があります。 これは二つのステップで行なわれます。第一に、明示的にCoqに証拠[t]を[exists t]タクティックを呼び出すことで示します。
 それから、全ての[x]を[t]に置き換えたあとにそれらが全て、[P]を満すことを証明します。次は例です。*)
@@ -672,7 +672,7 @@ Proof.
     - Otherwise, [l] has the form [x' :: l'].  In this case, [x]
       occurs in [l] if either it is equal to [x'] or it occurs in
       [l']. *)
-(** これまでに見て来た論理結合子は、シンプルな命題から複雑な命題までを定義するための豊富な語彙を提供しています。そのことを説明するために、ある要素[x]がリスト中に現れるという主張を表現す方法について見て行くことにしましょう。この属性は単純な再帰的構造を持つことに注意してください。
+(** これまでに見て来た論理結合子は、シンプルな命題から複雑な命題までを定義するための豊富な語彙を提供しています。そのことを説明するために、ある要素[x]がリスト中に現れるという主張を表現する方法について見て行くことにしましょう。この属性は単純な再帰的構造を持つことに注意してください。
 	
     - [l]が空リストであるならば、[x]は[l]上に現れることはない。そのため、属性 "[x] appears in [l]"は false。
     - [l]が [x' :: l']という形の場合、「x']が[x]と等しいか、[l']の中に現れれば、[x]は[l]に現れると言える。 *)
@@ -730,7 +730,7 @@ Qed.
     propositions _inductively_, a different technique with its own set
     of strengths and limitations. *)
 (** 命題を定義するこの方法は、ある場合では十分に便利ですが、欠点もあります。特に、再帰的関数の定義に関してCoqが課す制限(関数は明々白々に終了しなければならないってやつ)にひっかかる場合です。
-次の章において、命題を再帰的に定義する方法を見る予定です。その方法自体に強みと制限もある関数とは異なるテクニックです。*)
+次の章において、命題を再帰的に定義する方法を見る予定です。その方法自体に強みと制限もあって、命題を返す関数とは異なるテクニックです。*)
 (*  **** Exercise: 2 stars (In_map_iff)  *)
 (** **** 練習問題: ★★ (In_map_iff) *)
 Lemma In_map_iff :
@@ -934,7 +934,7 @@ Qed.
 この違いは、非形式的な数学的概念を、(これらは全般的に極めて自然で、理解するのがやさしいのですが) を理解するのに、しばしば少し異なった道に導きます。
 例えば、「自然数[n]は偶数の集合に属している」と言う代わりにCoqでは、[ev n]が成り立つならば、そのとき、[ev : nat -> Prop]は偶数の属性であると言わねばなりません
 しかしながら、通常の数学的推論をCoqに翻訳出来る場合もありますが、コアとなるロジックに公理を追加しないと、翻訳が難しかったり、そもそも不可能な場合があります。
-この章の結びとして、手短な議論、二つの世界の最も多きく重要な違いを論じることにします。*)
+この章の結びとして、手短な議論、二つの世界の最も大きくて重要な違いを論じることにします。*)
 (** ** Functional Extensionality
     The equality assertions that we have seen so far mostly have
     concerned elements of inductive types ([nat], [bool], etc.).  But
@@ -1003,11 +1003,13 @@ Print Assumptions plus_comm_ext.
                 (forall x : X, f x = g x) -> f = g *)
 (*  **** Exercise: 5 stars (tr_rev)  *)
 (** **** 練習問題: ★★★★★ (tr_rev) *)
-(** One problem with the definition of the list-reversing function
+(*  One problem with the definition of the list-reversing function
     [rev] that we have is that it performs a call to [app] on each
     step; running [app] takes time asymptotically linear in the size
     of the list, which means that [rev] has quadratic running time.
     We can improve this with the following definition: *)
+(** 以下のリストの逆転を行う関数[rev]には、各ステップ毎に、[app]を呼ばなければならなくなるという問題があります。[app]関数はリストにサイズに比例した時間がかかります。つまり、[rev]関数リストのサイズの二乗に比例する時間が掛るということです。この問題を次の定義で改善しましょう。*)
+
 Fixpoint rev_append {X} (l1 l2 : list X) : list X :=
   match l1 with
   | [] => l2
@@ -1015,15 +1017,19 @@ Fixpoint rev_append {X} (l1 l2 : list X) : list X :=
   end.
 Definition tr_rev {X} (l : list X) : list X :=
   rev_append l [].
-(** This version is said to be _tail-recursive_, because the recursive
+
+(*  This version is said to be _tail-recursive_, because the recursive
     call to the function is the last operation that needs to be
     performed (i.e., we don't have to execute [++] after the recursive
     call); a decent compiler will generate very efficient code in this
     case.  Prove that both definitions are indeed equivalent. *)
+(** このバージョンは、末尾再帰と呼ばれます。なぜなら、関数の再帰呼び出しが必要になるのが最後だけだからです。(つまり、再帰呼び出しの後に何も実行する必要がありません)  妥当なコンパイラは大変効率的なコードこの場合生成するでしょう。両方の定義が確かに等価であることを証明しなさい。 *)
+
 Lemma tr_rev_correct : forall X, @tr_rev X = @rev X.
 (* FILL IN HERE *) Admitted.
 (** [] *)
-(** ** Propositions and Booleans *)
+(*  ** Propositions and Booleans *)
+(** ** 命題とブール値 *)
 (** We've seen that Coq has two different ways of encoding logical
     facts: with _booleans_ (of type [bool]), and with
     _propositions_ (of type [Prop]). For instance, to claim that a
@@ -1034,18 +1040,22 @@ Lemma tr_rev_correct : forall X, @tr_rev X = @rev X.
     left as an exercise).
     We often say that the boolean [evenb n] _reflects_ the proposition
     [exists k, n = double k].  *)
+(** これまでに論理的な事実をCoqによってエンコードする二つの異なる方法、一つは、[bool]型を持つブール値であり、もう一つは、[Prop]型を持つ命題、を見てきました。例えば、[n]が偶数であることを主張するために、(1) [evenb n]が[true]を返すこと。(2)[n = double k]を満す[k]が存在すること。のどちらかで言うことが出来ます。確かにこれら二つの偶数性の記述は等価です。数個の補助的な補題を使って示すことが出来ます。(その一つは練習問題として残しておきましょう。)
+我々はしばしば、ブール値[evenb n]は、命題[exists k, n = double k]を反映している。と言うことがあります。*)
+
 Theorem evenb_double : forall k, evenb (double k) = true.
 Proof.
   intros k. induction k as [|k' IHk'].
   - reflexivity.
   - simpl. apply IHk'.
 Qed.
-(** **** Exercise: 3 stars (evenb_double_conv)  *)
+(*  **** Exercise: 3 stars (evenb_double_conv)  *)
+(** **** 練習問題: ★★★ (evenb_double_conv)  *)
 Theorem evenb_double_conv : forall n,
   exists k, n = if evenb n then double k
                 else S (double k).
 Proof.
-  (* Hint: Use the [evenb_S] lemma from [Induction.v]. *)
+  (* ヒント: [Induction.v]の [evenb_S]を使いましょう。*)
   (* FILL IN HERE *) Admitted.
 (** [] *)
 Theorem even_bool_prop : forall n,
@@ -1056,9 +1066,12 @@ Proof.
     rewrite Hk. rewrite H. exists k. reflexivity.
   - intros [k Hk]. rewrite Hk. apply evenb_double.
 Qed.
-(** Similarly, to state that two numbers [n] and [m] are equal, we can
+(*  Similarly, to state that two numbers [n] and [m] are equal, we can
     say either (1) that [beq_nat n m] returns [true] or (2) that [n =
     m].  These two notions are equivalent. *)
+(** 同様に、二つの数[n]と[m]が等しいことを述べるために、(1) [beq_nat n m]が[true]を返却する。(2)
+[n = m]。のどちらかを言うことが出来ます。これら二つの記述は等価です。*)
+
 Theorem beq_nat_true_iff : forall n1 n2 : nat,
   beq_nat n1 n2 = true <-> n1 = n2.
 Proof.
@@ -1066,7 +1079,7 @@ Proof.
   - apply beq_nat_true.
   - intros H. rewrite H. rewrite <- beq_nat_refl. reflexivity.
 Qed.
-(** However, while the boolean and propositional formulations of a
+(*  However, while the boolean and propositional formulations of a
     claim are equivalent from a purely logical perspective, we have
     also seen that they need not be equivalent _operationally_.
     Equality provides an extreme example: knowing that [beq_nat n m =
@@ -1085,6 +1098,9 @@ Qed.
     instance, we cannot test whether a general proposition is true or
     not in a function definition; as a consequence, the following code
     fragment is rejected: *)
+(** しかし、主張のブール値による定式化と命題による定式化が純粋に論理的な観点から等しい一方、それらが操作的に必要とするものが異なることも見て来ました。等価性は極端な例を提供します: [beq_nat n m = true]は、[n]と[m]を含む一般的な証明ではあまり役に立たちませんが、[n = m]という形に等価性を変換することが出来れば、それを使ってrewrite出来ます。
+偶数のケースもまた興味深いものです。[even_bool_prop]([even_double]を命題からブール値の主張に変換したものです)において、[k]についてのシンプルな帰納法を使いました。一方、逆の[evenb_double_conv]では、直接に、[(exists k, n = double k) => evenb n = true]を証明出来ないので、クレバーな(小賢しい？)一般化を必要としました。これらの例において、命題による主張はブール値によるものよりは便利なのですが、どんな場合でもそうであるとは言えません。例えば、関数定義の中で、一般的な命題がtrueかどうかをテスト出来ません: 結果として、次のコードは却下されます。*)
+
 Fail Definition is_even_prime n :=
   if n = 2 then true
   else false.
@@ -1112,20 +1128,29 @@ Fail Definition is_even_prime n :=
     booleans is enabling some proof automation through computation
     with Coq terms, a technique known as _proof by
     reflection_. Consider the following statement: *)
+(* Coqにおいては、[n = 2]の型は[Prop]ですが、[bool]型(あるいは、二つの枝を持つ帰納的な型)であることが期待されています。このエラーメッセージの理由は、Coqのコア言語の計算可能という本質を外してはならない、ということです。そのため、Coqのコアにおいて、全ての関数は計算可能であり、かつ完全であるように設計されています。その理由の一つは実行可能なプログラムをCoqのプログラムから抽出ことを許すためです。結果として、Coqにおいて、[Prop]は、与えられた命題が真かどうかを知るための一般的なケース分析をする手段を持っていません。そのような方法は、計算可能な関数として書くことは不可能であるからです。
+一般的な計算可能でない属性はブール値の計算として表現出来ませんが、 多くの計算可能な属性が[bool]ではなく、[Prop]を使ってより簡単に表現出来ます。なぜなら再帰関数はCoqにおいて、重大な制限下にあるからです。例えば、次の章において、[Prop]を使って与えられた文字列が正規表現にマッチする属性を定義する方法を学びます。[bool]を持ちいて、正規表現マッチャーを書くことは、より複雑で、理解しにくく、それに関して推論しにくいものになります。
+逆に、ブール値を使って事実を述べることの重要な利点は、Coqにおいて、いくつかの証明の自動化を可能にすることです。このテクニックは、「反映による証明」として知られています。次の文で考えましょう。*)
+
 Example even_1000 : exists k, 1000 = double k.
-(** The most direct proof of this fact is to give the value of [k]
+(*  The most direct proof of this fact is to give the value of [k]
     explicitly. *)
+(** 最も直接的な証明は、[k]の値を明示的に与えることです。 *)
  Proof. exists 500. reflexivity. Qed.
-(** On the other hand, the proof of the corresponding boolean
+(* On the other hand, the proof of the corresponding boolean
     statement is even simpler: *)
+(** 一方、ブール式に対応する証明はずっとシンプルです。*)
+
 Example even_1000' : evenb 1000 = true.
 Proof. reflexivity. Qed.
-(** What is interesting is that, since the two notions are equivalent,
+(*  What is interesting is that, since the two notions are equivalent,
     we can use the boolean formulation to prove the other one without
     mentioning 500 explicitly: *)
+(** 興味深いことは、二つの書き方は等価なので、もう一つを500を明示的に示すことなく証明するために、ブール式を使うことが出来ることです: *)
+
 Example even_1000'' : exists k, 1000 = double k.
 Proof. apply even_bool_prop. reflexivity. Qed.
-(** Although we haven't gained much in terms of proof size in this
+(*  Although we haven't gained much in terms of proof size in this
     case, larger proofs can often be made considerably simpler by the
     use of reflection.  As an extreme example, the Coq proof of the
     famous _4-color theorem_ uses reflection to reduce the analysis of
@@ -1133,9 +1158,12 @@ Proof. apply even_bool_prop. reflexivity. Qed.
     cover reflection in great detail, but it serves as a good example
     showing the complementary strengths of booleans and general
     propositions. *)
-(** **** Exercise: 2 stars (logical_connectives)  *)
-(** The following lemmas relate the propositional connectives studied
+(** このケースでは、証明の記述量に関して大した利点はありませんでしたが、もっと大きな証明において、リフレクションの使用は顕著にあらわれます。極端な例として、Coqの4色問題の証明では、reflectionの使用によって、数百の異なるケース分析をブール値の計算に変換して減らすことだ出来ました。ここでreflectionの細かな説明は行いませんが、ここでブール値と一般的な命題がお互い補完しあうものであることを示すよい例を示します。*)
+(*  **** Exercise: 2 stars (logical_connectives)  *)
+(** **** 練習問題: ★★ (logical_connectives)  *)
+(*  The following lemmas relate the propositional connectives studied
     in this chapter to the corresponding boolean operations. *)
+(** 次の補題は、この章で学んだ命題の結合と、それに対応するブール値の操作と関係があります。
 Lemma andb_true_iff : forall b1 b2:bool,
   b1 && b2 = true <-> b1 = true /\ b2 = true.
 Proof.
@@ -1145,21 +1173,27 @@ Lemma orb_true_iff : forall b1 b2,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(** **** Exercise: 1 star (beq_nat_false_iff)  *)
-(** The following theorem is an alternate "negative" formulation of
+(*  **** Exercise: 1 star (beq_nat_false_iff)  *)
+(** **** 練習問題: ★ (beq_nat_false_iff)  *)
+(*  The following theorem is an alternate "negative" formulation of
     [beq_nat_true_iff] that is more convenient in certain
     situations (we'll see examples in later chapters). *)
+(** 次の定理は、ある状況では便利な[beq_nat_true_iff]の否定の式の代わりになるものです。(後の章で例を見ることでしょう。*)
+
 Theorem beq_nat_false_iff : forall x y : nat,
   beq_nat x y = false <-> x <> y.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(** **** Exercise: 3 stars (beq_list)  *)
+(*  **** Exercise: 3 stars (beq_list)  *)
+(** **** 練習問題: ★★★ (beq_list)  *)
 (** Given a boolean operator [beq] for testing equality of elements of
     some type [A], we can define a function [beq_list beq] for testing
     equality of lists with elements in [A].  Complete the definition
     of the [beq_list] function below.  To make sure that your
     definition is correct, prove the lemma [beq_list_true_iff]. *)
+(** 型[A]の要素の等価性のテストを行うブール値の演算子[beq]が与えられたとすると、[A]を要素に物リストの等価性をテストする関数[beq_list beq]を定義することが出来ます。下記の[beq_list]関数の定義を完成させ、補題[beq_list_true_iff]を証明しなさい。*)
+
 Fixpoint beq_list {A} (beq : A -> A -> bool)
                   (l1 l2 : list A) : bool :=
   (* FILL IN HERE *) admit.
@@ -1170,22 +1204,26 @@ Lemma beq_list_true_iff :
 Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
-(** **** Exercise: 2 stars, recommended (All_forallb)  *)
-(** Recall the function [forallb], from the exercise
+(*  **** Exercise: 2 stars, recommended (All_forallb)  *)
+(** **** 練習問題: ★★★★ , recommended (All_forallb)  *)
+(*  Recall the function [forallb], from the exercise
     [forall_exists_challenge] in chapter [Tactics]: *)
+(** [Tactics]の章の[forall_exists_challenge]にあった[forallb]関数を思い出してください。*)
 Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
   match l with
   | [] => true
   | x :: l' => andb (test x) (forallb test l')
   end.
-(** Prove the theorem below, which relates [forallb] to the [All]
+(*  Prove the theorem below, which relates [forallb] to the [All]
     property of the above exercise. *)
+(** 下記の定理を証明しなさい。この定理は[forallb]を[All]属性に関係付けます。*)
 Theorem forallb_true_iff : forall X test (l : list X),
    forallb test l = true <-> All (fun x => test x = true) l.
 Proof.
   (* FILL IN HERE *) Admitted.
-(** Are there any important properties of the function [forallb] which
+(*  Are there any important properties of the function [forallb] which
     are not captured by your specification? *)
+(** あなたの[forallb]関数実装が捉え切れていない重要な属性がなにかあるでしょうか？ *)
 (* FILL IN HERE *)
 (** [] *)
 (** ** Classical vs. Constructive Logic *)
@@ -1194,9 +1232,11 @@ Proof.
     surprised to learn that a similar restriction applies to _proofs_!
     In other words, the following intuitive reasoning principle is not
     derivable in Coq: *)
+(** Coqの関数を定義する命題[P]が真かどうかをテストすることが出来ないこと見てきました。
+同様な制限が証明に課せられていること知って驚くかもしれません。 別の言葉で言えば、次の直感的な推論原理をCoqから引き出すことが出来ません。*)
 Definition excluded_middle := forall P : Prop,
   P \/ ~ P.
-(** To understand operationally why this is the case, recall that, to
+(*  To understand operationally why this is the case, recall that, to
     prove a statement of the form [P \/ Q], we use the [left] and
     [right] tactics, which effectively require knowing which side of
     the disjunction holds.  However, the universally quantified [P] in
@@ -1208,6 +1248,8 @@ Definition excluded_middle := forall P : Prop,
     reflected in some boolean term [b], then knowing whether it holds
     or not is trivial: we just have to check the value of [b].  This
     leads to the following theorem: *)
+(** これがなぜなのかを手を動かして理解するために、[P \/ Q]という形の文を証明するために、選言のどちらを必要とするかを知るために、[left]と[right]タクティックを使ったことを思い出してください。しかし、例外なく、[excluded_middle]の中で量化された[P]は任意の命題で、どんなものか分かりません。そのため[left]と[right]のどちらを選んで適用すべきかを知るための十分な情報を持っていないのです。一方、[P]があるブール値を反映したものであると知っているならば、それがどちらの値であるかどうか知ることは些細なことです: 単に[b]の値をチェックすればよいのです。このことが以下の定理を導きます。*)
+
 Theorem restricted_excluded_middle : forall P b,
   (P <-> b = true) -> P \/ ~ P.
 Proof.
@@ -1232,6 +1274,8 @@ Qed.
     propositions, are referred to as _classical_.
     The following example illustrates why assuming the excluded middle
     may lead to non-constructive proofs: *)
+(** 特に、自然数[n]と[m]の間の等価性に対する排中律は常に成り立ちます。一般的な排中律が最初からCoqで使えないことは奇妙だと最初は思うかもしれません。結局、どんな主張も真か偽のどっちかであるべきであると。とはいえ、排中律を仮定しないことには利点があります: Coqの文が一般的な数学における類似した主張よりも強い主張を行なうことが出来るのです。とりわけ、Coqの[exists x, P x]の証明は、[P x]を証明するために、明示的に値[x]を提示することが可能です。-- 別の言葉で言うと、全ての存在証明は必ず構成的でなければなりません。このため、排中律を仮定しないCoqと同じロジックは構成的論理と言われます。もっと普通のFZFCのような任意の命題に対する排中律を含む論理体系は、古典的であると言われます。次の例は排中律を仮定することがなぜ非構成的な証明を導くかを説明します。*)
+
 (** _Claim_: There exist irrational numbers [a] and [b] such that [a ^
     b] is rational.
     _Proof_: It is not difficult to show that [sqrt 2] is irrational.
