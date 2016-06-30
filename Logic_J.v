@@ -1317,7 +1317,20 @@ Qed.
     middle, as shown in one of the exercises below.  Thus, this line
     of reasoning cannot be encoded in Coq without assuming additional
     axioms. *)
-(** **** Exercise: 3 stars (excluded_middle_irrefutable)  *)
+(** 主張: [a ^ b] が有理数になるような、無理数[a]と[b]が存在する。
+    証明: [sqrt 2]が無理数であることを示すことは難しくない。
+    [sqrt 2 ^ sqrt 2]が、有理数であるとする。すると、[a = b = sqrt 2]が、条件を満たす数字である。あるいは、[sqrt 2 ^ sqrt 2]が無理数であったとする。その場合、
+  [ a = sqrt 2 ^ sqrt 2]と[b = sqrt 2]が我々の求めるものである。なぜなら、[a ^ b = (sqrt 2 ^ sqrt 2) ^ sqrt 2 = sqrt 2 ^ 2 = 2]と有理数になるからである。証明終り。
+    ここで何が起ったか分かりますか？ ここで我々は排中律を[sqrt 2 ^ sqrt 2]が有理数かそうでないかを場合を分けて考えるために使用しました。実際にその値がなんであるか知ることなしにです。このため、そのような[a]と[b]が存在することは分かりますが、実際にその値が何であるかを決定することは出来ません。(少なくともこの論法では)
+構成的論理と同じくらい使いやすいように、その限界も持っています: 古典論理で容易く証明出来るけれども、構成的証明では証明が複雑になってしまう文が多くあります。また、そもそも全く証明出来ない文も存在します!幸運なことに、関数の外延性のように、排中律もCoqの論理に混ぜることが可能で、公理として、安全に加えることが許されています。しかし、この本においては、そうする必要はありません:我々がカバーする結果は構成的論理の範囲で達成可能で追加のコストを必要としません。
+
+
+
+
+
+
+
+(** ** Exercise: 3 stars (excluded_middle_irrefutable)  *)
 (** The consistency of Coq with the general excluded middle axiom
     requires complicated reasoning that cannot be carried out within
     Coq itself.  However, the following theorem implies that it is
