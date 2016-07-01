@@ -1323,27 +1323,26 @@ Qed.
   [ a = sqrt 2 ^ sqrt 2]と[b = sqrt 2]が我々の求めるものである。なぜなら、[a ^ b = (sqrt 2 ^ sqrt 2) ^ sqrt 2 = sqrt 2 ^ 2 = 2]と有理数になるからである。証明終り。
     ここで何が起ったか分かりますか？ ここで我々は排中律を[sqrt 2 ^ sqrt 2]が有理数かそうでないかを場合を分けて考えるために使用しました。実際にその値がなんであるか知ることなしにです。このため、そのような[a]と[b]が存在することは分かりますが、実際にその値が何であるかを決定することは出来ません。(少なくともこの論法では)
 構成的論理と同じくらい使いやすいように、その限界も持っています: 古典論理で容易く証明出来るけれども、構成的証明では証明が複雑になってしまう文が多くあります。また、そもそも全く証明出来ない文も存在します!幸運なことに、関数の外延性のように、排中律もCoqの論理に混ぜることが可能で、公理として、安全に加えることが許されています。しかし、この本においては、そうする必要はありません:我々がカバーする結果は構成的論理の範囲で達成可能で追加のコストを必要としません。
+構成的論理の推論において、どの証明技法を避けるべきなのかを理解するために少しばかり練習が必要ですが、とりわけ、矛盾による論法は非構成的な証明を導くと評判がよろしくありません。ここで、典型的な例を用意しました: ある属性[P]を持つ[x]が存在することを示したいと仮定します。我々の結論が偽であることを仮定して証明を開始します。すなわち、[~ exists x, P x]です。この前提から、[forall x, ~ P x]を導くことは難しくありません。もし、この証明の中間状態が矛盾することをなんとかして示したいとすると、[P x]が成り立つ[x]のどんな値を提示することのない存在証明にたどりつきます。
+構成的観点から、この技術的欠陥は、[~ ~ exists x, P x]の証明を使って[exists x, P x]の証明をしたと言うことです。任意の文の二重否定を除去を許すことは、以下の練習問題で見るように、排中律を仮定することと等しいのです。それゆえ、この推論は、Coqにおいては、追加の公理なしで書き下すことは出来ません。*)
 
-
-
-
-
-
-
-(** ** Exercise: 3 stars (excluded_middle_irrefutable)  *)
-(** The consistency of Coq with the general excluded middle axiom
+(*  ** Exercise: 3 stars (excluded_middle_irrefutable)  *)
+(** **** 練習問題: ★★★ (excluded_middle_irrefutable)  *)
+(*  The consistency of Coq with the general excluded middle axiom
     requires complicated reasoning that cannot be carried out within
     Coq itself.  However, the following theorem implies that it is
     always safe to assume a decidability axiom (i.e., an instance of
     excluded middle) for any _particular_ Prop [P].  Why? Because we
     cannot prove the negation of such an axiom; if we could, we would
     have both [~ (P \/ ~P)] and [~ ~ (P \/ ~P)], a contradiction. *)
+(** Coqに排中律を加えた場合の無矛盾性を示すため？にはCoqの内部で実行される複雑な推論を必要とします。しかし、次の定理は、ある"特定の"命題に対して、決定可能性の公理(たとえば、排中律など)を安全に仮定することが出来ることを含意します。なぜでしょうか？我々はそのような公理の否定を証明出来ないからです: もしそれが出来たとすると、[~ (P \/ ~ P) ]と[~ ~ (P \/ ~ P) ]の両方を持つことになり、矛盾してしまうからです。:*)
 Theorem excluded_middle_irrefutable:  forall (P:Prop),
   ~ ~ (P \/ ~ P).
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(** **** Exercise: 3 stars, optional (not_exists_dist)  *)
+(*  **** Exercise: 3 stars, optional (not_exists_dist)  *)
+(** **** 練習問題: ★★★ optional (not_exists_dist)  *)
 (** It is a theorem of classical logic that the following two
     assertions are equivalent:
     ~ (exists x, ~ P x)
@@ -1352,6 +1351,10 @@ Proof.
     equivalence. Interestingly, the other direction cannot be proved
     in constructive logic. Your job is to show that it is implied by
     the excluded middle. *)
+(** 古典論理において、次の二つの言明は等価です:
+    ~ (exists x, ~ P x)
+    forall x, P x
+    上記の[dist_not_exists]定理は、この等価性の片面です。興味深いことにもう一つの方向は構成的論理では証明出来ません。あなたの仕事は、排中律によってこれが導かれることを示すことです。*)
 Theorem not_exists_dist :
   excluded_middle ->
   forall (X:Type) (P : X -> Prop),
@@ -1359,7 +1362,8 @@ Theorem not_exists_dist :
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(** **** Exercise: 5 stars, advanced, optional (classical_axioms)  *)
+(*  **** Exercise: 5 stars, advanced, optional (classical_axioms)  *)
+(** **** 練習問題: ★★★★★★, advanced, optional (classical_axioms)  *)
 (** For those who like a challenge, here is an exercise taken from the
     Coq'Art book by Bertot and Casteran (p. 123).  Each of the
     following four statements, together with [excluded_middle], can be
@@ -1368,6 +1372,7 @@ Proof.
     axiom if we wish to work in classical logic.
     Prove that all five propositions (these four plus
     [excluded_middle]) are equivalent. *)
+(**  さらなる挑戦を求める人のために、 Coq'Art book (p. 123) から一つ練習問題を取り上げてみます。次のそれぞれの文は、よく「古典論理の特性」と考えられているもの（Coqにビルトインされている構成的論理の対極にあるもの）です。これらをCoqで証明することはできませんが、古典論理を使うことが必要なら、矛盾なく「証明されていない公理」として道具に加えることができます。これら5つの命題(以下の4つに[excluded_middle]を加えたもの)が等価であることを証明しなさい。 *)
 Definition peirce := forall P Q: Prop,
   ((P->Q)->P)->P.
 Definition double_negation_elimination := forall P:Prop,
