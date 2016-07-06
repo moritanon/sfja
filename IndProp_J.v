@@ -943,8 +943,9 @@ Arguments Star {T} _.
 
     - 最後に、もし文字列[s]を[s = s_1 ++ ... ++ s_k]のように、文字列の並びの結合として書くことが出来て、正規表現[re]がそれぞれの文字列[s_i]にマッチするならば、[Star re]は[s]にマッチします。(特別な場合として、文字列の並びが空である場合、[Star re]は常に、[re]が何であるかに関係なく、空の文字列[[]]にマッチします。*)
 
-(** We can easily translate this informal definition into an
+(*  We can easily translate this informal definition into an
     [Inductive] one as follows: *)
+(** この非形式的定義を[Inductive]を使用したものに翻訳するのは簡単です: *)
 
 Inductive exp_match {T} : list T -> reg_exp T -> Prop :=
 | MEmpty : exp_match [] EmptyStr
@@ -965,10 +966,10 @@ Inductive exp_match {T} : list T -> reg_exp T -> Prop :=
                exp_match s2 (Star re) ->
                exp_match (s1 ++ s2) (Star re).
 
-(** Once again, for readability, we can also display this definition
+(*  Once again, for readabilit^y, we can also display this definition
     using inference-rule notation.  At the same time, let's introduce
     a more readable infix notation. *)
-
+(** もう一度、読み易いように、この定義を推論規則の記法を使って書き直してみましょう。それど同時に、もっと読み易い記法を導入してみることにしましょう。*)
 Notation "s =~ re" := (exp_match s re) (at level 80).
 
 (**
@@ -1000,7 +1001,7 @@ Notation "s =~ re" := (exp_match s re) (at level 80).
 
 *)
 
-(** Notice that these rules are not _quite_ the same as the informal
+(*  Notice that these rules are not _quite_ the same as the informal
     ones that we gave at the beginning of the section.  First, we
     don't need to include a rule explicitly stating that no string
     matches [EmptySet]; we just don't happen to include any rule that
@@ -1018,8 +1019,12 @@ Notation "s =~ re" := (exp_match s re) (at level 80).
     to prove that the constructors given in the inductive declaration
     and the ones that would arise from a more literal transcription of
     the informal rules are indeed equivalent.) *)
+(** これらの規則は、このセクションの最初に見た非形式的なものと全く同じものではないことに気をつけてください。まず[EmptySet]にどんな文字列もマッチしないことを述べる規則を含める必要はありません: [EmptySet]にマッチする文字列の効果を持つどんなルールが含まれることは決してないからです。？
+(実際、再帰的定義のシンタックスは、そのような否定的な規則を含めることが許されていません。*)
 
-(** Let's illustrate these rules with a few examples. *)
+さらに、[Union]や[Star]の二つの非形式的な規則は、それぞれ二つのコンストラクタに対応します:[MUnionL] / [MUnionR]、[MStar0] / [MStartApp]とにです。その結果、論理的に元の規則に等しくはなるだけでなく、Coqにとっても都合のよいものになります: 再帰的な[exp_match]を直接コンスラクタの引数として与えることが出来るようになるからです。それは、根拠についての帰納法の適用をより簡単にしてくれます。(下記の[exp_match_ex1]と[exp_match_ex2]の練習問題で、再帰的に宣言されたコンストラクタと、非形式的な規則をもっと文字通りに変換したものが論理的に等しいことを証明して下さい。*)
+(*  Let's illustrate these rules with a few examples. *)
+(** これらの規則を幾つかの例で説明してみましょう。*)
 
 Example reg_exp_ex1 : [1] =~ Char 1.
 Proof.
