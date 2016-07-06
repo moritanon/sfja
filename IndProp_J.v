@@ -212,8 +212,6 @@ Qed.
 (*  We can state the same claim in terms of [ev], but this quickly
     leads us to an obstacle: Since [ev] is defined inductively --
     rather than as a function -- Coq doesn't know how to simplify a
-    goal involving [ev n] after case analysis on [n].  As a
-    consequence, the same proof strategy fails: *)
 (** 同じ主張を、[ev]を使って述べることも出来ますが、障害にぶちあたります: [ev]は帰納的に定義されている-- 、むしろ関数として定義されている -- ので、Coqは、[n]に関数場合分けをしたとき、[ev n]を含むゴールをどうやって簡約してよいか分からないからです。結果として、同じ戦略では失敗します。
 
 Theorem ev_minus2: forall n,
@@ -263,7 +261,7 @@ Proof.
 
 (** Note that, in this particular case, it is also possible to replace
     [inversion] by [destruct]: *)
-
+(** この特定のケースならば、[inversion]は[destruct]に交換可能なことにも留意しておいて下さい。*)
 Theorem ev_minus2' : forall n,
   ev n -> ev (pred (pred n)).
 Proof.
@@ -442,7 +440,7 @@ Proof.
     the property in question.
 
     Let's try our current lemma again: *)
-(** 以前にも見たような気がするかもしれませんが、気のせいではありません。[Induction]の章で、似たような問題に遭遇しています。そのときは、必要とされる帰納の結果を証明するために、場合わけを用いました。そうその時に用いた解決方法は、帰納です！
+(** 以前にも見たような気がするかもしれませんが、気のせいではありません。[Induction]の章で、似たような問題に遭遇しています。そのときは、必要とされる帰納の結果を証明するために、場合わけを用いました。そう、その時に用いた解決方法は、帰納です！
 
 根拠に対する[induction]の振舞はデータに対する帰納法と同じようなものです。Coqに根拠を生成するそれぞれのコンストラクタに対応するサブゴールを生成させて、それぞれの再帰的な属性の出現に対して帰納仮説を与えて行きます。
 もう一度、今の補題をやってみましょう: *)
