@@ -212,6 +212,8 @@ Qed.
 (*  We can state the same claim in terms of [ev], but this quickly
     leads us to an obstacle: Since [ev] is defined inductively --
     rather than as a function -- Coq doesn't know how to simplify a
+    goal involving [ev n] after case analysis on [n].  As a
+    consequence, the same proof strategy fails: *)
 (** 同じ主張を、[ev]を使って述べることも出来ますが、障害にぶちあたります: [ev]は帰納的に定義されている-- 、むしろ関数として定義されている -- ので、Coqは、[n]に関数場合分けをしたとき、[ev n]を含むゴールをどうやって簡約してよいか分からないからです。結果として、同じ戦略では失敗します。*)
 
 Theorem ev_minus2: forall n,
