@@ -493,9 +493,10 @@ Proof.
 
 (*  **** Exercise: 4 stars, advanced (ev_alternate)  *)
 (** **** 練習問題: ★★★★ advanced (ev_alternate)  *)
-(** In general, there may be multiple ways of defining a
+(*  In general, there may be multiple ways of defining a
     property inductively.  For example, here's a (slightly contrived)
     alternative definition for [ev]: *)
+(** 一般的に、帰納的に属性を定義する方法は、複数の方法がありえます。例えば、ここに(ちょっと不自然ですが) [ev]の代わりになる定義があります。*)
 
 Inductive ev' : nat -> Prop :=
 | ev'_0 : ev' 0
@@ -1036,23 +1037,27 @@ Proof.
   - apply MChar.
 Qed.
 
-(** (Notice how the last example applies [MApp] to the strings [[1]]
+(*  (Notice how the last example applies [MApp] to the strings [[1]]
     and [[2]] directly.  Since the goal mentions [[1; 2]] instead of
     [[1] ++ [2]], Coq wouldn't be able to figure out how to split the
     string on its own.)
 
     Using [inversion], we can also show that certain strings do _not_
     match a regular expression: *)
+(** (最後の例において、[MApp]が[[1]]と[[2]]の文字列に直接どのように適用されているか注意しましょう。
+ゴールに[[1]++[2]]ではなく、[[1; 2]]が設定されているので、Coqそれ自身は、その文字列をどのように分割したらよいかを見つけ出すことが出来ません。)
+[inversion]を使うことで、ある特定の文字列が正規表現にマッチしないことを示すことが出来ます。*)
 
 Example reg_exp_ex3 : ~ ([1; 2] =~ Char 1).
 Proof.
   intros H. inversion H.
 Qed.
 
-(** We can define helper functions to help write down regular
+(*  We can define helper functions to help write down regular
     expressions. The [reg_exp_of_list] function constructs a regular
     expression that matches exactly the list that it receives as an
     argument: *)
+(** 正規表現を書き下すヘルパ関数を定義することが出来ます。[req_exp_of_list]関数は、引数として受け取ったリストに確かにマッチする正規表現を構築します。*)
 
 Fixpoint reg_exp_of_list {T} (l : list T) :=
   match l with
@@ -1071,10 +1076,10 @@ Proof.
   apply MEmpty.
 Qed.
 
-(** We can also prove general facts about [exp_match].  For instance,
+(*  We can also prove general facts about [exp_match].  For instance,
     the following lemma shows that every string [s] that matches [re]
     also matches [Star re]. *)
-
+(** [exp_match]に関する一般的な事実を証明することも出来ます。例えば、次の補題は、[re]にマッチする全ての文字列(群)が、[Star re]にもマッチすることを示します。*)
 Lemma MStar1 :
   forall T s (re : reg_exp T) ,
     s =~ re ->
@@ -1087,14 +1092,15 @@ Proof.
   - apply MStar0.
 Qed.
 
-(** (Note the use of [app_nil_r] to change the goal of the theorem to
+(*  (Note the use of [app_nil_r] to change the goal of the theorem to
     exactly the same shape expected by [MStarApp].) *)
-
-(** **** Exercise: 3 stars (exp_match_ex1)  *)
-(** The following lemmas show that the informal matching rules given
+(** (定理のゴールを[MStarApp]で期待される形と全く同じに変更する[app_nil_r]の使用には気をつけましょう。*)
+(*  **** Exercise: 3 stars (exp_match_ex1)  *)
+(** **** 練習問題: ★★★ stars (exp_match_ex1)  *)
+(*  The following lemmas show that the informal matching rules given
     at the beginning of the chapter can be obtained from the formal
     inductive definition. *)
-
+(** 次の補題は、この節の最初に提示された非形式的なマッチング規則が形式的な帰納的定義からも得られることを示しています。*)
 Lemma empty_is_empty : forall T (s : list T),
   ~ (s =~ EmptySet).
 Proof.
@@ -1106,10 +1112,11 @@ Lemma MUnion' : forall T (s : list T) (re1 re2 : reg_exp T),
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(** The next lemma is stated in terms of the [fold] function from the
+(*  The next lemma is stated in terms of the [fold] function from the
     [Poly] chapter: If [ss : list (list T)] represents a sequence of
     strings [s1, ..., sn], then [fold app ss []] is the result of
     concatenating them all together. *)
+(** 次の補題を[Poly]の章の[fold]関数を使って説明すると:[ss : list (list T)]が、文字列[s1,..., sn]を表現しているとすると、[fold app ss []]は、それら全てを結合した結果です。*)
 
 Lemma MStar' : forall T (ss : list (list T)) (re : reg_exp T),
   (forall s, In s ss -> s =~ re) ->
@@ -1119,9 +1126,10 @@ Proof.
 (** [] *)
 
 (** **** Exercise: 4 stars (reg_exp_of_list)  *)
-(** Prove that [reg_exp_of_list] satisfies the following
+(** **** 練習問題: ★★★★ stars (reg_exp_of_list)  *)
+(*  Prove that [reg_exp_of_list] satisfies the following
     specification: *)
-
+(** [reg_exp_of_list]が次の仕様を満すことを証明しなさい。*)
 
 Lemma reg_exp_of_list_spec : forall T (s1 s2 : list T),
   s1 =~ reg_exp_of_list s2 <-> s1 = s2.
@@ -1129,7 +1137,7 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** Since the definition of [exp_match] has a recursive
+(*  Since the definition of [exp_match] has a recursive
     structure, we might expect that proofs involving regular
     expressions will often require induction on evidence.  For
     example, suppose that we wanted to prove the following intuitive
@@ -1137,6 +1145,8 @@ Proof.
     all elements of [s] must occur somewhere in [re].  To state this
     theorem, we first define a function [re_chars] that lists all
     characters that occur in a regular expression: *)
+(** [exp_match]の定義は再帰的構造をしてため、正規表現を含む証明はしばしば根拠に対する帰納法を必要とすると感じてしまうかもしれません。例えば、次の直感的な結果を証明したいと思ったとしましょう:もし、正規表現[re]がある文字列[s]にマッチする場合、[s]の全ての要素は、[re]のどこかに出現しなければならない。
+この定理を述べるために、まず、正規表現中の全ての文字を列挙する[re_chars]関数を定義します。*)
 
 Fixpoint re_chars {T} (re : reg_exp T) : list T :=
   match re with
@@ -1148,7 +1158,8 @@ Fixpoint re_chars {T} (re : reg_exp T) : list T :=
   | Star re => re_chars re
   end.
 
-(** We can then phrase our theorem as follows: *)
+(*  We can then phrase our theorem as follows: *)
+(** それから次のように定理を表現します: *)
 
 Theorem in_re_match : forall T (s : list T) (re : reg_exp T) (x : T),
   s =~ re ->
@@ -1182,7 +1193,7 @@ Proof.
   - (* MStar0 *)
     destruct Hin.
 
-(** Something interesting happens in the [MStarApp] case.  We obtain
+(*  Something interesting happens in the [MStarApp] case.  We obtain
     _two_ induction hypotheses: One that applies when [x] occurs in
     [s1] (which matches [re]), and a second one that applies when [x]
     occurs in [s2] (which matches [Star re]).  This is a good
@@ -1190,6 +1201,7 @@ Proof.
     as opposed to [re]: The latter would only provide an induction
     hypothesis for strings that match [re], which would not allow us
     to reason about the case [In x s2]. *)
+(** 何か興味深いことが、[MStarApp]のケースで起こりました。ここで、_二つ_の帰納法の仮定が得られました: 一つは、([re]にマッチする)[s1]上に[x]が現われるときに適用され、もう一つは、([Star re]にマッチする)[s2]上に[x]が現れるときに適用されるものです。これは、なぜ[exp_match]の根拠に対する帰納法が、[re]とは対照的に必要となるのかについてのよい説明になっています: 後で、[re]にマッチする文字列のための帰納法の仮定が提供され、[In x s2]のケースについての推論が可能になります。*)
 
   - (* MStarApp *)
     simpl. rewrite in_app_iff in Hin.
@@ -1200,10 +1212,12 @@ Proof.
       apply (IH2 Hin).
 Qed.
 
-(** **** Exercise: 4 stars (re_not_empty)  *)
-(** Write a recursive function [re_not_empty] that tests whether a
+(*  **** Exercise: 4 stars (re_not_empty)  *)
+(** **** 練習問題: ★★★★ stars (re_not_empty)  *)
+(*  Write a recursive function [re_not_empty] that tests whether a
     regular expression matches some string. Prove that your function
     is correct. *)
+(** 正規表現がある文字列にマッチするかどうかをテストする帰納的な関数[re_not_empty]を書いて、あなたの関数が正しいことを証明しなさい。*)
 
 Fixpoint re_not_empty {T} (re : reg_exp T) : bool :=
   (* FILL IN HERE *) admit.
@@ -1214,13 +1228,15 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** ** The [remember] Tactic *)
+(*  ** The [remember] Tactic *)
+(** ** [remember] タクティック *)
 
-(** One potentially confusing feature of the [induction] tactic is
+(*  One potentially confusing feature of the [induction] tactic is
     that it happily lets you try to set up an induction over a term
     that isn't sufficiently general.  The net effect of this will be
     to lose information (much as [destruct] can do), and leave you
     unable to complete the proof. Here's an example: *)
+(** [induction]タクティックの混乱しやすいかもしれない特徴として、十分に一般的でない項に対して帰納法を行なうことが出来てしまうことです。このことの正味の影響は([destruct]でよくやるように)情報を失なってしまって、証明を完了出来なくなってしまうことです。次の例では: *)
 
 Lemma star_app: forall T (s1 s2 : list T) (re : reg_exp T),
   s1 =~ Star re ->
@@ -1229,16 +1245,17 @@ Lemma star_app: forall T (s1 s2 : list T) (re : reg_exp T),
 Proof.
   intros T s1 s2 re H1.
 
-(** Just doing an [inversion] on [H1] won't get us very far in the
+(*  Just doing an [inversion] on [H1] won't get us very far in the
     recursive cases. (Try it!). So we need induction. Here is a naive
     first attempt: *)
+(** [H1]に対して、[inversion]を行なっても、再帰的なケースの中でどこへも行けません。(やってみましょう！)。そのため、帰納法が必要になります。ここで素朴な方法をまず試してみましょう: *)
 
   induction H1
     as [|x'|s1 re1 s2' re2 Hmatch1 IH1 Hmatch2 IH2
         |s1 re1 re2 Hmatch IH|re1 s2' re2 Hmatch IH
         |re''|s1 s2' re'' Hmatch1 IH1 Hmatch2 IH2].
 
-(** But now, although we get seven cases (as we would expect from the
+(*  But now, although we get seven cases (as we would expect from the
     definition of [exp_match]), we lost a very important bit of
     information from [H1]: the fact that [s1] matched something of the
     form [Star re].  This means that we have to give proofs for _all_
@@ -1246,18 +1263,20 @@ Proof.
     them ([MStar0] and [MStarApp]) are contradictory.  We can still
     get the proof to go through for a few constructors, such as
     [MEmpty]... *)
-
+(** しかしここで、7つのケース([exp_match]の定義から期待されるように)があるにも拘らず、[H1]からの僅かな、しかし非常に重要な情報が失われているのです: [s1]が[Star re]の形式にマッチしたという事実です。
+このことは、この定義の7つのコンストラクタ全てに対する証明を与えなければならないことを意味しています。[MStar0]と[MStarApp]の二つを除いて矛盾しているにも拘らず、です。少数のコンスラクタのために、証明を続けることは出来ます。[MEmpty]のように... *)
   - (* MEmpty *)
     simpl. intros H. apply H.
 
-(** ... but most of them get stuck.  For [MChar], for instance, we
+(*  ... but most of them get stuck.  For [MChar], for instance, we
+(** ... しかし大抵は詰ってしまいます。たとえば、[MChar]では、*)
     must show that
 
     s2 =~ Char x' -> x' :: s2 =~ Char x',
 
     which is clearly impossible. *)
 
-  - (* MChar. Stuck... *)
+  - (* MChar. 詰った... *)
 
 Abort.
 
@@ -1269,7 +1288,10 @@ Abort.
 
     We can solve this problem by generalizing over the problematic
     expressions with an explicit equality: *)
-
+(** この問題は、命題の仮説に対する[induction]は、完全に一般化された仮説上でしか上手く動かないことです、言い換えると、もっと複雑な表現とちがって、全ての引数が変数であるような仮定、たとえば、[Star re]のようなものです。この点において、[inversion]というよりは、[destruct]に近い振舞いを[induction]
+は行ないます。
+問題のある表現に対して明示的な等価性をもって一般化してやることで、この問題を解くことが出来ます: *)
+*)
 Lemma star_app: forall T (s1 s2 : list T) (re re' : reg_exp T),
   s1 =~ re' ->
   re' = Star re ->
