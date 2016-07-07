@@ -198,7 +198,7 @@ Proof.
     already seen, provided that we phrase it in the right way.  If we
     state it in terms of [evenb], for instance, we can proceed by a
     simple case analysis on [n]: *)
-(** ある偶数から、2引くことは、別の偶数を導出します。この主張をこれまでに見た正しい方法で、もっと易しく証明出来ます。もし、[evenb]を使って述べた場合、例えば、[n]について場合分けで証明を進めることが出来ます。*)
+(** ある偶数から、2引くことは、別の偶数を導出します。この主張をこれまでに見た正しい方法で、もっと易しく証明出来ます。もし、[evenb]を使って述べた場合、例えば、[n]について場合分けで証明を進めることが出来ます。 *)
 
 Theorem evenb_minus2: forall n,
   evenb n = true -> evenb (pred (pred n)) = true.
@@ -212,7 +212,7 @@ Qed.
 (*  We can state the same claim in terms of [ev], but this quickly
     leads us to an obstacle: Since [ev] is defined inductively --
     rather than as a function -- Coq doesn't know how to simplify a
-(** 同じ主張を、[ev]を使って述べることも出来ますが、障害にぶちあたります: [ev]は帰納的に定義されている-- 、むしろ関数として定義されている -- ので、Coqは、[n]に関数場合分けをしたとき、[ev n]を含むゴールをどうやって簡約してよいか分からないからです。結果として、同じ戦略では失敗します。
+(** 同じ主張を、[ev]を使って述べることも出来ますが、障害にぶちあたります: [ev]は帰納的に定義されている-- 、むしろ関数として定義されている -- ので、Coqは、[n]に関数場合分けをしたとき、[ev n]を含むゴールをどうやって簡約してよいか分からないからです。結果として、同じ戦略では失敗します。*)
 
 Theorem ev_minus2: forall n,
   ev n -> ev (pred (pred n)).
