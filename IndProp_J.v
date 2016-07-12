@@ -1381,7 +1381,7 @@ Proof.
 (* ############################################################ *)
 (*  **** Exercise: 5 stars, advanced (pumping)  *)
 (** **** 練習問題: ★★★★★, advanced (pumping)  *)
-(** One of the first interesting theorems in the theory of regular
+(*  One of the first interesting theorems in the theory of regular
     expressions is the so-called _pumping lemma_, which states,
     informally, that any sufficiently long string [s] matching a
     regular expression [re] can be "pumped" by repeating some middle
@@ -1392,7 +1392,9 @@ Proof.
     working in a constructive logic, we actually need to be able to
     calculate, for each regular expression [re], the minimum length
     for strings [s] to guarantee "pumpability." *)
-(** 正規表現の定理の中で第一に興味深い定理の一つは、「正規表現の反復補題」と呼ばれるものです。その補題は、非形式的には、次のようなものです。正規表現[re]にマッチする十分に長い文字列[s]は、 任意の [re]に も マッチする新しい文字列
+(** 正規表現の定理の中で第一に興味深い定理の一つは、「正規表現の反復補題」と呼ばれるものです。その補題は、非形式的には、次のようなものです。正規表現[re]にマッチする十分に長い文字列[s]は、 [s]のどこかの中間部分の任意回の繰り返して膨らませることで、[re]にマッチする新しい文字列を生み出すことが出来ます。
+まず、「十分に長い」とは何かを定義する必要があります。我々は構成的論理の中にいるので、"pumpability"を保証する最小の長さに対応するどの正規表現[re]でも、現実に計算可能である必要があります。 *)
+
 Module Pumping.
 
 Fixpoint pumping_constant {T} (re : reg_exp T) : nat :=
@@ -1407,8 +1409,9 @@ Fixpoint pumping_constant {T} (re : reg_exp T) : nat :=
   | Star _ => 1
   end.
 
-(** Next, it is useful to define an auxiliary function that repeats a
+(*  Next, it is useful to define an auxiliary function that repeats a
     string (appends it to itself) some number of times. *)
+(** 次に、指定された回数、指定された文字列それ自身を繰替えして生成する補助関数があると便利です。*)
 
 Fixpoint napp {T} (n : nat) (l : list T) : list T :=
   match n with
