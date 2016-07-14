@@ -1436,6 +1436,7 @@ Qed.
     also guaranteed not to be the empty string, this gives us
     a (constructive!) way to generate strings matching [re] that are
     as long as we like. *)
+(** ここで反復補題がどういうものであるか説明します。もし[s =~ re]であり、[s]の長さが[re]のpumping constant以上である場合、[s]は三つの部分文字列に分割が可能であり、[s1 ++ s2 ++ s3] 分割したうちの[s2]を[s1]と[s3]の間で、任意回繰り返した文字列も、[re]にマッチするというものです。[s2]は空の文字列でないことが保証されているので、このことは、[re]にマッチする文字列をあなたの望む長さで得る方法を(構成的に!)提供してくれます。 *)
 
 Lemma pumping : forall T (re : reg_exp T) s,
   s =~ re ->
@@ -1452,7 +1453,7 @@ Lemma pumping : forall T (re : reg_exp T) s,
     numbers.  We'll return to [omega] in a later chapter, but feel
     free to experiment with it now if you like.  The first case of the
     induction gives an example of how it is used. *)
-
+(** あなたがこれから埋める証明を簡素化するために、[omega]タクティックが、(次の[Require]によって使えるようになるのですが)いくつかの場所では、自然数の等式と等式の否定を含む低レベルの論証を自動的に完了させるのに役立つでしょう。後の章で再び[omega]を使うことになるでしょうが、気兼ねすることなく使ってください。帰納法の最初のケースにおいて、それがどのように使われるかの例を見ましょう。*)
 Require Import Coq.omega.Omega.
 
 Proof.
