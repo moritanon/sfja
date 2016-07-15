@@ -1271,8 +1271,8 @@ Proof.
     simpl. intros H. apply H.
 
 (*  ... but most of them get stuck.  For [MChar], for instance, we
-(** ... しかし大抵は詰ってしまいます。たとえば、[MChar]では、*)
-    must show that
+    must show that *)
+(** ... しかし大抵は詰ってしまいます。たとえば、[MChar]では、
 
     s2 =~ Char x' -> x' :: s2 =~ Char x',
 
@@ -1428,7 +1428,7 @@ Proof.
   - simpl. rewrite IHn, app_assoc. reflexivity.
 Qed.
 
-(** Now, the pumping lemma itself says that, if [s =~ re] and if the
+(*  Now, the pumping lemma itself says that, if [s =~ re] and if the
     length of [s] is at least the pumping constant of [re], then [s]
     can be split into three substrings [s1 ++ s2 ++ s3] in such a way
     that [s2] can be repeated any number of times and the result, when
@@ -1446,7 +1446,7 @@ Lemma pumping : forall T (re : reg_exp T) s,
     s2 <> [] /\
     forall m, s1 ++ napp m s2 ++ s3 =~ re.
 
-(** To streamline the proof (which you are to fill in), the [omega]
+(*  To streamline the proof (which you are to fill in), the [omega]
     tactic, which is enabled by the following [Require], is helpful in
     several places for automatically completing tedious low-level
     arguments involving equalities or inequalities over natural
@@ -1454,6 +1454,7 @@ Lemma pumping : forall T (re : reg_exp T) s,
     free to experiment with it now if you like.  The first case of the
     induction gives an example of how it is used. *)
 (** あなたがこれから埋める証明を簡素化するために、[omega]タクティックが、(次の[Require]によって使えるようになるのですが)いくつかの場所では、自然数の等式と等式の否定を含む低レベルの論証を自動的に完了させるのに役立つでしょう。後の章で再び[omega]を使うことになるでしょうが、気兼ねすることなく使ってください。帰納法の最初のケースにおいて、それがどのように使われるかの例を見ましょう。*)
+
 Require Import Coq.omega.Omega.
 
 Proof.
@@ -1472,11 +1473,12 @@ End Pumping.
 (* ####################################################### *)
 (** * Improving Reflection *)
 
-(** We've seen in the [Logic] chapter that we often need to
+(*  We've seen in the [Logic] chapter that we often need to
     relate boolean computations to statements in [Prop].
     Unfortunately, performing this conversion by hand can result in
     tedious proof scripts.  Consider the proof of the following
     theorem: *)
+(** [Logic]の章において、[Prop]による命題をブール値の計算に関連付ける必要がよくありました。残念なことに、この変換を手動で実行することは、つまらないスクリプトを書く結果に終わります。次の定理の証明について考えてみましょう: *)
 
 Theorem filter_not_empty_In : forall n l,
   filter (beq_nat n) l <> [] ->
@@ -1499,7 +1501,6 @@ Qed.
     destructing [beq_nat n m], to convert the assumption [beq_nat n m
     = true] into the assumption [n = m], which is what we need to
     complete this case.
-
     We can streamline this proof by defining an inductive proposition
     that yields a better case-analysis principle for [beq_nat n
     m].  Instead of generating an equation such as [beq_nat n m =
@@ -1507,12 +1508,14 @@ Qed.
     away the assumption we need: [n = m].  We'll actually define
     something a bit more general, which can be used with arbitrary
     properties (and not just equalities): *)
+(** [destruct]の後の最初の分岐において、明示的に顕示的に[beq_nat_true_iff]の補題を[beq_nat n m]を場合分けすることで生成される等式[n = m]に変換するために適用しています。このケースを完了させるために必要なことです。
+この証明をもっと簡単にすることが出来ます。[beq_nat n m]に対するもっとよい場合分けの原理を導出する 再帰的な命題を定義することでです。直接にはあまり使い道のない[beq_nat n m = true]に対応する等式を生成する代わりに、この原理は、我々が必要とする仮定[n = m]をすぐさま与えてくれます。すこしだけ一般化して定義することで、任意の命題(等式だけに限らない)に対して用いることが出来るようになります。*)
 
 Inductive reflect (P : Prop) : bool -> Prop :=
 | ReflectT : P -> reflect P true
 | ReflectF : ~ P -> reflect P false.
 
-(** The [reflect] property takes two arguments: a proposition
+(*  The [reflect] property takes two arguments: a proposition
     [P] and a boolean [b].  Intuitively, it states that the property
     [P] is _reflected_ in (i.e., equivalent to) the boolean [b]: [P]
     holds if and only if [b = true].  To see this, notice that, by
@@ -1526,6 +1529,7 @@ Inductive reflect (P : Prop) : bool -> Prop :=
 
     It is easy to formalize this intuition and show that the two
     statements are indeed equivalent: *)
+(** [reflect]という属性は二つの引数を取ります: 命題[P]とブール値[b]です。直感的にそれは、属性[P]はブール値[b]を反映(たとえば、等しいとか)している: [P]が[b=true]であり、そのときに限り成り立つ。ということを述べています。このことを確かめるために、定義によって、[reflect P true]が成り立つ根拠を生成することの出来る唯一の方法は、[P]がtrueであることを示して、[ReflectT]コンスラクタを使うことです。逆にいうと、これは、[P]の根拠を抽出することが、[reflect P true]の証明することで出来るべきであるという意味です。反対に、[reflect P false]を示す唯一の方法は、[~ P]の根拠を[ReflectF]コンストラクタと結合することです。*)
 
 Theorem iff_reflect : forall P b, (P <-> b = true) -> reflect P b.
 Proof.
@@ -1534,13 +1538,14 @@ Proof.
   - apply ReflectF. rewrite H. intros H'. inversion H'.
 Qed.
 
-(** **** Exercise: 2 stars, recommended (reflect_iff)  *)
+(*  **** Exercise: 2 stars, recommended (reflect_iff)  *)
+(** **** 練習問題: ★★, recommended (reflect_iff)  *)
 Theorem reflect_iff : forall P b, reflect P b -> (P <-> b = true).
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** The advantage of [reflect] over the normal "if and only if"
+(*  The advantage of [reflect] over the normal "if and only if"
     connective is that, by destructing a hypothesis or lemma of the
     form [reflect P b], we can perform case analysis on [b] while at
     the same time generating appropriate hypothesis in the two
@@ -1550,6 +1555,9 @@ Proof.
     [filter_not_empty_In], we begin by recasting the
     [beq_nat_iff_true] lemma into a more convenient form in terms of
     [reflect]: *)
+(** 通常の"もし~でありかつそのときに限り"のiff結合子を上回る[reflect]の利点は、仮説や、[reflect P b]という形の補題を場合分けすることで、[b]についてのケース分析を進めることが出来、二つの分岐において同時に、適切な仮説を生成することが出来る点です。(最初のサブゴールにおいては、[P]が、二番目には、[~P]
+が) 
+[filter_not_empty_In]のもっとよい証明を行なうために、[reflect]を使ってみましょう。まず[beq_nat_iff_true]の補題をもっと[reflect]で使い易い形に変形することから始めましょう。*)
 
 Lemma beq_natP : forall n m, reflect (n = m) (beq_nat n m).
 Proof.
@@ -1563,7 +1571,7 @@ Qed.
     proofs of [filter_not_empty_In] in your Coq browser and observe
     the differences in proof state at the beginning of the first case
     of the [destruct].) *)
-
+(** [filter_not_empty_In]の新しい証明は、次のようになります。[destruct]と[apply]の呼び出しがどのように単一の[destruct]の呼び出しに統合されているか気をつけてください。(このことをはっきりと理解するために、[filter_not_emptyIn]nの二つの証明をCoqで動かしながら良く見て、[destruct]による最初の分岐の開始において、証明がどのように違うかをよく観察してみてください。*)
 Theorem filter_not_empty_In' : forall n l,
   filter (beq_nat n) l <> [] ->
   In n l.
@@ -1591,11 +1599,14 @@ Qed.
     Feit-Thompson theorem.  The name SSReflect stands for _small-scale
     reflection_, i.e., the pervasive use of reflection to simplify
     small proof steps with boolean computations. *)
-
+(** このテクニックは、この証明では特に、僅かな前進しか与えてくれないことは間違いありませんが、[reflect]を使用することは、しばしば確実に証明を短く簡潔にしてくれます。あとの章で[reflect]が現われる例を見ることになるでしょう。
+[reflect]属性の使用は、SSReflectによってポピュラーなものになりました。SSReflectは、4色問題定理やFeit-Thompson定理を含む数学の重要な結果を形式化するために使われてきたCoqのライブラリです。SSReflectとは、(small scale reflection)の略です: 小さな証明のステップをブール値の計算に単純化するreflectionの多用です。*)
 (* ####################################################### *)
-(** * Additional Exercises *)
+(*  * Additional Exercises *)
+(** * 追加の練習問題 *)
 
-(** **** Exercise: 4 stars, recommended (palindromes)  *)
+(*  **** Exercise: 4 stars, recommended (palindromes)  *)
+(** **** 練習問題 ★★★★ recommended (palindromes) *)
 (** A palindrome is a sequence that reads the same backwards as
     forwards.
 
@@ -1617,6 +1628,21 @@ Qed.
        forall l, pal l -> l = rev l.
 
 *)
+(**  palindrome（回文）は、最初から読んでも逆から読んでも同じになるような シーケンスです。
+    - [list X] でパラメータ化され、それが palindrome であることを示すような帰納的命題 [pal] を定義し
+なさい。（ヒント：これには三つのケースが必要です。この定義は、リストの構造に基いたものとなるはずです
+。まず一つのコンストラクタ、
+    c : forall l, l = rev l -> pal l
+      は明らかですが、これはあまりうまくいきません。)
+
+    - 以下を証明しなさい。
+
+       forall l, pal (l ++ rev l).
+
+    - 以下を証明しなさい。
+
+       forall l, pal l -> l = rev l.
+*)
 
 (* FILL IN HERE *)
 (** [] *)
@@ -1625,6 +1651,11 @@ Qed.
 (** Again, the converse direction is significantly more difficult, due
     to the lack of evidence.  Using your definition of [pal] from the
     previous exercise, prove that
+
+     forall l, l = rev l -> pal l.
+
+*)
+(** もう一度言いますが、逆方向は大変難しいです。根拠が足りないせいです。あなたの[pal]の定義を用いて下記を証明しなさい。
 
      forall l, l = rev l -> pal l.
 
@@ -1662,16 +1693,28 @@ Qed.
     it.  (You'll need to begin by defining what it means for one list
     to be a merge of two others.  Do this with an inductive relation,
     not a [Fixpoint].)  *)
+(** Coq の主な目的の一つは、プログラムが特定の仕様を満たしていることを証明することです。それがどういうことか、[filter] 関数の定義が仕様を満たすか証明してみましょう。まず、その関数の仕様を非形式的に書>き出してみます。
 
+集合 [X] と関数 [test: X->bool]、リスト[l] とその型 [list X] を想定する。さらに、[l] が二つのリスト [l1] と [l2] が順序を維持したままマージされたもので、リスト [l1] の要素はすべて [test] を満たし、 [l2] の要素はすべて満たさないとすると、[filter test l = l1] が成り立つ。
+
+リスト [l] が [l1] と [l2] を順序を維持したままマージしたものである、とは、それが [l1] と [l2] の要素をすべて含んでいて、しかも 互いに入り組んではいても [l1] 、 [l2] の要素が同じ順序になっている、ということです。例えば、
+[1,4,6,2,3]
+は、以下の二つを順序を維持したままマージしたものです。
+[1,6,2]
+と、
+[4,3]
+課題は、この仕様をCoq の定理の形に書き直し、それを証明することです。（ヒント：まず、一つのリストが二つのリストをマージしたものとなっている、ということを示す定義を書く必要がありますが、これは帰納的な関係であって、[Fixpoint] で書くようなものではありません。）
+*)
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 5 stars, advanced, optional (filter_challenge_2)  *)
-(** A different way to characterize the behavior of [filter] goes like
+(*  **** Exercise: 5 stars, advanced, optional (filter_challenge_2)  *)
+(** **** 練習問題: ★★★★★, advanced, optional (filter_challenge_2) *)
+(*  A different way to characterize the behavior of [filter] goes like
     this: Among all subsequences of [l] with the property that [test]
     evaluates to [true] on all their members, [filter test l] is the
     longest.  Formalize this claim and prove it. *)
-
+(** [filter] の振る舞いに関する特性を別の切り口で表すとこうなります。「[test] の結果が [true] なる要素だけでできた、リスト [l] のすべての部分リストの中で、[filter test l] が最も長いリストである。」これを形式的に記述し、それを証明しなさい。 *)
 (* FILL IN HERE *)
 (** [] *)
 
@@ -1708,8 +1751,9 @@ Qed.
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 3 stars, recommended (nostutter)  *)
-(** Formulating inductive definitions of properties is an important
+(*  **** Exercise: 3 stars, recommended (nostutter)  *)
+(** **** 練習問題: ★★★ , recommended (nostutter) *)
+(*  Formulating inductive definitions of properties is an important
     skill you'll need in this course.  Try to solve this exercise
     without any help at all.
 
@@ -1719,11 +1763,17 @@ Qed.
     [nostutter].  (This is different from the [NoDup] property in the
     exercise above; the sequence [1;4;1] repeats but does not
     stutter.) *)
+(** 述語の帰納的な定義を定式化できるようになるというのは、これから先の学習に必要なスキルになってきま
+す。
+
+同じ数値が連続して現れるリストを "stutters" （どもったリスト）と呼ぶことにします。述語 "[nostutter mylist]" は、 [mylist] が「どもったリスト」でないことを意味しています。[nostutter] の帰納的な定義を記
+述しなさい。（これは以前の練習問題に出てきた [no_repeats] という述語とは異なるものです。リスト [1,4,1] は repeats ではありますが stutter ではありません。）
+*)
 
 Inductive nostutter {X:Type} : list X -> Prop :=
  (* FILL IN HERE *)
 .
-(** Make sure each of these tests succeeds, but feel free to change
+(*  Make sure each of these tests succeeds, but feel free to change
     the suggested proof (in comments) if the given one doesn't work
     for you.  Your definition might be different from ours and still
     be correct, in which case the examples might need a different
@@ -1732,7 +1782,15 @@ Inductive nostutter {X:Type} : list X -> Prop :=
     different possible ways of defining [nostutter].  You can probably
     just uncomment and use them as-is, but you can also prove each
     example with more basic tactics.)  *)
+(** できた定義が、以下のテストを通過することを確認してください。通過できないものがあったら、定義を修
+正してもかまいません。あなたの書いた定義が、正しくはあるけれど私の用意した模範解答と異なっているかも
+しれません。その場合、このテストを通過するために別の証明を用意する必要があります。
 
+以下の Example にコメントとして提示された証明には、色々な種類の[nostutter] の定義に対応できるように>
+するため、まだ説明していないタクティックがいくつか使用されています。 まずこれらのコメントをはずした>
+だけの状態で確認できればいいのですが、もしそうしたいなら、これらの証明をもっと基本的なタクティックで
+書き換えて証明してもかまいません。
+*)
 Example test_nostutter_1: nostutter [3;1;4;1;5;6].
 (* FILL IN HERE *) Admitted.
 (* 
@@ -1764,14 +1822,21 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
 *)
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced (pigeonhole principle)  *)
-(** The _pigeonhole principle_ states a basic fact about counting: if
+(*  **** Exercise: 4 stars, advanced (pigeonhole principle)  *)
+(** **** 練習問題: ★★★★, advanced (pigeonhole principle) *)
+(*  The _pigeonhole principle_ states a basic fact about counting: if
    we distribute more than [n] items into [n] pigeonholes, some
    pigeonhole must contain at least two items.  As often happens, this
    apparently trivial fact about numbers requires non-trivial
    machinery to prove, but we now have enough... *)
-
-(** First prove an easy useful lemma. *)
+(** 「鳩の巣定理（ "pigeonhole principle" ）」は、「数えるあげる」ということについての基本的な事実を
+提示しています。「もし [n] 個の鳩の巣に[n] 個より多い数のものを入れようとするなら、どのような入れ方>
+をしてもいくつかの鳩の巣には必ず一つ以上のものが入ることになる。」というもので、この、数値に関する見
+るからに自明な事実を証明するにも、なかなか自明とは言えない手段が必要になります。我々は既にそれを知っ
+ているのですが...
+    *)
+(*  First prove an easy useful lemma. *)
+(** まず簡単ですが有用な補題を証明してください。 *)
 
 Lemma in_split : forall (X:Type) (x:X) (l:list X),
   In x l ->
@@ -1779,14 +1844,15 @@ Lemma in_split : forall (X:Type) (x:X) (l:list X),
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(** Now define a property [repeats] such that [repeats X l] asserts
+(*  Now define a property [repeats] such that [repeats X l] asserts
     that [l] contains at least one repeated element (of type [X]).  *)
+(** [次に属性[repeats]を定義してください。[repeats X l]のように使用して、lが少なくとも一度以上繰替えされる([X]型の)要素として現われることを主張するものです。*)
 
 Inductive repeats {X:Type} : list X -> Prop :=
   (* FILL IN HERE *)
 .
 
-(** Now, here's a way to formalize the pigeonhole principle.  Suppose
+(*  Now, here's a way to formalize the pigeonhole principle.  Suppose
     list [l2] represents a list of pigeonhole labels, and list [l1]
     represents the labels assigned to a list of items.  If there are
     more items than labels, at least two items must have the same
@@ -1798,6 +1864,12 @@ Inductive repeats {X:Type} : list X -> Prop :=
     go through _without_ assuming that [In] is decidable; if you
     manage to do this, you will not need the [excluded_middle]
     hypothesis. *)
+(** この「鳩の巣定理」を定式化する方法を一つ挙げておきましょう。リスト [l2] が鳩の巣に貼られたラベルの一覧を、リスト [l1] はそのラベルの、アイテムへの割り当ての一覧を表しているとします。もしラベルよりも沢山のアイテムがあったならば、少なくとも二つのアイテムに同じラベルが貼られていることになります。--つまりリスト[l1]は繰り返しを含んでなければなりません。
+    
+この証明はもし[In]が決定可能であるということ、つまり [forall x l, (In x l) \/ ~ (In x l) ] を示すために[exclude_middle]排中律を仮説としてが使えればもっと簡単になります。 
+しかし、[In]が決定可能であることを仮定しないで証明をすることも可能です: これを何とかやってやろうと思うなら、[excluded_middle]の仮定は必要なくなります。 *)
+おそらくこの証明には「排中律（ [excluded_middle] ）」が必要になるでしょう。 *)
+
 
 Theorem pigeonhole_principle: forall (X:Type) (l1  l2:list X),
    excluded_middle ->
