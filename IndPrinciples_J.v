@@ -90,29 +90,29 @@ Proof.
 (* Complete this proof without using the [induction] tactic. *)
 (** [induction] タクティックを使わずに、下記の証明を完成させなさい。 *)
 
-Theorem plus_one_r' : forall n:nat, 
+Theorem plus_one_r' : forall n:nat,
   n + 1 = S n.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
 (** Coq generates induction principles for every datatype defined with
-    [Inductive], including those that aren't recursive. (Although 
-    we don't need induction to prove properties of non-recursive 
-    datatypes, the idea of an induction principle still makes sense
-    for them: it gives a way to prove that a property holds for all
-    values of the type.)
-    
-    These generated principles follow a similar pattern. If we define a
-    type [t] with constructors [c1] ... [cn], Coq generates a theorem
-    with this shape:
-    t_ind :
-       forall P : t -> Prop,
-            ... case for c1 ... ->
-            ... case for c2 ... ->
-            ...                
-            ... case for cn ... ->
-            forall n : t, P n
+    [Inductive], including those that aren't recursive.  Although of
+    course we don't need induction to prove properties of
+    non-recursive datatypes, the idea of an induction principle still
+    makes sense for them: it gives a way to prove that a property
+    holds for all values of the type.
+
+    These generated principles follow a similar pattern. If we define
+    a type [t] with constructors [c1] ... [cn], Coq generates a
+    theorem with this shape:
+
+    t_ind : forall P : t -> Prop,
+              ... case for c1 ... ->
+              ... case for c2 ... -> ...
+              ... case for cn ... ->
+              forall n : t, P n
+
     The specific shape of each case depends on the arguments to the
     corresponding constructor.  Before trying to write down a general
     rule, let's look at some more examples. First, an example where
@@ -138,8 +138,8 @@ Inductive yesno : Type :=
   | yes : yesno
   | no : yesno.
 
-Check yesno_ind. 
-(* ===> yesno_ind : forall P : yesno -> Prop, 
+Check yesno_ind.
+(* ===> yesno_ind : forall P : yesno -> Prop,
                       P yes  ->
                       P no  ->
                       forall y : yesno, P y *)
@@ -167,11 +167,12 @@ Inductive natlist : Type :=
   | ncons : nat -> natlist -> natlist.
 
 Check natlist_ind.
-(* ===> (modulo a little variable renaming for clarity)
+(* ===> (modulo a little variable renaming)
    natlist_ind :
       forall P : natlist -> Prop,
          P nnil  ->
-         (forall (n : nat) (l : natlist), P l -> P (ncons n l)) ->
+         (forall (n : nat) (l : natlist),
+            P l -> P (ncons n l)) ->
          forall n : natlist, P n *)
 
 (* **** Exercise: 1 star, optional (natlist1) *)
@@ -192,14 +193,14 @@ Inductive natlist1 : Type :=
 
     - The type declaration gives several constructors; each
       corresponds to one clause of the induction principle.
-    - Each constructor [c] takes argument types [a1]...[an].
+    - Each constructor [c] takes argument types [a1] ... [an].
     - Each [ai] can be either [t] (the datatype we are defining) or
       some other type [s].
-    - The corresponding case of the induction principle
-      says (in English):
-        - "for all values [x1]...[xn] of types [a1]...[an], if [P]
-           holds for each of the inductive arguments (each [xi] of
-           type [t]), then [P] holds for [c x1 ... xn]". 
+    - The corresponding case of the induction principle says:
+
+        - "For all values [x1]...[xn] of types [a1]...[an], if [P]
+          holds for each of the inductive arguments (each [xi] of type
+          [t]), then [P] holds for [c x1 ... xn]".
 
 *)
 (** これらの例より、一般的な規則を導くことができます。
@@ -211,17 +212,17 @@ Inductive natlist1 : Type :=
         - "型 [a1]...[an] のすべての値 [x1]...[xn] について、各 [x] について [P] が成り立つならば、[c x1 ... xn] についても [P] が成り立つ"
 *)
 
-
 (* **** Exercise: 1 star, optional (byntree_ind) *)
 (** **** 練習問題: ★, optional (byntree_ind) *)
 (** Write out the induction principle that Coq will generate for the
-    following datatype.  Write down your answer on paper or type it
-    into a comment, and then compare it with what Coq prints. *)
+    following datatype.  (Again, write down your answer on paper or
+    type it into a comment, and then compare it with what Coq
+    prints.) *)
 (** 次のデータ型に対してCoqが生成する帰納法の原理を予測しなさい。
-    紙かまたはコメント中に答えを書いたのち、Coqの出力と比較しなさい。 *)
+    もう一度、紙かまたはコメント中に答えを書いたのち、Coqの出力と比較しなさい。 *)
 	
 Inductive byntree : Type :=
- | bempty : byntree  
+ | bempty : byntree
  | bleaf  : yesno -> byntree
  | nbranch : yesno -> byntree -> byntree -> byntree.
 (** [] *)
@@ -231,11 +232,13 @@ Inductive byntree : Type :=
 (** **** 練習問題: ★,  optional (ex_set) *)
 (* Here is an induction principle for an inductively defined
     set.
+
       ExSet_ind :
          forall P : ExSet -> Prop,
              (forall b : bool, P (con1 b)) ->
              (forall (n : nat) (e : ExSet), P e -> P (con2 n e)) ->
              forall e : ExSet, P e
+
     Give an [Inductive] definition of [ExSet]: *)
 (** ここに帰納的に定義された集合(set)の定義に対する帰納法の原理があります 
       ExSet_ind :
@@ -250,7 +253,9 @@ Inductive ExSet : Type :=
 .
 (** [] *)
 
-(* What about polymorphic datatypes?
+(*  * Polymorphism *)
+(** * 多相性 *)
+(*  Next, what about polymorphic datatypes?
 
     The inductive definition of polymorphic lists
       Inductive list (X:Type) : Type :=
@@ -262,18 +267,19 @@ Inductive ExSet : Type :=
     one for each [X].  (Note that, wherever [list] appears in the body
     of the declaration, it is always applied to the parameter [X].)
     The induction principle is likewise parameterized on [X]:
-     list_ind :
-       forall (X : Type) (P : list X -> Prop),
-          P [] ->
-          (forall (x : X) (l : list X), P l -> P (x :: l)) ->
-          forall l : list X, P l
-   Note the wording here (and, accordingly, the form of [list_ind]):
-   The _whole_ induction principle is parameterized on [X].  That is,
-   [list_ind] can be thought of as a polymorphic function that, when
-   applied to a type [X], gives us back an induction principle
-   specialized to the type [list X]. *)
+
+      list_ind :
+        forall (X : Type) (P : list X -> Prop),
+           P [] ->
+           (forall (x : X) (l : list X), P l -> P (x :: l)) ->
+           forall l : list X, P l
+
+    Note that the _whole_ induction principle is parameterized on
+    [X].  That is, [list_ind] can be thought of as a polymorphic
+    function that, when applied to a type [X], gives us back an
+    induction principle specialized to the type [list X]. *)
   
-(** 多相的なデータ型ではどのようになるでしょうか？
+(** 次に、多相的なデータ型ではどのようになるでしょうか？
 
     多相的なリストの帰納的定義は [natlist] によく似ています。
       Inductive list (X:Type) : Type :=
@@ -289,7 +295,7 @@ Inductive ExSet : Type :=
           P [] ->
           (forall (x : X) (l : list X), P l -> P (x :: l)) ->
           forall l : list X, P l
-   この表現（と [list_ind] の全体的な形）に注目してください。帰納法の原理全体が 
+   この全体的な帰納法の原理の形に注目してください。帰納法の原理全体が 
    [X] によってパラメータ化されています。
    別の見方をすると、[list_ind] は多相関数と考えることができます。この関数は、型    [X] が適用されると、[list X] に特化した帰納法の原理を返します。
 *)		
@@ -307,45 +313,42 @@ Inductive tree (X:Type) : Type :=
 Check tree_ind.
 (** [] *)
 
-(** **** Exercise: 1 star, optional (mytype) *)
+(*  **** Exercise: 1 star, optional (mytype)  *)
+(** **** 練習問題: ★, optional (mytype)  *)
 (** Find an inductive definition that gives rise to the
-    following induction principle:
+    following induction principle: *)
+(** 以下の帰納法の原理を生成する帰納的定義を探しなさい。
+
       mytype_ind :
         forall (X : Type) (P : mytype X -> Prop),
             (forall x : X, P (constr1 X x)) ->
             (forall n : nat, P (constr2 X n)) ->
-            (forall m : mytype X, P m -> 
+            (forall m : mytype X, P m ->
                forall n : nat, P (constr3 X m n)) ->
-            forall m : mytype X, P m                   
+            forall m : mytype X, P m
+
 *) 
 (** [] *)
 
 (* **** Exercise: 1 star, optional (foo) *)
+(** **** 練習問題: ★, optional (foo)  *)
 (* Find an inductive definition that gives rise to the
     following induction principle:
-      foo_ind :
-        forall (X Y : Type) (P : foo X Y -> Prop),
-             (forall x : X, P (bar X Y x)) ->
-             (forall y : Y, P (baz X Y y)) ->
-             (forall f1 : nat -> foo X Y,
-               (forall n : nat, P (f1 n)) -> P (quux X Y f1)) ->
-             forall f2 : foo X Y, P f2       
-*) 
-(** **** 練習問題: ★ (mytype) *)
 (** 以下の帰納法の原理を生成する帰納的定義を探しなさい。
+
       foo_ind :
         forall (X Y : Type) (P : foo X Y -> Prop),
              (forall x : X, P (bar X Y x)) ->
              (forall y : Y, P (baz X Y y)) ->
              (forall f1 : nat -> foo X Y,
                (forall n : nat, P (f1 n)) -> P (quux X Y f1)) ->
-             forall f2 : foo X Y, P f2       
+             forall f2 : foo X Y, P f2
+
 *) 
 (** [] *)
 
 (** **** Exercise: 1 star, optional (foo') *)
 (** **** 練習問題: ★, optional (foo') *)
-
 (* Consider the following inductive definition: *)
 (** 次のような帰納的定義があるとします。 *)
 
@@ -353,7 +356,7 @@ Inductive foo' (X:Type) : Type :=
   | C1 : list X -> foo' X -> foo' X
   | C2 : foo' X.
 
-(* What induction principle will Coq generate for [foo']?  Fill
+(*  What induction principle will Coq generate for [foo']?  Fill
    in the blanks, then check your answer with Coq.)
      foo'_ind :
         forall (X : Type) (P : foo' X -> Prop),
@@ -369,34 +372,38 @@ Inductive foo' (X:Type) : Type :=
      foo'_ind :
         forall (X : Type) (P : foo' X -> Prop),
               (forall (l : list X) (f : foo' X),
-                    _______________________ -> 
+                    _______________________ ->
                     _______________________   ) ->
              ___________________________________________ ->
              forall f : foo' X, ________________________
+
 *)
 
 (** [] *)
 
 (* ##################################################### *)
-(* ** Induction Hypotheses *)
+(*  ** Induction Hypotheses *)
 (** **  帰納法の仮定 *)
 (* Where does the phrase "induction hypothesis" fit into this story?
 
     The induction principle for numbers
+
        forall P : nat -> Prop,
             P 0  ->
             (forall n : nat, P n -> P (S n))  ->
             forall n : nat, P n
-   is a generic statement that holds for all propositions
-   [P] (strictly speaking, for all families of propositions [P]
-   indexed by a number [n]).  Each time we use this principle, we
-   are choosing [P] to be a particular expression of type
-   [nat->Prop].
 
-   We can make the proof more explicit by giving this expression a
-   name.  For example, instead of stating the theorem [mult_0_r] as
-   "[forall n, n * 0 = 0]," we can write it as "[forall n, P_m0r
-   n]", where [P_m0r] is defined as... *)
+   is a generic statement that holds for all propositions
+   [P] (or rather, strictly speaking, for all families of
+   propositions [P] indexed by a number [n]).  Each time we
+   use this principle, we are choosing [P] to be a particular
+   expression of type [nat->Prop].
+
+   We can make proofs by induction more explicit by giving
+   this expression a name.  For example, instead of stating
+   the theorem [mult_0_r] as "[forall n, n * 0 = 0]," we can
+   write it as "[forall n, P_m0r n]", where [P_m0r] is defined
+   as... *)
 (** この概念において"帰納法の仮定"はどこにあてはまるでしょうか?
 
     数に関する帰納法の原理
@@ -412,13 +419,13 @@ Inductive foo' (X:Type) : Type :=
     なお、ここで [P_m0r] は次のように定義されています。
 *)		
 
-Definition P_m0r (n:nat) : Prop := 
+Definition P_m0r (n:nat) : Prop :=
   n * 0 = 0.
 
 (* ... or equivalently... *)
 (** あるいは・・・ *)
 
-Definition P_m0r' : nat->Prop := 
+Definition P_m0r' : nat->Prop :=
   fun n => n * 0 = 0.
 (** でも同じ意味です。 *)
 
@@ -426,17 +433,17 @@ Definition P_m0r' : nat->Prop :=
     appears. *)
 (** これで、証明する際に [P_m0r] がどこに現れるかが分かりやすくなります。 *)
 
-Theorem mult_0_r'' : forall n:nat, 
+Theorem mult_0_r'' : forall n:nat,
   P_m0r n.
 Proof.
   apply nat_ind.
-  Case "n = O". reflexivity.
-  Case "n = S n'". 
+  - (* n = O *) reflexivity.
+  - (* n = S n' *)
     (* Note the proof state at this point! *)
-    intros n IHn. 
+    intros n IHn.
     unfold P_m0r in IHn. unfold P_m0r. simpl. apply IHn. Qed.
 
-(* This extra naming step isn't something that we'll do in
+(* This extra naming step isn't something that we do in
     normal proofs, but it is useful to do it explicitly for an example
     or two, because it allows us to see exactly what the induction
     hypothesis is.  If we prove [forall n, P_m0r n] by induction on
@@ -475,9 +482,7 @@ Proof.
 
     What Coq actually does in this situation, internally, is to
     "re-generalize" the variable we perform induction on.  For
-    example, in our original proof that [plus] is associative...
-*)
-
+    example, in our original proof that [plus] is associative... *)
 (** [induction] タクティックは、実はこれまで見てきたような、いささか
     低レベルな作業をこなすだけのものではありません。
 
@@ -495,11 +500,10 @@ Proof.
 
     このようなときに Coq が内部的に行っていることは、帰納法を適用した変数を
     「再一般化（ _re-generalize_ ）」することです。
-    例えば、[plus] の結合則を証明するケースでは、
-*)
+    例えば、[plus] の結合則を証明するケースでは... *)
 
-Theorem plus_assoc' : forall n m p : nat, 
-  n + (m + p) = (n + m) + p.   
+Theorem plus_assoc' : forall n m p : nat,
+  n + (m + p) = (n + m) + p.
 Proof.
   (* ...we first introduce all 3 variables into the context,
      which amounts to saying "Consider an arbitrary [n], [m], and
@@ -507,7 +511,7 @@ Proof.
   (** ...最初に 3個の変数を全てコンテキストに導入しています。
      これはつまり"任意の [n], [m], [p] について考える"という
      意味になっています... *)
-  intros n m p. 
+  intros n m p.
   (* ...We now use the [induction] tactic to prove [P n] (that
      is, [n + (m + p) = (n + m) + p]) for _all_ [n],
      and hence also for the particular [n] that is in the context
@@ -515,12 +519,12 @@ Proof.
   (** ...ここで、[induction] タクティックを使い [P n] （任意の [n] に
      ついて [n + (m + p) = (n + m) + p]）を証明し、すぐに、
      コンテキストにある特定の [n] についても証明します。 *)
-	 induction n as [| n'].
-  Case "n = O". reflexivity.
-  Case "n = S n'". 
+  induction n as [| n'].
+  - (* n = O *) reflexivity.
+  - (* n = S n' *)
     (* In the second subgoal generated by [induction] -- the
-       "inductive step" -- we must prove that [P n'] implies 
-       [P (S n')] for all [n'].  The [induction] tactic 
+       "inductive step" -- we must prove that [P n'] implies
+       [P (S n')] for all [n'].  The [induction] tactic
        automatically introduces [n'] and [P n'] into the context
        for us, leaving just [P (S n')] as the goal. *)
     (** [induction] が作成した（帰納法の手順とも言うべき）二つ目の
@@ -539,12 +543,12 @@ Proof.
 Theorem plus_comm' : forall n m : nat, 
   n + m = m + n.
 Proof.
-  induction n as [| n']. 
-  Case "n = O". intros m. rewrite -> plus_0_r. reflexivity.
-  Case "n = S n'". intros m. simpl. rewrite -> IHn'. 
+  induction n as [| n'].
+  - (* n = O *) intros m. rewrite <- plus_n_O. reflexivity.
+  - (* n = S n' *) intros m. simpl. rewrite -> IHn'.
     rewrite <- plus_n_Sm. reflexivity.  Qed.
 
-(* Note that [induction n] leaves [m] still bound in the goal --
+(*  Note that [induction n] leaves [m] still bound in the goal --
     i.e., what we are proving inductively is a statement beginning
     with [forall m].
 
@@ -565,9 +569,9 @@ Theorem plus_comm'' : forall n m : nat,
 Proof.
   (* Let's do induction on [m] this time, instead of [n]... *)
  (** ここで [n] の代わりに [m] を induction しましょう。... *)
- induction m as [| m']. 
-  Case "m = O". simpl. rewrite -> plus_0_r. reflexivity.
-  Case "m = S m'". simpl. rewrite <- IHm'.
+  induction m as [| m'].
+  - (* m = O *) simpl. rewrite <- plus_n_O. reflexivity.
+  - (* m = S m' *) simpl. rewrite <- IHm'.
     rewrite <- plus_n_Sm. reflexivity.  Qed.
 
 (** **** Exercise: 1 star, optional (plus_explicit_prop) *)
@@ -585,115 +589,172 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
+(* ##################################################### *)
+(*  * Induction Principles in [Prop] *)
+(** * 命題に対する帰納法の原理 *)
 
-(* ** Generalizing Inductions. *)
-(** ** 帰納法を一般化すること *)
+(** Earlier, we looked in detail at the induction principles that Coq
+    generates for inductively defined _sets_.  The induction
+    principles for inductively defined _propositions_ like [ev] are a
+    tiny bit more complicated.  As with all induction principles, we
+    want to use the induction principle on [ev] to prove things by
+    inductively considering the possible shapes that something in [ev]
+    can have.  Intuitively speaking, however, what we want to prove
+    are not statements about _evidence_ but statements about
+    _numbers_: accordingly, we want an induction principle that lets
+    us prove properties of numbers by induction on evidence.
 
-(** One potentially confusing feature of the [induction] tactic is
-that it happily lets you try to set up an induction over a term
-that isn't sufficiently general.  The net effect of this will be 
-to lose information (much as [destruct] can do), and leave
-you unable to complete the proof. Here's an example: *)
-(** [induction]タクティクの潜在的に混乱させるかもしれない特徴は、十分に一般的でない用語の上に帰納法を試さなければならないことかもしれません。
-このことにより、([destruct]が出来ることとほとんど同じように)情報が失われてしまい、証明を完成させることが出来なくなってしまうでしょう。
-例
+    For example, from what we've said so far, you might expect the
+    inductive definition of [ev]...
+
+      Inductive ev : nat -> Prop :=
+      | ev_0 : ev 0
+      | ev_SS : forall n : nat, ev n -> ev (S (S n)).
+
+    ...to give rise to an induction principle that looks like this...
+
+    ev_ind_max : forall P : (forall n : nat, ev n -> Prop),
+         P O ev_0 ->
+         (forall (m : nat) (E : ev m),
+            P m E ->
+            P (S (S m)) (ev_SS m E)) ->
+         forall (n : nat) (E : gorgeous n),
+         P n E
+
+     ... because:
+
+     - Since [ev] is indexed by a number [n] (every [ev] object [E] is
+       a piece of evidence that some particular number [n] is even),
+       the proposition [P] is parameterized by both [n] and [E] --
+       that is, the induction principle can be used to prove
+       assertions involving both an even number and the evidence that
+       it is even.
+
+     - Since there are two ways of giving evidence of evenness ([ev]
+       has two constructors), applying the induction principle
+       generates two subgoals:
+
+         - We must prove that [P] holds for [O] and [ev_0].
+
+         - We must prove that, whenever [n] is an even number and [E]
+           is an evidence of its evenness, if [P] holds of [n] and
+           [E], then it also holds of [S (S n)] and [ev_SS n E].
+
+     - If these subgoals can be proved, then the induction principle
+       tells us that [P] is true for _all_ even numbers [n] and
+       evidence [E] of their evenness.
+
+    This is more flexibility than we normally need or want: it is
+    giving us a way to prove logical assertions where the assertion
+    involves properties of some piece of _evidence_ of evenness, while
+    all we really care about is proving properties of _numbers_ that
+    are even -- we are interested in assertions about numbers, not
+    about evidence.  It would therefore be more convenient to have an
+    induction principle for proving propositions [P] that are
+    parameterized just by [n] and whose conclusion establishes [P] for
+    all even numbers [n]:
+
+       forall P : nat -> Prop,
+       ... ->
+       forall n : nat,
+       even n -> P n
+
+    For this reason, Coq actually generates the following simplified
+    induction principle for [ev]: *)
+(** TODO!!
 *)
-Lemma one_not_beautiful_FAILED: ~ beautiful 1. 
+
+Check ev_ind.
+(* ===> ev_ind
+        : forall P : nat -> Prop,
+          P 0 ->
+          (forall n : nat, ev n -> P n -> P (S (S n))) ->
+          forall n : nat,
+          ev n -> P n *)
+
+(** In particular, Coq has dropped the evidence term [E] as a
+    parameter of the the proposition [P]. *)
+
+(** In English, [ev_ind] says:
+
+    - Suppose, [P] is a property of natural numbers (that is, [P n] is
+      a [Prop] for every [n]).  To show that [P n] holds whenever [n]
+      is even, it suffices to show:
+
+      - [P] holds for [0],
+
+      - for any [n], if [n] is even and [P] holds for [n], then [P]
+        holds for [S (S n)]. *)
+
+(** As expected, we can apply [ev_ind] directly instead of using
+    [induction]. *)
+
+Theorem ev_ev' : forall n, ev n -> ev' n.
 Proof.
-  intro H.
-  (* Just doing an [inversion] on [H] won't get us very far in the [b_sum]
-    case. (Try it!). So we'll need induction. A naive first attempt: *)
-  (** [H]上で[inversion]を行うことは[b_sum]の場合以上のことを我々に与えてくれません。(試してみましょう!)。そのため帰納法が必要になります。
-      素直な最初の試みは、*)
-  induction H. 
-  (* But now, although we get four cases, as we would expect from
-     the definition of [beautiful], we lose all information about [H] ! *) 
-  (** しかし、我々は[beautiful]の定義から期待したとおり、4つの場合が得られますが、 [H]についての全ての情報を失なってしまいました! *)
-Abort.
-
-(** The problem is that [induction] over a Prop only works properly over 
-   completely general instances of the Prop, i.e. one in which all
-   the arguments are free (unconstrained) variables. 
-   In this respect it behaves more
-   like [destruct] than like [inversion]. 
-
-   When you're tempted to do use [induction] like this, it is generally
-   an indication that you need to be proving something more general.
-   But in some cases, it suffices to pull out any concrete arguments
-   into separate equations, like this: *)
-(** 問題は、命題上の[induction]が 命題の完全に一般的なインスタンス上でのみ適切に働かないことです。
-たとえば、すべての引数のうちの一つに自由な(拘束されていない)変数がある場合です。この点において、inductionは、[inversion]よりは、[destruct]のように振舞います。
-
-上記のような場合に、[induction]をつかいたいときは、もっと一般的な何かを証明するための帰納法が必要になります。しかしいくつかの場合においては、以下のように具体的な引数から
-差分を抽出するだけで事足ります。
-*)
-Lemma one_not_beautiful: forall n, n = 1 -> ~ beautiful n. 
-Proof.
- intros n E H.
-  induction H  as [| | | p q Hp IHp Hq IHq]. 
-    Case "b_0".
-      inversion E.
-    Case "b_3". 
-      inversion E. 
-    Case "b_5". 
-      inversion E. 
-    Case "b_sum". 
-      (* the rest is a tedious case analysis *)
-      (** 以下つまらないケース分析です *)
-      destruct p as [|p'].
-      SCase "p = 0".
-        destruct q as [|q'].
-        SSCase "q = 0". 
-          inversion E.
-        SSCase "q = S q'".
-          apply IHq. apply E. 
-      SCase "p = S p'". 
-        destruct q as [|q'].
-        SSCase "q = 0". 
-          apply IHp.  rewrite plus_0_r in E. apply E. 
-        SSCase "q = S q'".
-          simpl in E. inversion E.  destruct p'.  inversion H0.  inversion H0. 
+  apply ev_ind.
+  - (* ev_0 *)
+    apply ev'_0.
+  - (* ev_SS *)
+    intros m Hm IH.
+    apply (ev'_sum 2 m).
+    + apply ev'_2.
+    + apply IH.
 Qed.
 
-(* There's a handy [remember] tactic that can generate the second
-proof state out of the original one. *)
-(** 二つめの証明の状態を生成することの出来るもっとお手軽な[remember]タクティックというのもあります。 *)
-Lemma one_not_beautiful': ~ beautiful 1. 
-Proof.
-  intros H.  
-  remember 1 as n eqn:E. 
-  (* now carry on as above *)
-  (** あとは上記と同じ *)
-  induction H.   
-Admitted.
+(** The precise form of an [Inductive] definition can affect the
+    induction principle Coq generates.
 
+    For example, in chapter [IndProp], we defined [<=] as: *)
 
+(* Inductive le : nat -> nat -> Prop :=
+     | le_n : forall n, le n n
+     | le_S : forall n m, (le n m) -> (le n (S m)). *)
+
+(** This definition can be streamlined a little by observing that the
+    left-hand argument [n] is the same everywhere in the definition,
+    so we can actually make it a "general parameter" to the whole
+    definition, rather than an argument to each constructor. *)
+
+Inductive le (n:nat) : nat -> Prop :=
+  | le_n : le n n
+  | le_S : forall m, (le n m) -> (le n (S m)).
+
+Notation "m <= n" := (le m n).
+
+(** The second one is better, even though it looks less symmetric.
+    Why?  Because it gives us a simpler induction principle. *)
+
+Check le_ind.
+(* ===>  forall (n : nat) (P : nat -> Prop),
+           P n ->
+           (forall m : nat, n <= m -> P m -> P (S m)) ->
+           forall n0 : nat, n <= n0 -> P n0 *)
 (* ####################################################### *)
-(* * Informal Proofs (Advanced) *)
-(** 非形式的な証明 (Advanced) *)
+(*  * Formal vs. Informal Proofs by Induction *)
+(** 帰納法による、形式的証明 vs 非形式的な証明 *)
 
-(* Q: What is the relation between a formal proof of a proposition
-       [P] and an informal proof of the same proposition [P]?
+(*  Question: What is the relation between a formal proof of a
+    proposition [P] and an informal proof of the same proposition [P]?
 
-    A: The latter should _teach_ the reader how to produce the
-       former.
+    Answer: The latter should _teach_ the reader how to produce the
+    former.
 
-    Q: How much detail is needed??
+    Question: How much detail is needed??
 
-    Unfortunately, There is no single right answer; rather, there is a
+    Unfortunately, there is no single right answer; rather, there is a
     range of choices.
 
     At one end of the spectrum, we can essentially give the reader the
     whole formal proof (i.e., the informal proof amounts to just
     transcribing the formal one into words).  This gives the reader
-    the _ability_ to reproduce the formal one for themselves, but it
-    doesn't _teach_ them anything.
+    the ability to reproduce the formal one for themselves, but it
+    probably doesn't _teach_ them anything much.
 
    At the other end of the spectrum, we can say "The theorem is true
    and you can figure out why for yourself if you think about it hard
-   enough."  This is also not a good teaching strategy, because
-   usually writing the proof requires some deep insights into the
-   thing we're proving, and most readers will give up before they
+   enough."  This is also not a good teaching strategy, because often
+   writing the proof requires one or more significant insights into
+   the thing we're proving, and most readers will give up before they
    rediscover all the same insights as we did.
 
    In the middle is the golden mean -- a proof that includes all of
@@ -709,6 +770,7 @@ Admitted.
    proposition [P] and an informal proof of [P], the proposition [P]
    doesn't change.  That is, formal and informal proofs are _talking
    about the same world_ and they _must play by the same rules_. *)
+TODO 
  (** Q: 命題 [P] の形式的な証明と、同じ命題 [P] の非形式的な証明の間にはどのような関係があるのでしょうか？
 
     A: 後者は、読む人に「どのように形式的な証明を導くか」を示すようなものとなっているべきです。
@@ -725,33 +787,6 @@ Admitted.
 
    もう一つのキーポイント：もし我々が命題 P の形式的な証明と非形式的な証明について話しているならば、命題 P 自体は何も変わりません。このことは、形式的な証明も非形式的な証明も、同じ「世界」について話をしていて、同じルール(_rule_)に基づいていなければならない、と言うことを意味しています。
  *)  
-   
-   
-(* ** Informal Proofs by Induction *)
-(** ** 帰納法による非形式的な証明 *)
-
-(** Since we've spent much of this chapter looking "under the hood" at
-    formal proofs by induction, now is a good moment to talk a little
-    about _informal_ proofs by induction.
-
-    In the real world of mathematical communication, written proofs
-    range from extremely longwinded and pedantic to extremely brief
-    and telegraphic.  The ideal is somewhere in between, of course,
-    but while you are getting used to the style it is better to start
-    out at the pedantic end.  Also, during the learning phase, it is
-    probably helpful to have a clear standard to compare against.
-    With this in mind, we offer two templates below -- one for proofs
-    by induction over _data_ (i.e., where the thing we're doing
-    induction on lives in [Type]) and one for proofs by induction over
-    _evidence_ (i.e., where the inductively defined thing lives in
-    [Prop]).  In the rest of this course, please follow one of the two
-    for _all_ of your inductive proofs. *)
-
-(** ここまで、我々は「帰納法を使った形式的な証明の舞台裏」を覗くことにずいぶん章を割いてきました。そろそろ「帰納法を使った非形式的な証明」に話を向けてみましょう。
-
-    現実世界の数学的な事柄をやりとりするた記述された証明を見てみると、極端に風呂敷が広く衒学的なものから、逆に短く簡潔すぎるものまで様々です。理想的なものはその間のとこかにあります。もちろん、じぶんなりのスタイルを見つけるまでは、衒学的なスタイルから始めてみるほうがいいでしょう。また、学習中には、標準的なテンプレートと比較してみることも、学習の一助になるでしょう。
-    このような考えから、我々は以下の二つのテンプレートを用意しました。一つは「データ」に対して（「型」に潜む帰納的な構造について）帰納法を適用したもの、もう一つは「命題」に対して（命題に潜む機能的な定義について）帰納法を適用したものです。このコースが終わるまでに、あなたが行った帰納的な証明の全てに、どちらかの方法を適用してみましょう。
- *)
  
 (* *** Induction Over an Inductively Defined Set *)
 (** *** 帰納的に定義された集合についての帰納法 *)
@@ -773,19 +808,19 @@ Admitted.
              <go on and prove [P(n)] to finish the case...>
 
            - <other cases similarly...>                        []
- 
+
     _Example_:
- 
+
       - _Theorem_: For all sets [X], lists [l : list X], and numbers
         [n], if [length l = n] then [index (S n) l = None].
 
         _Proof_: By induction on [l].
 
         - Suppose [l = []].  We must show, for all numbers [n],
-          that, if length [[] = n], then [index (S n) [] =
+          that, if [length [] = n], then [index (S n) [] =
           None].
 
-          This follows immediately from the definition of index.
+          This follows immediately from the definition of [index].
 
         - Suppose [l = x :: l'] for some [x] and [l'], where
           [length l' = n'] implies [index (S n') l' = None], for
@@ -845,10 +880,10 @@ Admitted.
 
 (** Since inductively defined proof objects are often called
     "derivation trees," this form of proof is also known as _induction
-    on derivations_. 
+    on derivations_.
 
     _Template_:
- 
+
        - _Theorem_: <Proposition of the form "[Q -> P]," where [Q] is
          some inductively defined proposition (more generally,
          "For all [x] [y] [z], [Q x y z -> P x y z]")>
@@ -872,7 +907,7 @@ Admitted.
            - <other cases similarly...>                        []
 
     _Example_
- 
+
        - _Theorem_: The [<=] relation is transitive -- i.e., for all
          numbers [n], [m], and [o], if [n <= m] and [m <= o], then
          [n <= o].
