@@ -208,7 +208,6 @@ Proof. reflexivity. Qed.
 次の練習問題をもしやらなかったとすると、補題の文について徹底的な理解はしておいて下さい！(証明のいくつかは、
 [Logic]の章で議論した関数の外延性の公理を必要とします。それもまた、標準ライブラリに含まれています。*)
 
-(*  **** 練習問題: ★★, optional (t_update_eq)  *)
 (** **** 練習問題: ★★, optional (t_update_eq)  *)
 (*  First, if we update a map [m] at a key [x] with a new value [v]
     and then look up [x] in the map resulting from the [update], we
@@ -241,6 +240,8 @@ Proof.
     resulting map behaves the same (gives the same result when applied
     to any key) as the simpler map obtained by performing just
     the second [update] on [m]: *)
+(** もし、マップ[m]をキー[x]、値[v1]で更新して、それから再び同じキー[x]を別の値[v2]で更新したとします。
+結果得られたマップは、最初のマップをキー[x],値[v2]で更新したものとまったく同じ振舞いをします。*)
 
 Lemma t_update_shadow : forall A (m: total_map A) v1 v2 x,
     t_update (t_update m x v1) x v2
@@ -253,6 +254,8 @@ Proof.
     the reflection idioms introduced in chapter [IndProp].  We begin
     by proving a fundamental _reflection lemma_ relating the equality
     proposition on [id]s with the boolean function [beq_id]. *)
+(** 全域mapの最後の二つの補題では、[IndProp]で紹介した反映の文法を使うのが便利です。まず基礎的な、
+idの等式と、ブーリアン関数[beq_id]を関連づけた反映補題を証明すっとこから始めましょう。 *)
 
 (** **** 練習問題: ★★ (beq_idP)  *)
 (** Use the proof of [beq_natP] in chapter [IndProp] as a template to
@@ -263,16 +266,19 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** Now, given [id]s [x1] and [x2], we can use the [destruct (beq_idP
+(*  Now, given [id]s [x1] and [x2], we can use the [destruct (beq_idP
     x1 x2)] to simultaneously perform case analysis on the result of
     [beq_id x1 x2] and generate hypotheses about the equality (in the
     sense of [=]) of [x1] and [x2]. *)
+(** これで、[id] l[x1][x2]が与えられたら、[destruct (beq_idP x1 x2)]を使用して、同時に[beq_id x1 x2]のケース分析と、[x1]と[x2]の同値性の仮説を生成することが出来るようになりました! *)
 
 (** **** 練習問題: ★★ (t_update_same)  *)
-(** Using the example in chapter [IndProp] as a template, use
+(*  Using the example in chapter [IndProp] as a template, use
     [beq_idP] to prove the following theorem, which states that if we
     update a map to assign key [x] the same value as it already has in
     [m], then the result is equal to [m]: *)
+(** [IndProp]の章の例をテンプレートとして使用して、[beq_idP]を次の定理を証明するために使ってみましょう。次の定理とは、キー[x]にすでに[x]が割り当てられている値と同じ値で更新した場合、その結果は、[m]と等しい。というものです: *)
+ [IndProp]の章の例をテンプレートとして使用して、[beq_idP]を次の定理を証明するために使ってみましょう。次の定理とは、キー[x]にすでに[x]が割り当てられている値と同じ値で更新した場合、その結果は、[m]と等しい。というものです: *)
 
 Theorem t_update_same : forall X x (m : total_map X),
   t_update m x (m x) = m.
@@ -284,7 +290,7 @@ Proof.
 (** Use [beq_idP] to prove one final property of the [update]
     function: If we update a map [m] at two distinct keys, it doesn't
     matter in which order we do the updates. *)
-
+(** [beq_idP]を[t_update]関数の最後の属性を証明するのに使いなさい: マップ[m]を二つの相異なるキーで更新したとき、順番に拘わらず同じになる。というものです。*)
 Theorem t_update_permute : forall (X:Type) v1 v2 x1 x2
                              (m : total_map X),
   x2 <> x1 ->
