@@ -80,7 +80,7 @@ Print ev.
 
      [Wadler 2015]において、簡単な歴史と、今までの変遷を見ることが出来ます。
 
-	この関係から多くの有用な洞察が導かれます。まず、[ev_SS]コンストラクタの型の自然な解釈を得られます。 
+	この関係から多くの有用な洞察が導かれます。まず、[ev_SS]コンストラクタの型の自然な解釈を得られます: *)
 
 Check ev_SS.
 (* ===> ev_SS : forall n,
@@ -91,7 +91,8 @@ Check ev_SS.
     arguments -- a number [n] and evidence for the proposition [ev
     n] -- and yields evidence for the proposition [ev (S (S n))]." *)
 (** これは次のように読むことが出来ます。"[ev_SS]は、二つの引数、--数[n]と[ev n]という命題の根拠と--を取るコンストラクタであり、
-[ev (S (S n))]という命題の根拠を生成します。*)
+[ev (S (S n))]という命題の根拠を生成します。"*)
+
 (** Now let's look again at a previous proof involving [ev]. *)
 
 Theorem ev_4 : ev 4.
@@ -135,6 +136,7 @@ Check (ev_SS 2 (ev_SS 0 ev_0)).
     use function application syntax to instantiate universally
     quantified variables in lemmas, as well as to supply evidence for
     assumptions that these lemmas impose. For instance: *)
+(** TODO *)
 
 Theorem ev_4': ev 4.
 Proof.
@@ -146,9 +148,12 @@ Qed.
     hypotheses can be combined in expressions (i.e., proof objects)
     according to the same basic rules used for programs in the
     language. *)
+(** TODO *)
+
 
 (* ##################################################### *)
-(** * Proof Scripts *)
+(*  * Proof Scripts *)
+(** * 証明スクリプト *)
 
 (** The _proof objects_ we've been discussing lie at the core of how
     Coq operates.  When Coq is following a proof script, what is
@@ -158,6 +163,7 @@ Qed.
     of the required type.  To see this process in action, let's use
     the [Show Proof] command to display the current state of the proof
     tree at various points in the following tactic proof. *)
+(** TODO *)
 
 Theorem ev_4'' : ev 4.
 Proof.
@@ -170,26 +176,33 @@ Proof.
   Show Proof.
 Qed.
 
-(** At any given moment, Coq has constructed a term with some
+(*  At any given moment, Coq has constructed a term with some
     "holes" (indicated by [?1], [?2], and so on), and it knows what
     type of evidence is needed at each hole.  *)
+(** TODO *)
 
 (** Each of the holes corresponds to a subgoal, and the proof is
     finished when there are no more subgoals.  At this point, the
     evidence we've built stored in the global context under the name
     given in the [Theorem] command. *)
+(** TODO *)
+
 
 (** Tactic proofs are useful and convenient, but they are not
     essential: in principle, we can always construct the required
     evidence by hand, as shown above. Then we can use [Definition]
     (rather than [Theorem]) to give a global name directly to a
     piece of evidence. *)
+(** TODO *)
+
 
 Definition ev_4''' : ev 4 :=
   ev_SS 2 (ev_SS 0 ev_0).
 
 (** All these different ways of building the proof lead to exactly the
     same evidence being saved in the global environment. *)
+(** TODO *)
+
 
 Print ev_4.
 (* ===> ev_4    =   ev_SS 2 (ev_SS 0 ev_0) : ev 4 *)
@@ -573,9 +586,10 @@ Definition quiz6 : exists x,  x + 3 = 4
   := ex_intro (fun z => (z + 3 = 4)) 1 (refl_equal 4).
 
 (* ####################################################### *)
-(** ** Inversion, Again *)
+(*  ** Inversion, Again *)
+(** ** Inversion 再び *)
 
-(** We've seen [inversion] used with both equality hypotheses and
+(*  We've seen [inversion] used with both equality hypotheses and
     hypotheses about inductively defined propositions.  Now that we've
     seen that these are actually the same thing, we're in a position
     to take a closer look at how [inversion] behaves.
@@ -602,6 +616,23 @@ Definition quiz6 : exists x,  x + 3 = 4
 
       - if the equalities are not satisfiable (e.g., they involve
         things like [S n = O]), immediately solves the subgoal. *)
+(** これまでにも inversion が等値性にからむ仮定や帰納的に定義された命題に対して 使われるところを見てきました。今度もやることは変わりませんが、もう少し近くまで 寄って inversion の振る舞いを観察してみましょう。 
+
+一般的に inversion タクティックは、
+
+  - 帰納的に定義された型 P の命題 H をとる。 
+
+  - その型 P の定義にある各コンストラクタ C が、 
+    
+    - H が C から成っていると仮定するような新しいサブゴールを作る。 
+
+    - C の引数（前提）を、追加の仮定としてサブゴールのコンテキストに加える。 
+
+    - C の結論（戻り値の型）を現在のゴールとmatchして、 C を適用できるような一連の等式算出する。 
+
+    - そしてこれらの等式をサブゴールのコンテキストに加えてから、 
+
+    - もしこの等式が充足可能でない場合（S n = O というような式を含むなど）は、 即座にサブゴールを解決する。*)
 
 (** _Example_: If we invert a hypothesis built with [or], there are two
    constructors, so two subgoals get generated.  The
@@ -623,6 +654,6 @@ Definition quiz6 : exists x,  x + 3 = 4
    some extra information: it tells us that the two arguments to [eq]
    must be the same!  The [inversion] tactic adds this fact to the
    context. *)
-
+(** TODO *)
 (** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
 
