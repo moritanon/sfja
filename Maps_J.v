@@ -301,11 +301,13 @@ Proof.
 (** [] *)
 
 (* ###################################################################### *)
-(** * Partial maps *)
+(*  * Partial maps *)
+(** * 部分マップ *)
 
-(** Finally, we define _partial maps_ on top of total maps.  A partial
+(* Finally, we define _partial maps_ on top of total maps.  A partial
     map with elements of type [A] is simply a total map with elements
     of type [option A] and default element [None]. *)
+(** 最後に、全域マップを元に、_部分マップ_を定義します。型[A]の要素を持つ部分マップとは、単に全域マップの要素の型を[option A]にして、デフォルトの要素を[None]にしたものです。*)
 
 Definition partial_map (A:Type) := total_map (option A).
 
@@ -316,8 +318,9 @@ Definition update {A:Type} (m : partial_map A)
                   (x : id) (v : A) :=
   t_update m x (Some v).
 
-(** We can now lift all of the basic lemmas about total maps to
+(*  We can now lift all of the basic lemmas about total maps to
     partial maps.  *)
+(** 全域マップの基本的な補題をすべて、部分マップに引き上げる(適用しなおす)ことが出来ます。*)
 
 Lemma update_eq : forall A (m: partial_map A) x v,
   (update m x v) x = Some v.
