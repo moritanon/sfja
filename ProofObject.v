@@ -136,7 +136,7 @@ Check (ev_SS 2 (ev_SS 0 ev_0)).
     use function application syntax to instantiate universally
     quantified variables in lemmas, as well as to supply evidence for
     assumptions that these lemmas impose. For instance: *)
-(** TODO *)
+(** ([Logic]の章で見たように)補題の中の全称化された変数を裏付けるために、また、これらの補題が導入した仮定に根拠を与えるために。関数適用の構文が使用することが出来たこを覚えているかもしれません。例えば:*)
 
 Theorem ev_4': ev 4.
 Proof.
@@ -148,7 +148,8 @@ Qed.
     hypotheses can be combined in expressions (i.e., proof objects)
     according to the same basic rules used for programs in the
     language. *)
-(** TODO *)
+(** この特質が Coqが証明や命題を扱うことを可能にする状態の小さな並びであることが分かると思います:
+  補題や仮説は式と結合し(たとえば、証明オブジェクト) 同じ基本的な、言語内のプログラムのための規則に従います。*)
 
 
 (* ##################################################### *)
@@ -163,7 +164,8 @@ Qed.
     of the required type.  To see this process in action, let's use
     the [Show Proof] command to display the current state of the proof
     tree at various points in the following tactic proof. *)
-(** TODO *)
+(** これまで議論してきた_証明オブジェクト_は、Coqの動作の中心です。Coqが証明スクリプトを動かすとき、内部的に起こっていることは、証明オブジェクトを徐々に作りあげていることです。ある項の、その型が証明済みの命題であるような。です。
+[Proof]と[Qed]の間にあるタクティックは要求された型の項をどのように構築すればよいのか教えてくれます。[Show Proof]コマンドを使って証明木の現在の状態をタクティックの証明中のいろいろな時点で表示してみましょう。*)
 
 Theorem ev_4'' : ev 4.
 Proof.
@@ -179,7 +181,7 @@ Qed.
 (*  At any given moment, Coq has constructed a term with some
     "holes" (indicated by [?1], [?2], and so on), and it knows what
     type of evidence is needed at each hole.  *)
-(** TODO *)
+(** どの瞬間もCoqは穴を持った項([?1]や[?2]などで示される)を構築していて、それぞれの穴にどんな型の根拠が必要になるかを知っています。 *)
 
 (** Each of the holes corresponds to a subgoal, and the proof is
     finished when there are no more subgoals.  At this point, the
