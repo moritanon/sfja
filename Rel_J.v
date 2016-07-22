@@ -54,24 +54,29 @@ Check le : relation nat.
     le : relation nat...]?  Because we wanted to put the first [nat]
     to the left of the [:], which makes Coq generate a somewhat nicer
     induction principle for reasoning about [<=].) *)
-(** TODO *)
+(** なぜ、[Inductive le : relation nat...]で始める代わりに、このように書くのでしょうか？ なぜなら、[:]の左に最初の[nat]を置きたいからです。
+そうすることで、Coqは、[<=]に関して推論するためのもうすこしマシな帰納法な原理を生成してくれるからです。*)
 
 (* ######################################################### *)
 (*  * Basic Properties *)
 (** * 基本的な属性 *)
 
 (** As anyone knows who has taken an undergraduate discrete math
-    course, there is a lot to be said about relations in general --
-    ways of classifying relations (are they reflexive, transitive,
-    etc.), theorems that can be proved generically about classes of
-    relations, constructions that build one relation from another,
+    course, there is a lot to be said about relations in general,
+    including ways of classifying relations (as reflexive, transitive,
+    etc.), theorems that can be proved generically about certain sorts
+    of relations, constructions that build one relation from another,
     etc.  For example... *)
 (**  大学の離散数学の講義で習っているように、関係を「一般的に」議論し記述する方法がいくつもあります。 -- 関係を分類する方法(反射的か、推移的か、など)、関係のクラスについて一般的に証明できる定理、 関係からの別の関係の構成、などです。例えば、*)
+
+(*  *** Partial Functions *)
+(** *** 部分関数 *)
+
 (*  A relation [R] on a set [X] is a _partial function_ if, for every
-    [x], there is at most one [y] such that [R x y] -- i.e., if [R x
-    y1] and [R x y2] together imply [y1 = y2]. *)
+    [x], there is at most one [y] such that [R x y] -- i.e., [R x y1]
+    and [R x y2] together imply [y1 = y2]. *)
 (** 集合[X]上の関係[R]は、次の条件を満たすとき、部分関数(_partial function_)です。
-    条件とは、すべての[x]に対して、[R x y]となる[y]は高々1つであるということ
+    条件とは、すべての[x]に対して、[R x y]となる[y]は高々1つ(0のときもあるということ？)であるということ
     -- つまり、[R x y1]かつ[R x y2]ならば [y1 = y2] となることです。*)
 
 Definition partial_function {X: Type} (R: relation X) :=
@@ -91,13 +96,13 @@ Proof.
   unfold partial_function.
   intros x y1 y2 H1 H2.
   inversion H1. inversion H2.
-  reflexivity.  Qed. 
+  reflexivity.  Qed.
 
 (*  However, the [<=] relation on numbers is not a partial
     function.  (Assume, for a contradiction, that [<=] is a partial
     function.  But then, since [0 <= 0] and [0 <= 1], it follows that
     [0 = 1].  This is nonsense, so our assumption was
-    contradictory. *)
+    contradictory.) *)
 (** しかし、数値上の[<=]関係は部分関数ではありません。
     これは矛盾を導くことで示すことができます。簡単にいうと: [<=]が部分関数であると仮定します。
     すると、[0<=0]かつ[0<=1]から、[0=1]となります。これはおかしなことです。したがって、
@@ -113,7 +118,6 @@ Proof.
     - apply le_S. apply le_n. }
   inversion Nonsense.   Qed.
 
-(*  **** Exercise: 2 stars, optional  *)
 (** **** 練習問題:★★, optional *)
 (*  Show that the [total_relation] defined in earlier is not a partial
     function. *)
@@ -122,7 +126,6 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
-(*  **** Exercise: 2 stars, optional  *)
 (** **** 練習問題:★★, optional *)
 (*  Show that the [empty_relation] that we defined earlier is a
     partial function. *)
@@ -178,6 +181,8 @@ Proof.
   apply Hmo. Qed.
 
 (** **** 練習問題:★★, optional *)
+(*  We can also prove [lt_trans] more laboriously by induction,
+    without using [le_trans].  Do this.*)
 (** [lt_trans] は、帰納法を使って手間をかければ、le_trans を使わずに証明することができます。
     これをやってみなさい。*)
 
@@ -193,6 +198,7 @@ Proof.
 (** [] *)
 
 (** **** 練習問題:★★, optional *)
+(*  Prove the same thing again by induction on [o]. *)
 (** 同じことを、[o]についての帰納法で証明しなさい。*)
 
 Theorem lt_trans'' :
@@ -204,14 +210,18 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(*  The transitivity of [le], in turn, can be used to prove some facts
+    that will be useful later (e.g., for the proof of antisymmetry
+    below)... *)
 (** [le]の推移性は、同様に、後に(つまり以下の反対称性の証明において)
     有用な事実を証明するのに使うことができます... *)
 
 Theorem le_Sn_le : forall n m, S n <= m -> n <= m.
-Proof. 
+Proof.
   intros n m H. apply le_trans with (S n).
-    apply le_S. apply le_n.
-    apply H.  Qed.
+  - apply le_S. apply le_n.
+  - apply H.
+Qed.
 
 (** **** 練習問題:★, optional *)
 Theorem le_S_n : forall n m,
@@ -221,6 +231,14 @@ Proof.
 (** [] *)
 
 (** **** 練習問題:★★, optional(le_Sn_n_inf) *)
+(*  Provide an informal proof of the following theorem:
+
+    Theorem: For every [n], [~ (S n <= n)]
+
+    A formal proof of this is an optional exercise below, but try
+    writing an informal proof without doing the formal proof first.
+
+    Proof:*)
 (** 以下の定理の非形式的な証明を示しなさい。
 
     定理: すべての[n]について、[~(S n <= n)]
@@ -240,6 +258,9 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(*  Reflexivity and transitivity are the main concepts we'll need for
+    later chapters, but, for a bit of additional practice working with
+    relations in Coq, let's look at a few other common ones... *)
 (** 反射性と推移性は後の章で必要となる主要概念ですが、Coq で関係を扱う練習をもう少ししましょう。
     次のいくつかの概念もよく知られたものです。
 
@@ -255,6 +276,9 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(*  A relation [R] is _antisymmetric_ if [R a b] and [R b a] together
+    imply [a = b] -- that is, if the only "cycles" in [R] are trivial
+    ones. *)
 (** 関係[R]が反対称的(_antisymmetric_)であるとは、[R a b]かつ[R b a]ならば
     [a = b] となることです。 -- つまり、[R]における「閉路」は自明なものしかないということです。
     (訳注:この「つまり」以降は、[R]は反射的かつ推移的でもあるという前提の場合。)
@@ -263,7 +287,6 @@ Proof.
 Definition antisymmetric {X: Type} (R: relation X) :=
   forall a b : X, (R a b) -> (R b a) -> a = b.
 
-(*  **** Exercise: 2 stars, optional  *)
 (** **** 練習問題:★★, optional *)
 Theorem le_antisymmetric :
   antisymmetric le.
@@ -271,7 +294,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 2 stars, optional  *)
 (** **** 練習問題:★★, optional *)
 Theorem le_step : forall n m p,
   n < m ->
@@ -322,8 +344,13 @@ Proof.
       + (* transitive. *) apply le_trans.  Qed.
 
 (* ########################################################### *)
+(*  * Reflexive, Transitive Closure *)
 (** * 反射推移閉包 *)
 
+(*  The _reflexive, transitive closure_ of a relation [R] is the
+    smallest relation that contains [R] and that is both reflexive and
+    transitive.  Formally, it is defined like this in the Relations
+    module of the Coq standard library: *)
 (** 関係[R]の反射推移閉包とは、[R]を含み反射性と推移性の両者を満たす最小の関係のことです。
     形式的には、Coq標準ライブラリのRelationモジュールで、以下のように定義されます。*)
 
@@ -335,6 +362,8 @@ Inductive clos_refl_trans {A: Type} (R: relation A) : relation A :=
           clos_refl_trans R y z ->
           clos_refl_trans R x z.
 
+(*  For example, the reflexive and transitive closure of the
+    [next_nat] relation coincides with the [le] relation. *)
 (** 例えば、[next_nat]関係の反射推移閉包は[le]関係となります。*)
 
 Theorem next_nat_closure_is_le : forall n m,
@@ -389,11 +418,6 @@ Inductive clos_refl_trans_1n {A : Type}
     First, we prove two lemmas showing that [clos_refl_trans_1n] mimics
     the behavior of the two "missing" [clos_refl_trans]
     constructors.  *)
-(** TODO
-
-(以下の[Tactic Notation]の定義は Imp_J.v で説明されます。
-    その章をまだ読んでいないならば、ここではそれを無視して構いません。) *)
-
 (** 新しい反射推移閉包の定義は、[rtc_R]規則と[rtc_trans]規則を「まとめ」て、
     1ステップの規則にします。
     このステップの左側は[R]を1回だけ使います。このことが帰納法をはるかに簡単なものにします。
@@ -403,13 +427,12 @@ Inductive clos_refl_trans_1n {A : Type}
     最初に、[rsc]が、
     「失われた」2つの[rtc]コンストラクタの働きを代替することを示す二つの補題を証明します。*)
 
-Theorem rsc_R : forall (X:Type) (R:relation X) (x y : X),
-       R x y -> refl_step_closure R x y.
+Lemma rsc_R : forall (X:Type) (R:relation X) (x y : X),
+       R x y -> clos_refl_trans_1n R x y.
 Proof.
   intros X R x y H.
   apply rt1n_trans with y. apply H. apply rt1n_refl.   Qed.
 
-(*  **** Exercise: 2 stars, optional (rsc_trans)  *)
 (** **** 練習問題:★★, optional(rsc_trans) *)
 Lemma rsc_trans :
   forall (X:Type) (R: relation X) (x y z : X),
@@ -426,7 +449,6 @@ Proof.
 (** そして、反射推移閉包の2つの定義が同じ関係を定義していることを証明するために、
     上記の事実を使います。*)
 
-(*  **** Exercise: 3 stars, optional (rtc_rsc_coincide)  *)
 (** **** 練習問題:★★★, optional (rtc_rsc_coincide) *)
 Theorem rtc_rsc_coincide :
          forall (X:Type) (R: relation X) (x y : X),
