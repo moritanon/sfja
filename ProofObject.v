@@ -187,23 +187,23 @@ Qed.
     finished when there are no more subgoals.  At this point, the
     evidence we've built stored in the global context under the name
     given in the [Theorem] command. *)
-(** TODO *)
+(**    それぞれの穴にはサブゴールが対応しており、証明は、サブゴールがすべて無くなったときに終了します。この時において、[Theorem]コマンドは我々が構築した根拠に名前を与え、グローバルなコンテキストにそれを追加します。 *)
 
 
-(** Tactic proofs are useful and convenient, but they are not
+(*  Tactic proofs are useful and convenient, but they are not
     essential: in principle, we can always construct the required
     evidence by hand, as shown above. Then we can use [Definition]
     (rather than [Theorem]) to give a global name directly to a
     piece of evidence. *)
-(** TODO *)
+(** タクティックにようる証明は、使いやすいのですが、本質的ではありません。原理的に、われわれは上で見たように、必要とされる根拠を手でいつでも構築することが出来ます。それから、[Definition]コマンドを(むしろ[Theorem]コマンドより)根拠の断片にグローバルな名前を与えるために使っています。*)
 
 
 Definition ev_4''' : ev 4 :=
   ev_SS 2 (ev_SS 0 ev_0).
 
-(** All these different ways of building the proof lead to exactly the
+(*  All these different ways of building the proof lead to exactly the
     same evidence being saved in the global environment. *)
-(** TODO *)
+(** 証明を構築する方法のいろいろありますが、全て皆同じ根拠がグローバル環境にセーブされます。*)
 
 
 Print ev_4.
@@ -215,8 +215,9 @@ Print ev_4''.
 Print ev_4'''.
 (* ===> ev_4''' =   ev_SS 2 (ev_SS 0 ev_0) : ev 4 *)
 
-(** **** Exercise: 1 star (eight_is_even)  *)
+(** **** 練習問題: ★ (eight_is_even)  *)
 (** Give a tactic proof and a proof object showing that [ev 8]. *)
+(** [ev 8]であるということを示すタクティックによる証明と証明オブジェクトを書きなさい。*)
 
 Theorem ev_8 : ev 8.
 Proof.
@@ -230,7 +231,7 @@ Definition ev_8' : ev 8 :=
 (*  * Quantifiers, Implications, Functions *)
 (** 全称量化、含意、関数 *)
 
-(** In Coq's computational universe (where data structures and
+(*  In Coq's computational universe (where data structures and
     programs live), there are two sorts of values with arrows in their
     types: _constructors_ introduced by [Inductive]-ly defined data
     types, and _functions_.
@@ -241,6 +242,12 @@ Definition ev_8' : ev 8 :=
     and... functions!
 
     For example, consider this statement: *)
+(** Coqにおける計算機の世界(この章までは我々はほとんどそこに住んでいました)において、二つの種類の、型の中に矢印を持つ値があります。
+再帰的[Inductive]に定義されることによって導入されるコンスラクタ(_constructors_)と関数(_function_)	です 
+
+同様に、Coqの論理の世界において、含意のための根拠を与える二つの方法があります。再帰的[Inductive]に定義される命題と...そう。関数です!
+
+例として次の文を考えましょう。 *)
 
 Theorem ev_plus4 : forall n, ev n -> ev (4 + n).
 Proof.
@@ -250,12 +257,15 @@ Proof.
   apply H.
 Qed.
 
-(** What is the proof object corresponding to [ev_plus4]?
+(*  What is the proof object corresponding to [ev_plus4]?
 
     We're looking for an expression whose _type_ is [forall n, ev n ->
     ev (4 + n)] -- that is, a _function_ that takes two arguments (one
     number and a piece of evidence) and returns a piece of evidence!
     Here it is: *)
+(** [ev_plus4]に対応する証明オブジェクトはどのようなものでしょうか？
+
+われわれは、型(_type_)が[forall n, ev n -> ev (4 + n)]である式を探します。すなわち、二つの引数(一つの数値と根拠の断片)を取って、根拠の断片を返す関数(_function_)です! *)
 
 Definition ev_plus4' : forall n, ev n -> ev (4 + n) :=
   fun (n : nat) => fun (H : ev n) =>
@@ -267,6 +277,9 @@ Check ev_plus4'.
 (** Recall that [fun n => blah] means "the function that, given [n],
     yields [blah]," and that Coq treats [4 + n] and [S (S (S (S n)))]
     as synonyms. Another equivalent way to write this definition is: *)
+(** [fun n => blah]は、関数を意味し、その関数は[n]が与えられたら、[blah]を返すものであり、Coqは、[4+n]と[S (S (S (S n)))]
+を同義として扱うことを意味することを思いだしましょう。
+この定義を書くもう一つの等価な方法は、以下の通りです。 *)
 
 Definition ev_plus4'' (n : nat) (H : ev n) : ev (4 + n) :=
   ev_SS (S (S n)) (ev_SS n H).
@@ -287,29 +300,38 @@ Check ev_plus4''.
     same thing: [->] is just a shorthand for a degenerate use of
     [forall] where there is no dependency, i.e., no need to give a
     name to the type on the LHS of the arrow. *)
+(** [ev_plus4]によって証明される命題を関数型として見るときに、その一つの局面はあまり役に立たないように見えるかもしれません。
+二つめの引数の型、[ev n]は最初の引数である[n]の値に言及します。一方そのような依存型(_dependent types_)は通常のプログラミング言語ではあまり見られませんが、それらはとても有用なものなのです。 最近の関数型言語界隈では実装する動きが見られます。
 
-(** For example, consider this proposition: *)
+含意[->]と全称量化([forall])は根拠上の関数に対応しています。実際に、それらは本当に同じものです。[->]は、依存性が存在しない場合の[forall]の短縮記法にすぎません。つまり、矢印の左側の型に名前を与える必要がないような場合です。 *)
+
+(*  For example, consider this proposition: *)
+(** 例としてこの命題について考えてみましょう *)
 
 Definition ev_plus2 : Prop :=
   forall n, forall (E : ev n), ev (n + 2).
 
-(** A proof term inhabiting this proposition would be a function
+(*  A proof term inhabiting this proposition would be a function
     with two arguments: a number [n] and some evidence [E] that [n] is
     even.  But the name [E] for this evidence is not used in the rest
     of the statement of [ev_plus2], so it's a bit silly to bother
     making up a name for it.  We could write it like this instead,
     using the dummy identifier [_] in place of a real name: *)
+(* この命題を継承する項は数 [n]と [n]が偶数であるという根拠[E]の二つの引数を取る関数になるでしょう。
+しかしこの根拠のための名前[E]は[funny_prop1]の残りの文の中で使われません。そのための名前を考えだすために手間をかけることは少しばかばかしいように思われます。以上の代わりにダミーの識別子[_]を用いて以下のように書くことが出来ます。*)
 
 Definition ev_plus2' : Prop :=
   forall n, forall (_ : ev n), ev (n + 2).
 
-(** Or, equivalently, we can write it in more familiar notation: *)
-
+(*  Or, equivalently, we can write it in more familiar notation: *)
+(** あるいは、もっと書き慣れた方法で書くことも出来ます。 *)
+ 
 Definition ev_plus2'' : Prop :=
   forall n, ev n -> ev (n + 2).
 
-(** In general, "[P -> Q]" is just syntactic sugar for
+(*  In general, "[P -> Q]" is just syntactic sugar for
     "[forall (_:P), Q]". *)
+(** 一般的に、"[P -> Q]"というのは、"[forall (_:P), Q]"の糖衣構文です *)
 
 (* ###################################################################### *)
 (** * Connectives as Inductive Types *)
@@ -375,7 +397,7 @@ Definition and_comm'_aux P Q (H : P /\ Q) :=
 Definition and_comm' P Q : P /\ Q <-> Q /\ P :=
   conj (and_comm'_aux P Q) (and_comm'_aux Q P).
 
-(** **** Exercise: 2 stars, optional (conj_fact)  *)
+(** **** 練習問題: ★ ★, optional (conj_fact)  *)
 (** Construct a proof object demonstrating the following proposition. *)
 
 Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R :=
@@ -402,7 +424,7 @@ End Or.
     Once again, we can also directly write proof objects for theorems
     involving [or], without resorting to tactics. *)
 
-(** **** Exercise: 2 stars, optional (or_commut'')  *)
+(** **** 練習問題: ★ ★s, optional (or_commut'')  *)
 (** Try to write down an explicit proof object for [or_commut] (without
     using [Print] to peek at the ones we already defined!). *)
 
@@ -442,7 +464,7 @@ Check ex (fun n => ev n).
 Definition some_nat_is_even : exists n, ev n :=
   ex_intro ev 4 (ev_SS 2 (ev_SS 0 ev_0)).
 
-(** **** Exercise: 2 stars, optional (ex_ev_Sn)  *)
+(** **** 練習問題: ★ ★s, optional (ex_ev_Sn)  *)
 (** Complete the definition of the following proof object: *)
 
 Definition ex_ev_Sn : ex (fun n => ev (S n)) :=
@@ -533,8 +555,8 @@ Notation "x = y" := (eq x y)
 (** この定義の考え方は次のようなものです。集合 [X] が与えられると、「集合 [X] に属する値 ([x] and [y]) にインデックスされた、[x] は [y] に等しい」というような命題の _集団_ を定義してくれるということです。
 この集団に属する命題に根拠を与えるためには、一つの方法しかありません。それは、コンストラクタ [refl_equal] に型 [X] とその値[x : X] を適用し、[x] が [x] と等しいという根拠を生成することです。*)
 
-(** **** Exercise: 2 stars (leibniz_equality)  *)
-(** **** Exercise: 2 stars (leibniz_equality)  *)
+(** **** 練習問題: ★ ★s (leibniz_equality)  *)
+(** **** 練習問題: ★ ★s (leibniz_equality)  *)
 (*  The inductive definition of equality corresponds to _Leibniz
     equality_: what we mean when we say "[x] and [y] are equal" is
     that every property on [P] that is true of [x] is also true of
