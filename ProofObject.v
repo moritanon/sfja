@@ -318,7 +318,7 @@ Definition ev_plus2 : Prop :=
     making up a name for it.  We could write it like this instead,
     using the dummy identifier [_] in place of a real name: *)
 (* この命題を継承する項は数 [n]と [n]が偶数であるという根拠[E]の二つの引数を取る関数になるでしょう。
-しかしこの根拠のための名前[E]は[funny_prop1]の残りの文の中で使われません。そのための名前を考えだすために手間をかけることは少しばかばかしいように思われます。以上の代わりにダミーの識別子[_]を用いて以下のように書くことが出来ます。*)
+しかしこの根拠のための名前[E]は[ev_plus2]の残りの文の中で使われません。そのための名前を考えだすために手間をかけることは少しばかばかしいように思われます。以上の代わりにダミーの識別子[_]を用いて以下のように書くことが出来ます。*)
 
 Definition ev_plus2' : Prop :=
   forall n, forall (_ : ev n), ev (n + 2).
@@ -334,23 +334,30 @@ Definition ev_plus2'' : Prop :=
 (** 一般的に、"[P -> Q]"というのは、"[forall (_:P), Q]"の糖衣構文です *)
 
 (* ###################################################################### *)
-(** * Connectives as Inductive Types *)
+(*  * Connectives as Inductive Types *)
+(** * 帰納的な型としての論理結合子 *)
 
 (** Inductive definitions are powerful enough to express most of the
     connectives and quantifiers we have seen so far.  Indeed, only
     universal quantification (and thus implication) is built into Coq;
     all the others are defined inductively.  We study these
     definitions in this section. *)
+(** 帰納的な定義は、これまで見てきたように、結合子と量化子の殆どを表現するのに十分な力を備えています。確かに全称記号(と、含意)はCoqに組込まれています;
+すべての他のものは、帰納的に定義されています。このセクションでこれらの定義を学習しましょう *)
 
 Module Props.
 
-(** ** Conjunction
+(*  ** Conjunction
 
     To prove that [P /\ Q] holds, we must present evidence for both
     [P] and [Q].  Thus, it makes sense to define a proof object for [P
     /\ Q] as consisting of a pair of two proofs: one for [P] and
     another one for [Q]. This leads to the following definition. *)
-
+(** ** 連言 
+  [P /\ Q]を証明するために、[P]と[Q]の両方の根拠を提示しなければなりません。それゆえ、
+  [P /\ Q]の証明オブジェクトを二つの証明のペア([P]のために一つと、[Q]のために一つです)を構成するように定義することは必然です。
+  このことは次の定義を導きます。*)
+*)
 Module And.
 
 Inductive and (P Q : Prop) : Prop :=
@@ -361,6 +368,7 @@ End And.
 (** Notice the similarity with the definition of the [prod] type,
     given in chapter [Poly]; the only difference is that [prod] takes
     [Type] arguments, whereas [and] takes [Prop] arguments. *)
+[Poly」の章の[prod]型の定義との類似性に気をつけてください。違いは[prod]が、[Type]を引数にとり、[and]が[Prop]を引数に取るという点だけです。*)
 
 Print prod.
 (* ===>
@@ -498,6 +506,8 @@ End Props.
     executing tactic scripts, you may be wondering whether we can
     build _programs_ using _tactics_ rather than explicit terms.
     Naturally, the answer is yes! *)
+明示的な項を使用して証明を構築できるならば、明示的な項ではなく、タクティックを使用してプログラムを構築することが出来るのでしょうか？
+もちろん出来ます ! *)
 
 Definition add1 : nat -> nat.
 intro n.
@@ -527,6 +537,13 @@ Compute add1 2.
     types, which we won't explore much further in this book.  But it
     does illustrate the uniformity and orthogonality of the basic
     ideas in Coq. *)
+(**  ここで[Definition]を[:=]とそれに続く項ではなく、[.]で終了させたことに気を付けましょう。
+このことはCoqに対して、[nat->nat]型を持つオブジェクトを生成するために、証明スクリプトモードに入ることを告げるものです。
+それから、[Qed]ではなく、[Defined]で証明を終わらせたことにも気を付けましょう。これは、定義を普通に定義された関数のように
+_透過的_に使用出来るようにしてくれます。([Qed]で定義されたオブジェクトは、計算の上では、不透過です。)
+
+この特徴は、依存型を使って関数を書くのに主に使われますが、この本では深入りしません。しかしこれはCoqの基本的な
+概念の統一性と直交性を示すものです。*)
 
 (* ###################################################### *)
 (** * Equality *)
