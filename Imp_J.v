@@ -309,48 +309,8 @@ Proof.
 
 (* _Tacticals_ is Coq's term for tactics that take other tactics as
     arguments -- "higher-order tactics," if you will.  *)
-(** タクティカル(_tactical_)は Coq の用語で、
-    他のタクティックを引数に取るタクティックのことです。
-    「高階タクティック」("higher-order tactics")と言っても良いでしょう。 *)
+(** タクティカル(_tactical_)は Coq の用語で、他のタクティックを引数に取るタクティックのことです。「高階タクティック」("higher-order tactics")と言っても良いでしょう。 *)
 
-(* ####################################################### *)
-(* *** The [repeat] Tactical *)
-(** *** [repeat] タクティカル *)
-
-(* The [repeat] tactical takes another tactic and keeps applying
-    this tactic until the tactic fails. Here is an example showing
-    that [100] is even using repeat. *)
-(** [repeat]タクティカルは、別のタクティックを引数として取り、そのタクティックが失敗するまで適用を続けます。以下は、repeatを使用した[100]が偶数であることをの証明の例です。*)
-
-Theorem ev100 : ev 100.
-Proof.
-  repeat (apply ev_SS). (* applies ev_SS 50 times,
-                           until [apply ev_SS] fails *)
-  apply ev_0.
-Qed.
-(* Print ev100. *)
-
-(** The [repeat T] tactic never fails; if the tactic [T] doesn't apply
-    to the original goal, then repeat still succeeds without changing
-    the original goal (it repeats zero times). *)
-(** [repeat T]タクティックは決して失敗しません。もし、タクティック[T]が現在のゴールに適用できない場合、ゴールを変更することなく、成功するまで繰り返します。(つまり0回繰り返します。*)
-Theorem ev100' : ev 100.
-Proof.
-  repeat (apply ev_0). (* doesn't fail, applies ev_0 zero times *)
-  (* 失敗はしません。ev_0が0回適用されます *)
-  repeat (apply ev_SS). apply ev_0. (* we can continue the proof *)
-  (* 証明を続行します。 *)
-Qed.
-
-(** The [repeat T] tactic does not have any bound on the number of
-    times it applies [T]. If [T] is a tactic that always succeeds then
-    repeat [T] will loop forever (e.g. [repeat simpl] loops forever
-    since [simpl] always succeeds). While Coq's term language is
-    guaranteed to terminate, Coq's tactic language is not! *)
-(** [repeat T]タクティックは、[T]を適用する回数の限界値について関知しません。
-もし、[T]が常に成功する場合、[T]を永久に繰り返します。(例えば、[repeat simpl]は
-[simpl]が常に成功するため、無限ループします。) Coqは自身の言語については、終了を保証していますが、
-Coqのタクティック言語については、そうではないのです。*)
 (* ####################################################### *)
 (** *** The [try] Tactical *)
 
@@ -443,21 +403,27 @@ Proof.
     Naturally, this practice has an analog in informal proofs.
 
     Here is an informal proof of this theorem that matches the
-    structure of the formal one: 
+    structure of the formal one:
 
     _Theorem_: For all arithmetic expressions [a],
+
        aeval (optimize_0plus a) = aeval a.
-    _Proof_: By induction on [a].  The [AMinus] and [AMult] cases
-    follow directly from the IH.  The remaining cases are as follows:
+
+    _Proof_: By induction on [a].  Most cases follow directly from the IH.  
+    The remaining cases are as follows: 
 
       - Suppose [a = ANum n] for some [n].  We must show
+
           aeval (optimize_0plus (ANum n)) = aeval (ANum n).
+
         This is immediate from the definition of [optimize_0plus].
 
       - Suppose [a = APlus a1 a2] for some [a1] and [a2].  We
         must show
+
           aeval (optimize_0plus (APlus a1 a2))
         = aeval (APlus a1 a2).
+
         Consider the possible forms of [a1].  For most of them,
         [optimize_0plus] simply calls itself recursively for the
         subexpressions and rebuilds a new expression of the same form
@@ -466,7 +432,9 @@ Proof.
 
         The interesting case is when [a1 = ANum n] for some [n].
         If [n = ANum 0], then
+
           optimize_0plus (APlus a1 a2) = optimize_0plus a2
+
         and the IH for [a2] is exactly what we need.  On the other
         hand, if [n = S n'] for some [n'], then again [optimize_0plus]
         simply calls itself recursively, and the result follows from
@@ -605,7 +573,6 @@ Qed.
     [simpl]が常に成功するため、無限ループします。) Coqは自身の言語については、終了を保証していますが、
     Coqのタクティック言語については、そうではないのです。*)
 
-(*  **** Exercise: 3 stars (optimize_0plus_b) *)
 (** **** 練習問題: ★★★ (optimize_0plus_b) *)
 (*  Since the [optimize_0plus] tranformation doesn't change the value
     of [aexp]s, we should be able to apply it to all the [aexp]s that
@@ -629,7 +596,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 4 stars, optional (optimizer) *)
 (** **** 練習問題: ★★★★, optional (optimizer) *)
 (*  _Design exercise_: The optimization implemented by our
     [optimize_0plus] function is only one of many possible
@@ -741,6 +707,8 @@ Tactic Notation "simpl_and_try" tactic(c) :=
 
     です。このとき、[omega]を呼ぶと、ゴールを解くか、
     そのゴールが偽であると告げるか、いずれかになります。 *)
+
+Require Import Coq.omega.Omega.
 
 Example silly_presburger_example : forall m n o p,
   m + n <= n + o /\ o + 3 = p + 3 ->
@@ -1053,7 +1021,6 @@ Proof.
        try apply IHa1; try apply IHa2; reflexivity.
 Qed.
 
-(*  **** Exercise: 3 stars  (bevalR) *)
 (** **** 練習問題: ★★★  (bevalR) *)
 (*  Write a relation [bevalR] in the same style as
     [aevalR], and prove that it is equivalent to [beval].*)
@@ -1659,7 +1626,6 @@ Proof.
       reflexivity.
       apply E_Ass. reflexivity.  Qed.
 
-(* **** Exercise: 2 stars (ceval_example2) *)
 (** **** 練習問題: ★★(ceval_example2) *)
 Example ceval_example2:
     (X ::= ANum 0;; Y ::= ANum 1;; Z ::= ANum 2) / empty_state \\
@@ -1668,7 +1634,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 3 stars, advanced (pup_to_n) *)
 (** **** 練習問題: ★★★, advanced (pup_to_n) *)
 (* Write an Imp program that sums the numbers from [1] to
    [X] (inclusive: [1 + 2 + ... + X]) in the variable [Y].
@@ -1783,7 +1748,6 @@ Proof.
   inversion Heval. subst. clear Heval. simpl.
   apply t_update_eq.  Qed.
 
-(*  **** Exercise: 3 stars (XtimesYinZ_spec) *)
 (** **** 練習問題: ★★★, recommended (XtimesYinZ_spec) *)
 (*  State and prove a specification of [XtimesYinZ]. *)
 (** XtimesYinZ の Imp プログラムの仕様を書いて証明しなさい。*)
@@ -1791,7 +1755,7 @@ Proof.
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 3 stars (loop_never_stops) *)
+(** **** 練習問題: ★★★, (loop_never_stops) *)
 Theorem loop_never_stops : forall st st',
   ~(loop / st \\ st').
 Proof.
@@ -1806,7 +1770,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 3 stars (no_whilesR) *)
 (** **** 練習問題: ★★, optional (no_whilesR) *)
 (*  Consider the definition of the [no_whiles] property below: *)
 (** 下に定義されている[no_whiles]の特徴について考えましょう *)
@@ -1839,7 +1802,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 4 stars (no_whiles_terminating) *)
 (** **** 練習問題: ★★★★, optional (no_whiles_terminating) *)
 (*  Imp programs that don't involve while loops always terminate.
     State and prove a theorem that says this. *)
@@ -1854,7 +1816,6 @@ Proof.
 (* ####################################################### *)
 (** * Additional Exercises *)
 
-(*  **** Exercise: 3 stars (stack_compiler) *)
 (** **** 練習問題: ★★★, recommended (stack_compiler) *)
 (*  HP Calculators, programming languages like Forth and Postscript,
     and abstract machines like the Java Virtual Machine all evaluate
@@ -1997,7 +1958,7 @@ Proof. reflexivity. Qed.
 *)
 (** [] *)
 
-(** **** Exercise: 3 stars, advanced (stack_compiler_correct) *)
+(** **** 練習問題: ★★★, advanced (stack_compiler_correct) *)
 (** The task of this exercise is to prove the correctness of the
     calculator implemented in the previous exercise.  Remember that
     the specification left unspecified what to do when encountering an
@@ -2024,7 +1985,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 5 stars, advanced (break_imp)  *)
 (** **** 練習問題: ★★★★★, advanced (break_imp)  *)
 Module BreakImp.
 
@@ -2206,7 +2166,6 @@ Theorem while_stops_on_break : forall b c st st',
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(*  **** Exercise: 3 stars, advanced, optional (while_break_true)  *)
 (** **** 練習問題: ★★★, advanced, optional (while_break_true)  *)
 Theorem while_break_true : forall b c st st',
   (WHILE b DO c END) / st \\ SContinue / st' ->
@@ -2215,7 +2174,6 @@ Theorem while_break_true : forall b c st st',
 Proof.
 (* FILL IN HERE *) Admitted.
 
-(*  **** Exercise: 4 stars, advanced, optional (ceval_deterministic)  *)
 (** **** 練習問題: ★★★★, advanced, optional (ceval_deterministic)  *)
 Theorem ceval_deterministic: forall (c:com) st st1 st2 s1 s2,
      c / st \\ s1 / st1  ->
@@ -2227,7 +2185,6 @@ Proof.
 End BreakImp.
 (** [] *)
 
-(*  **** Exercise: 3 stars, optional (short_circuit) *)
 (** **** 練習問題: ★★★, optional (short_circuit) *)
 (*  Most modern programming languages use a "short-circuit" evaluation
     rule for boolean [and]: to evaluate [BAnd b1 b2], first evaluate
@@ -2252,7 +2209,6 @@ End BreakImp.
 (* FILL IN HERE *)
 (** [] *)
 
-(*  **** Exercise: 4 stars, optional (add_for_loop) *)
 (** **** 練習問題: ★★★★, optional (add_for_loop) *)
 (*  Add C-style [for] loops to the language of commands, update the
     [ceval] definition to define the semantics of [for] loops, and add
@@ -2283,3 +2239,4 @@ End BreakImp.
 (** [] *)
 
 (* $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
+
