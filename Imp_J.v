@@ -352,8 +352,7 @@ Lemma foo : forall n, leb 0 n = true.
 Proof.
   intros.
   destruct n.
-    (* Leaves two subgoals, which are discharged 
-       identically...  *)
+    (* 二つのサブゴールが同じように残されます。*)
     - (* n=0 *) simpl. reflexivity.
     - (* n=Sn' *) simpl. reflexivity.
 Qed.
@@ -493,11 +492,11 @@ Theorem optimize_0plus_sound'': forall a,
 Proof.
   intros a.
   induction a;
-    (* Most cases follow directly by the IH *)
+    (* ほとんどのケースはIHによって直接導かれる *)
     try (simpl; rewrite IHa1; rewrite IHa2; reflexivity);
-    (* ... or are immediate by definition *)
+    (* ... あるいは定義により直ちに導かれる。 *)
     try reflexivity.
-  (* The interesting case is when a = APlus a1 a2. *)
+  (* 興味深いケースは、a = APlus a1 a2. の時である...*)
   - (* APlus *)
     destruct a1; try (simpl; simpl in IHa1; rewrite IHa1;
                       rewrite IHa2; reflexivity).
@@ -694,7 +693,7 @@ Tactic Notation "simpl_and_try" tactic(c) :=
 (** [omega]タクティックは「プレスバーガー算術」
     (_Presburger arithmetic_、「プレスブルガー算術」とも)
     と呼ばれる一階述語論理のサブセットの決定手続き(decision procedure)を実装します。
-    William Pugh が1992年に発明したOmegaアルゴリズムに基いています。
+    William Pugh が1991年に発明したOmegaアルゴリズム[Pugh 1991]に基いています。
 
     ゴールが以下の要素から構成された全称限量された論理式とします。以下の要素とは:
 
@@ -830,7 +829,7 @@ Inductive aevalR : aexp -> nat -> Prop :=
     算術式[e]が値[n]に評価されることを [e \\ n] と書きます。
     (この記法は煩わしいascii記号の限界の1つです。評価関係の標準記法は二重の下向き矢印です。
     HTML版ではそのようにタイプセットしますが、ascii の
-    .v ファイルでは可能な近似として縦棒二本を使います。) *)
+    .v ファイルでは可能な近似としてバックスラッシュ二本を使います。) *)
 
 Notation "e '\\' n"
          := (aevalR e n) 
@@ -867,11 +866,6 @@ Inductive aevalR : aexp -> nat -> Prop :=
       (e1 \\ n1) -> (e2 \\ n2) -> (AMult e1 e2) \\ (n1 * n2)
 
   where "e '\\' n" := (aevalR e n) : type_scope.
-
-Tactic Notation "aevalR_cases" tactic(first) ident(c) :=
-  first;
-  [ Case_aux c "E_ANum" | Case_aux c "E_APlus"
-  | Case_aux c "E_AMinus" | Case_aux c "E_AMult" ].
 
 (* ####################################################### *)
 (* ** Inference Rule Notation *)
@@ -1108,7 +1102,7 @@ Module aevalR_extended.
     _probabilistic_ choice among all possible numbers -- we're not
     specifying any particular distribution of results, but just saying
     what results are _possible_.) *)
-(** TODO そのかわりに、非決定的な数の生成元である[any]を加えて、計算操作を拡張したいと思ったとします。*)
+(** そのかわりに、非決定的な数の生成元である[any]を加えて、計算操作を拡張したいと思ったとします。[any]が評価されるとき、任意の数が生み出されます。(これは、全ての可能な数値から確率的に作られる数と同じではありません。いかなる結果の分配を特定はしませんが、結果は決定可能です。*)
 
 Reserved Notation "e '\\' n" (at level 50, left associativity).
 
@@ -1202,11 +1196,6 @@ Inductive aexp : Type :=
   | AMinus : aexp -> aexp -> aexp
   | AMult : aexp -> aexp -> aexp.
 
-Tactic Notation "aexp_cases" tactic(first) ident(c) :=
-  first;
-  [ Case_aux c "ANum" | Case_aux c "AId" | Case_aux c "APlus"
-  | Case_aux c "AMinus" | Case_aux c "AMult" ].
-
 (** Defining a few variable names as notational shorthands will make
     examples easier to read: *)
 (** 読み易い例を作りやすくするため、幾つかの変数名を定義しておきましょう *)
@@ -1279,7 +1268,7 @@ Proof. reflexivity. Qed.
 
 (*  Now we are ready define the syntax and behavior of Imp
     _commands_ (often called _statements_). *)
-(** さて、Imp コマンド (または主張) の構文と挙動を定義する準備が出来ました *)
+(** さて、Imp コマンド (または命令文) の構文と挙動を定義する準備が出来ました *)
 
 (* ################################################### *)
 (*  ** Syntax *)
