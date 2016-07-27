@@ -1035,10 +1035,10 @@ End AExp.
     definitions is mainly a matter of taste.  In general, Coq has
     somewhat better support for working with relations.  On the other
     hand, in some sense function definitions carry more information,
-    because functions are necessarily deterministic and defined on all
-    arguments; for a relation we have to show these properties
-    explicitly if we need them. Functions also take advantage of Coq's
-    computations mechanism.
+    because functions are by definition deterministic and defined on
+    all arguments; for a relation we have to show these properties
+    explicitly if we need them.  Functions also take advantage of
+    Coq's computation mechanism.
 
     However, there are circumstances where relational definitions of
     evaluation are preferable to functional ones.  *)
@@ -1158,8 +1158,9 @@ End aevalR_extended.
     A _machine state_ (or just _state_) represents the current values
     of _all_ variables at some point in the execution of a program. *)
 (** 
-TODO
-_マシン状態_(あるいは単に_状態_)はプログラムの実行のある時点のすべての変数の現在値を表します。 *)
+変数から、その変数の現在の値を取得したいので、[Map]の章で定義した[id]型を再び使用しましょう。
+_マシン状態_(あるいは単に_状態_)はプログラムの実行のある時点のすべての変数の現在値を表します。
+*)
 
 (** For simplicity, we assume that the state is defined for
     _all_ variables, even though any given program is only going to
@@ -1168,13 +1169,11 @@ _マシン状態_(あるいは単に_状態_)はプログラムの実行のあ�
     variable stores a natural number, we can represent the state as a
     mapping from identifiers to [nat].  For more complex programming
     languages, the state might have more structure. *)
-(TODO:
-(*  For simplicity (to avoid dealing with partial functions), we
-    let the state be defined for _all_ variables, even though any
-    given program is only going to mention a finite number of them. *)
 (** 簡単にするため(部分関数を扱うのを避けるため)、
     どのようなプログラムも有限個の変数しか使わないにもかかわらず、
-    状態はすべての変数について値を定義しているものとします。 *)
+    状態はすべての変数について値を定義しているものとします。
+    Impプログラムでは、各変数は、自然数を格納するので、識別子から[nat]への対応として、状態を表現出来ます。
+    もっと複雑なプログラミング言語にとっては、状態はもっと多くの仕組みを持っていることでしょう。*)
 
 Definition state := total_map nat.
 
@@ -1234,7 +1233,7 @@ Inductive bexp : Type :=
 Fixpoint aeval (st : state) (a : aexp) : nat :=
   match a with
   | ANum n => n
-  | AId x => st x                                        (* <----- NEW *)
+  | AId x => st x                                (* <----- NEW *)
   | APlus a1 a2 => (aeval st a1) + (aeval st a2)
   | AMinus a1 a2  => (aeval st a1) - (aeval st a2)
   | AMult a1 a2 => (aeval st a1) * (aeval st a2)
@@ -1315,21 +1314,14 @@ Inductive com : Type :=
   | CWhile : bexp -> com -> com.
 
 (*  As usual, we can use a few [Notation] declarations to make things
-    more readable.  We need to be a bit careful to avoid conflicts
-    with Coq's built-in notations, so we'll keep this light -- in
-    particular, we won't introduce any notations for [aexps] and
-    [bexps] to avoid confusion with the numerical and boolean
-    operators we've already defined.  We use the keyword [IFB] for
-    conditionals instead of [IF], for similar reasons. *)
-(** TODO !
-    いつものとおり、より読みやすいよう、いくつかの [Notation] 宣言が使えます。
-    しかし、Coq の組み込みの表記と衝突しないよう、少し気をつける必要があります 
-    (手軽さを維持しつつ！)。
-    特に、[aexp] と [bexp] については、
-    すでに定義した数値演算子やブール演算子との混同を避けるために、
-    新しい表記は導入しません。
-    (同様の理由により、条件文に対しては通常使われる [IF] の代わりに 
-    [IFB] というキーワードを使います。) *)
+    more readable.  To avoid conflicts with Coq's built-in notations,
+    we keep this light -- in particular, we don't introduce any
+    notations for [aexps] and [bexps] to avoid confusion with the
+    numeric and boolean operators we've already defined. *)
+(** いつものとおり、より読みやすいよう、いくつかの [Notation] 宣言が使えます。
+    しかし、Coq の組み込みの表記と衝突しないよう、手軽さを保ちつつ、 特に、[aexp] と [bexp] については、
+    すでに定義した数値演算子やブール演算子との混同を避けるために、 新しい表記は導入しません。
+     *)
 
 Notation "'SKIP'" :=
   CSkip.
@@ -1481,12 +1473,11 @@ Fixpoint ceval_fun_no_while (st : state) (c : com)
 
      Fixpoint loop_false (n : nat) : False := loop_false n.
 
-  すなわち、[False]のような命題が証明可能になってしまします。。(例として、[loop_false 0]は[False]であることの証明である。というように。)
+  すなわち、[False]のような命題が証明可能になってしまいます。(例として、[loop_false 0]は[False]であることの証明である。というように。)
   Coqの論理的一貫性にとってやっかいなことです。
   
   それゆえ、すべての入力について終了が保証出来ないので、[ceval_fun]は決してCoqで書くことが出来ないのです。 -- 少なくとも追加のトリックなしには。
   (気になるなら、[ImpCEvalFun]の章を見てください。)
-  TODO
 *)
 
 (* #################################### *)
@@ -1502,24 +1493,26 @@ Fixpoint ceval_fun_no_while (st : state) (c : com)
 (*  This is an important change.  Besides freeing us from the awkward
     workarounds that would be needed to define evaluation as a
     function, it gives us a lot more flexibility in the definition.
-    For example, if we added concurrency features to the language,
-    we'd want the definition of evaluation to be non-deterministic --
-    i.e., not only would it not be total, it would not even be a
-    partial function! *)
-(** これは重要な変更です。 ステップ指数をすべての場所で引き回す馬鹿馬鹿しさから解放してくれるのに加え、 
-    定義での柔軟性を与えてくれます。 例えば、もし言語に並行性の要素を導入したら、評価の定義を非決定的に書きたくなるでしょう。
-    つまり、その関数は全関数でないだけでなく、部分関数ですらないかも知れません！
-    TODO
-    *)
-
+    For example, if we add nondeterministic features like [any] to the
+    language, we want the definition of evaluation to be
+    nondeterministic -- i.e., not only will it not be total, it will
+    not even be a function! *)
+(** これは重要な変更です。関数として評価を定義するのに必要になる馬鹿げた回避策から我々を解法してくれるのに加えて、 定義での柔軟性を与えてくれます。 例えば、もし言語に[any]のような非決定性を導入した場合、非決定的な評価の定義をしたくなるでしょう。
+    つまり、その関数は全関数でないだけでなく、部分関数ですらないかも知れません！ *)
 
 (*  We'll use the notation [c / st \\ st'] for our [ceval] relation:
     [c / st \\ st'] means that executing program [c] in a starting
     state [st] results in an ending state [st'].  This can be
     pronounced "[c] takes state [st] to [st']". *)
-(** ceavl 関係に対する表記として c / st ⇓ st' を使います。
-    正確に言うと、c / st \\ st' と書いたらプログラム c を初期状態 st で評価すると、 
-    その結果は最終状態 st' になる、ということを意味します。 これは「c は状態 st を st' に持っていく」とも言えます。 
+(** [ceavl] 関係に対する表記として [c / st \\ st'] を使います。
+    正確に言うと、[c / st \\ st'] とは、プログラム c を初期状態 st で評価すると、 
+    その結果は最終状態 st' になる、ということを意味します。 これは「c は状態 st を st' に変換する」とも言えます。 *)
+
+(** *** Operational Semantics *)
+(*  Here is an informal definition of evaluation, presented as inference 
+    rules for the sake of readability:*)
+(** ここに評価の非形式的定義を示します。読み易さのために、推論規則として表現されています。 *)
+
                            ----------------                            (E_Skip)
                            SKIP / st \\ st
 
@@ -1606,11 +1599,11 @@ Example ceval_example1:
    / empty_state
    \\ (t_update (t_update empty_state X 2) Z 4).
 Proof.
-  (* We must supply the intermediate state *)
+  (* 中間の状態を与える必要がある。*)
   apply E_Seq with (t_update empty_state X 2).
-  - (* assignment command *)
+  - (* 代入コマンド *)
     apply E_Ass. reflexivity.
-  - (* if command *)
+  - (* if コマンド *)
     apply E_IfFalse.
       reflexivity.
       apply E_Ass. reflexivity.  Qed.
@@ -1650,26 +1643,22 @@ Proof.
 
 (** Changing from a computational to a relational definition of
     evaluation is a good move because it allows us to escape from the
-    artificial requirement (imposed by Coq's restrictions on
-    [Fixpoint] definitions) that evaluation should be a total
-    function.  But it also raises a question: Is the second definition
-    of evaluation actually a partial function?  That is, is it
-    possible that, beginning from the same state [st], we could
-    evaluate some command [c] in different ways to reach two different
-    output states [st'] and [st'']?
+    artificial requirement that evaluation should be a total function.
+    But it also raises a question: Is the second definition of
+    evaluation really a partial function?  Or is it possible that,
+    beginning from the same state [st], we could evaluate some command
+    [c] in different ways to reach two different output states [st']
+    and [st'']?
 
-    In fact, this cannot happen: [ceval] is a partial function.
-    Here's the proof: *)
-(** TODO
+    In fact, this cannot happen: [ceval] _is_ a partial function: *)
+(** 
 評価の定義を計算的なものから関係的なものに変更するのは、
-    評価は全関数であるべきという (Fixpoint の定義における 
-    Coq の制限によって課せられる) 不自然な要求から逃れさせてくれる良い変更です。
+    評価は全関数であるべきという不自然な要求から逃れさせてくれる良い変更です。
     しかしこれは、2 つ目の評価の定義は本当に部分関数なのか？という疑問ももたらします。
     つまり、同じ状態 [st] から始めて、あるコマンド [c] を違った方法で評価し、
     2 つの異なる出力状態 [st'] と [st''] に至るのは可能か？ということです。
 
-   実際には、こうなることはありません。評価関係 [ceval] は部分関数です。
-   以下に証明を挙げます: *)
+   実際には、こうなることはありません。評価関係 [ceval] は部分関数です: *)
 
 Theorem ceval_deterministic: forall c st st1 st2,
      c / st \\ st1  ->
@@ -1715,7 +1704,7 @@ Proof.
     about Imp programs in the following chapters, but we can do quite
     a bit just working with the bare definitions. *)
 (** ここから Imp におけるプログラムの検証に対する系統だったテクニックに深く関わっていきます。
-    しかし、その多くはむき出しの (もとの) 定義を扱うだけで出来ます。
+    しかし、その多くは、むき出しの (もとの) 定義それ自身を扱うだけで出来ます。
     この章では、いくつかの例を探します。*)
 
 (* This section explores some examples. *)
@@ -1727,12 +1716,13 @@ Theorem plus2_spec : forall st n st',
   st' X = n + 2.
 Proof.
   intros st n st' HX Heval.
-  (* Inverting [Heval] essentially forces Coq to expand one step of
-     the ceval computation -- in this case revealing that [st']
-     must be [st] extended with the new value of [X], since plus2
-     is an assignment *)
-  (* Hevalをinvertすることは本質的には、Coqにcevalの計算の一ステップを展開させることと同じです。
-     このケースにおいては、plus2は代入であるため、st'がXの新しい値でstに拡大されることが明らかになります。*)
+
+  (*  Inverting [Heval] essentially forces Coq to expand one step of
+      the [ceval] computation -- in this case revealing that [st']
+      must be [st] extended with the new value of [X], since [plus2]
+      is an assignment *)
+  (** [Heval]をinvertすることは本質的には、Coqに[ceval]の計算の一ステップを展開させることと同じです。
+     このケースにおいては、[plus2]は代入であるため、st'がXの新しい値でstに拡大されることが明らかになります。*)
 
   inversion Heval. subst. clear Heval. simpl.
   apply t_update_eq.  Qed.
@@ -1816,19 +1806,19 @@ Proof.
 
       2 3 * 3 4 2 - * +
 
-   and evaluated like this:
+   and evaluated like this (where we show the program being evaluated 
+   on the right and the contents of the stack on the left):
 
-  []            |    2 3 * 3 4 2 - * +
-  [2]           |    3 * 3 4 2 - * +
-  [3, 2]        |    * 3 4 2 - * +
-  [6]           |    3 4 2 - * +
-  [3, 6]        |    4 2 - * +
-  [4, 3, 6]     |    2 - * +
-  [2, 4, 3, 6]  |    - * +
-  [2, 3, 6]     |    * +
-  [6, 6]        |    +
-  [12]          |
->>
+      []            |    2 3 * 3 4 2 - * +
+      [2]           |    3 * 3 4 2 - * +
+      [3, 2]        |    * 3 4 2 - * +
+      [6]           |    3 4 2 - * +
+      [3, 6]        |    4 2 - * +
+      [4, 3, 6]     |    2 - * +
+      [2, 4, 3, 6]  |    - * +
+      [2, 3, 6]     |    * +
+      [6, 6]        |    +
+      [12]          |
 
   The task of this exercise is to write a small compiler that
   translates [aexp]s into stack machine instructions.
@@ -1845,15 +1835,15 @@ Proof.
 (** HP の電卓、Forth や Postscript などのプログラミング言語、
    および Java Virtual Machine などの抽象機械はすべて、スタックを使って算術式を評価します。
    例えば、
-<<
+
    (2*3)+(3*(4-2))
->>
+
    という式は
-<<
+
    2 3 * 3 4 2 - * +
->>
-   と入力され、以下のように実行されるでしょう:
-<<
+
+   と入力され、このように実行されるでしょう(右側に評価されたプログラム、左側にスタックの中身が表示されます。):
+
   []            |    2 3 * 3 4 2 - * +
   [2]           |    3 * 3 4 2 - * +
   [3, 2]        |    * 3 4 2 - * +
@@ -1864,7 +1854,7 @@ Proof.
   [2, 3, 6]     |    * +
   [6, 6]        |    +
   [12]          |
->>
+
 
   この練習問題のタスクは、[eaxp] をスタック機械の命令列に変換する小さなコンパイラを書き、その正当性を証明することです。
 
@@ -1913,7 +1903,6 @@ Fixpoint s_execute (st : state) (stack : list nat)
                  : list nat :=
 (* FILL IN HERE *) admit.
 
-
 Example s_execute1 :
      s_execute empty_state []
        [SPush 5; SPush 3; SPush 1; SMinus]
@@ -1926,7 +1915,7 @@ Example s_execute2 :
    = [15; 4].
 (* FILL IN HERE *) Admitted.
 
-(*  Next, write a function which compiles an [aexp] into a stack
+(*  Next, write a function that compiles an [aexp] into a stack
     machine program. The effect of running the program should be the
     same as pushing the value of the expression on the stack. *)
 (** 次に、[aexp] をスタック機械のプログラムにコンパイルする関数を書きなさい。
@@ -1936,15 +1925,13 @@ Example s_execute2 :
 Fixpoint s_compile (e : aexp) : list sinstr :=
 (* FILL IN HERE *) admit.
 
-(* After you've defined [s_compile], uncomment the following to test
+(* After you've defined [s_compile], prove the following to test
     that it works. *)
-(** [s_compile]の定義が終ったら、以下のコメントを外し、テストが正しく動くことを確かめなさい。*)
-(* 
+(** [s_compile]の定義が終ったら、テストが正しく動くことを確かめなさい。*)
 Example s_compile1 :
     s_compile (AMinus (AId X) (AMult (ANum 2) (AId Y)))
   = [SLoad X; SPush 2; SLoad Y; SMult; SMinus].
-Proof. reflexivity. Qed.
-*)
+(* FILL IN HERE *) Admitted.
 (** [] *)
 
 (** **** 練習問題: ★★★, advanced (stack_compiler_correct) *)
@@ -1979,25 +1966,18 @@ Module BreakImp.
 
 (** Imperative languages such as C or Java often have a [break] or
     similar statement for interrupting the execution of loops. In this
-    exercise we will consider how to add [break] to Imp.
-
-    First, we need to enrich the language of commands with an
-    additional case. *)
+    exercise we consider how to add [break] to Imp.  First, we need to
+    enrich the language of commands with an additional case. *)
 (** CやJavaのような命令型言語は[break]やそれに類似した、ループ実行を中断するための文法を持っていることがよくあります。
 この練習問題では、[break]をImpにどうやって追加するかを考えましょう。*)
 
 Inductive com : Type :=
   | CSkip : com
-  | CBreak : com
+  | CBreak : com               (* <-- new *)
   | CAss : id -> aexp -> com
   | CSeq : com -> com -> com
   | CIf : bexp -> com -> com -> com
   | CWhile : bexp -> com -> com.
-
-Tactic Notation "com_cases" tactic(first) ident(c) :=
-  first;
-  [ Case_aux c "SKIP" | Case_aux c "BREAK" | Case_aux c "::=" | Case_aux c ";"
-  | Case_aux c "IFB" | Case_aux c "WHILE" ].
 
 Notation "'SKIP'" :=
   CSkip.
@@ -2015,32 +1995,35 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
 (** Next, we need to define the behavior of [BREAK].  Informally,
     whenever [BREAK] is executed in a sequence of commands, it stops
     the execution of that sequence and signals that the innermost
-    enclosing loop (if any) should terminate. If there aren't any
-    enclosing loops, then the whole program simply terminates. The
+    enclosing loop should terminate.  (If there aren't any
+    enclosing loops, then the whole program simply terminates.)  The
     final state should be the same as the one in which the [BREAK]
     statement was executed. *)
 (** 次に、[BREAK]の振舞いを定義する必要があります。非形式的には、[BREAK]がコマンド列の中で実行されたらいつでも、
    そのシーケンスの実行を中断し、最も最近のループ(もしあれば)は終了するようにシグナルを出します。
-   もし、ループが無ければ、プログラム全体も終了します。
-(*    One important point is what to do when there are multiple loops
+   もし、ループが無ければ、プログラム全体も終了します。*)
+(*  
+    One important point is what to do when there are multiple loops
     enclosing a given [BREAK]. In those cases, [BREAK] should only
-    terminate the _innermost_ loop where it occurs. Thus, after
-    executing the following piece of code...
-
-    ... the value of [X] should be [1], and not [0].
-*)
+    terminate the _innermost_ loop. Thus, after executing the
+    following piece of code...*)
 (** 重要な点は、多重ループにおいて、[BREAK]が現われた場合に、何をすべきか、ということです。これらの場合、
 [BREAK]は最も最近(_innermost_)のループだけを終了させるべきです。それゆえ、次のコードの断片の実行後...
-   X ::= 0;;
-   Y ::= 1;;
-   WHILE 0 <> Y DO
-     WHILE TRUE DO
-       BREAK
-     END;;
-     X ::= 1;;
-     Y ::= Y - 1
-   END
-   ... [X]の値は[0]ではなく、[1]であるべきです。 *)
+
+       X ::= 0;;
+       Y ::= 1;;
+       WHILE 0 <> Y DO
+         WHILE TRUE DO
+           BREAK
+         END;;
+         X ::= 1;;
+         Y ::= Y - 1
+       END
+   *)
+(*
+    ... the value of [X] should be [1], and not [0].
+*)
+(**   ... [X]の値は[0]ではなく、[1]であるべきです。 *)
 
 (*
     One way of expressing this behavior is to add another parameter to
@@ -2059,13 +2042,13 @@ Reserved Notation "c1 '/' st '\\' s '/' st'"
 
 (** Intuitively, [c / st \\ s / st'] means that, if [c] is started in
     state [st], then it terminates in state [st'] and either signals
-    that any surrounding loop (or the whole program) should exit
-    immediately ([s = SBreak]) or that execution should continue
+    that the innermost surrounding loop (or the whole program) should
+    exit immediately ([s = SBreak]) or that execution should continue
     normally ([s = SContinue]).
 
     The definition of the "[c / st \\ s / st']" relation is very
     similar to the one we gave above for the regular evaluation
-    relation ([c / st \\ s / st']) -- we just need to handle the
+    relation ([c / st \\ st']) -- we just need to handle the
     termination signals appropriately:
 
     - If the command is [SKIP], then the state doesn't change, and
@@ -2100,7 +2083,7 @@ Reserved Notation "c1 '/' st '\\' s '/' st'"
       same as the one resulting from the execution of the current
       iteration.  In either case, since [BREAK] only terminates the
       innermost loop, [WHILE] signals [SContinue]. *)
-(** 直感的に、[c / st \\ s / st']は次のことを意味します。もし、[c]が状態[st]で開始しているならば、それは状態[st']で終了し、囲まれているループ(またはプログラム全体)に対し直ちに([s=SBreak]の場合)終了するか、実行を正常どおり([s = SContinue]の場合)続けるかシグナルを出します。
+(** 直感的に、[c / st \\ st']は次のことを意味します。もし、[c]が状態[st]で開始しているならば、それは状態[st']で終了し、直近で囲まれているループ(またはプログラム全体)に対し直ちに([s=SBreak]の場合)終了するか、実行を正常どおり([s = SContinue]の場合)続けるかシグナルを出します。
   "[c / st \\ s / st']" 関係の定義は、上記で通常の関係の評価として我々が与えた一つ	([c / st \\ s / st']) にとてもよく似ています。 -- 必要になるのは、終了シグナルを適切にハンドルすることだけです。
    
 *)    
@@ -2128,13 +2111,7 @@ Inductive ceval : com -> state -> status -> state -> Prop :=
 
   where "c1 '/' st '\\' s '/' st'" := (ceval c1 st s st').
 
-Tactic Notation "ceval_cases" tactic(first) ident(c) :=
-  first;
-  [ Case_aux c "E_Skip"
-  (* FILL IN HERE *)
-  ].
-
-(*  Now the following properties of your definition of [ceval]: *)
+(*  Now prove the following properties of your definition of [ceval]: *)
 (** あなたの[ceval]の定義が次の性質を満たしているか確認しなさい *)
 Theorem break_ignore : forall c st st' s,
      (BREAK;; c) / st \\ s / st' ->
