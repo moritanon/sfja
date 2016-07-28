@@ -1696,6 +1696,7 @@ Proof.
       subst st'0.
       apply IHE1_2. assumption.  Qed.
 
+
 (* ####################################################### *)
 (*  * Reasoning About Imp Programs *)
 (** * Imp プログラムの検証 *)
@@ -1739,13 +1740,15 @@ Theorem loop_never_stops : forall st st',
   ~(loop / st \\ st').
 Proof.
   intros st st' contra. unfold loop in contra.
-  remember (WHILE BTrue DO SKIP END) as loopdef eqn:Heqloopdef.
-    (* Proceed by induction on the assumed derivation showing that
-     [loopdef] terminates.  Most of the cases are immediately
-     contradictory (and so can be solved in one step with
-     [inversion]). *)
-    (** [loopdef]が終了することを示す仮定の導出についての帰納法で進めなさい。
-        ほとんどのケースにおいては、ただちに矛盾が導かれ(て[inversion]を使った1stepで解決され)ます *)
+  remember (WHILE BTrue DO SKIP END) as loopdef
+           eqn:Heqloopdef.
+
+  (*  Proceed by induction on the assumed derivation showing that
+      [loopdef] terminates.  Most of the cases are immediately
+      contradictory (and so can be solved in one step with
+      [inversion]). *)
+  (** [loopdef]が終了することを示す仮定の導出についての帰納法で進めなさい。
+       ほとんどのケースにおいては、ただちに矛盾が導かれ(て[inversion]を使った1stepで解決され)ます *)
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -1755,25 +1758,29 @@ Proof.
 
 Fixpoint no_whiles (c : com) : bool :=
   match c with
-  | SKIP       => true
-  | _ ::= _    => true
-  | c1 ;; c2  => andb (no_whiles c1) (no_whiles c2)
-  | IFB _ THEN ct ELSE cf FI => andb (no_whiles ct) (no_whiles cf)
-  | WHILE _ DO _ END  => false
+  | SKIP =>
+      true
+  | _ ::= _ =>
+      true
+  | c1 ;; c2 =>
+      andb (no_whiles c1) (no_whiles c2)
+  | IFB _ THEN ct ELSE cf FI =>
+      andb (no_whiles ct) (no_whiles cf)
+  | WHILE _ DO _ END  =>
+      false
   end.
 
-(*i  This property yields [true] just on programs that
-    have no while loops.  Using [Inductive], write a property
-    [no_whilesR] such that [no_whilesR c] is provable exactly when [c]
-    is a program with no while loops.  Then prove its equivalence
-    with [no_whiles]. *)
-(** 性質 [no_whiles] はプログラムが while ループを含まない場合 [true] を返します。
+(*  This predicate yields [true] just on programs that have no while
+    loops.  Using [Inductive], write a property [no_whilesR] such that
+    [no_whilesR c] is provable exactly when [c] is a program with no
+    while loops.  Then prove its equivalence with [no_whiles]. *)
+(** この [no_whiles]という述語はプログラムが while ループを含まない場合 [true] を返します。
     Inductive を使って [c] が while ループのないプログラムのとき証明可能な性質 [no_whilesR] を書きなさい。
     さらに、それが [no_whiles] と等価であることを示しなさい。*)
 
 Inductive no_whilesR: com -> Prop :=
  (* FILL IN HERE *)
-  .
+.
 
 Theorem no_whiles_eqv:
    forall c, no_whiles c = true <-> no_whilesR c.
@@ -1793,7 +1800,8 @@ Proof.
 (** [] *)
 
 (* ####################################################### *)
-(** * Additional Exercises *)
+(*  * Additional Exercises *)
+(** * 追加の練習問題 *)
 
 (** **** 練習問題: ★★★, recommended (stack_compiler) *)
 (*  HP Calculators, programming languages like Forth and Postscript,
@@ -1875,10 +1883,11 @@ Inductive sinstr : Type :=
 | SMult : sinstr.
 
 (** Write a function to evaluate programs in the stack language. It
-    takes as input a state, a stack represented as a list of
+    should take as input a state, a stack represented as a list of
     numbers (top stack item is the head of the list), and a program
-    represented as a list of instructions, and returns the stack after
-    executing the program. Test your function on the examples below.
+    represented as a list of instructions, and it should return the
+    stack after executing the program.  Test your function on the
+    examples below.
 
     Note that the specification leaves unspecified what to do when
     encountering an [SPlus], [SMinus], or [SMult] instruction if the
@@ -1895,8 +1904,7 @@ Inductive sinstr : Type :=
     上の仕様では、スタックが 2 つ未満の要素しか含まずに [SPlus] や [SMinus]、
     [SMult] 命令に至った場合を明示していないままなことに注意しましょう。
     我々のコンパイラはそのような奇形のプログラムは生成しないので、
-    これは重要でないという意味です。
-    しかし正当性の証明をするときは、いくつかの選択のほうが証明をより簡単にすることに気づくかもしれません。*)
+    これは重要でないという意味です。*)
 
 Fixpoint s_execute (st : state) (stack : list nat)
                    (prog : list sinstr)
@@ -1935,23 +1943,20 @@ Example s_compile1 :
 (** [] *)
 
 (** **** 練習問題: ★★★, advanced (stack_compiler_correct) *)
-(** The task of this exercise is to prove the correctness of the
-    calculator implemented in the previous exercise.  Remember that
-    the specification left unspecified what to do when encountering an
-    [SPlus], [SMinus], or [SMult] instruction if the stack contains
-    less than two elements.  (In order to make your correctness proof
-    easier you may find it useful to go back and change your
-    implementation!)
+(*  Now we'll prove the correctness of the compiler implemented in the
+    previous exercise.  Remember that the specification left
+    unspecified what to do when encountering an [SPlus], [SMinus], or
+    [SMult] instruction if the stack contains less than two
+    elements.  (In order to make your correctness proof easier you
+    might find it helpful to go back and change your implementation!)
 
-    Prove the following theorem, stating that the [compile] function
-    behaves correctly.  You will need to start by stating a more
-    general lemma to get a usable induction hypothesis; the main
+    Prove the following theorem.  You will need to start by stating a
+    more general lemma to get a usable induction hypothesis; the main
     theorem will then be a simple corollary of this lemma. *)
-(** この練習問題の課題は、前の練習問題で実装した計算機の正当性を証明することです。
+(** 前の練習問題で実装したコンパイラの正当性を証明してみましょう。
 スタックが 2 つ未満の要素しか含まずに [SPlus] や [SMinus]、[SMult] 命令に至った場合にどうすべきかを明示していない仕様であったことを思い出してください。(あなたは、正当性の証明をより易しく行うために、実装に戻って使いやすいように変更したくなるかもしれません!)
 
-次の定理を証明しなさい。この定理は、[compile]関数が正しく振る舞うことを述べています。
-使いやすい帰納法の仮定を得るために、もっと一般的な補題からとりかかる必要があるでしょう。
+次の定理を証明しなさい。 使いやすい帰納法の仮定を得るために、もっと一般的な補題からとりかかる必要があるでしょう。
 問題となる定理は、その補題の単純な帰結となるはずです。
 *)
 
@@ -1964,11 +1969,11 @@ Proof.
 (** **** 練習問題: ★★★★★, advanced (break_imp)  *)
 Module BreakImp.
 
-(** Imperative languages such as C or Java often have a [break] or
+(** Imperative languages like C and Java often include a [break] or
     similar statement for interrupting the execution of loops. In this
     exercise we consider how to add [break] to Imp.  First, we need to
     enrich the language of commands with an additional case. *)
-(** CやJavaのような命令型言語は[break]やそれに類似した、ループ実行を中断するための文法を持っていることがよくあります。
+(** CとJavaのように、命令型言語は[break]やそれに類似した、ループ実行を中断するための文法を持っていることがよくあります。
 この練習問題では、[break]をImpにどうやって追加するかを考えましょう。*)
 
 Inductive com : Type :=
@@ -2005,10 +2010,10 @@ Notation "'IFB' c1 'THEN' c2 'ELSE' c3 'FI'" :=
 (*  
     One important point is what to do when there are multiple loops
     enclosing a given [BREAK]. In those cases, [BREAK] should only
-    terminate the _innermost_ loop. Thus, after executing the
-    following piece of code...*)
+    terminate the _innermost_ loop. Thus, after executing the 
+    following...*)
 (** 重要な点は、多重ループにおいて、[BREAK]が現われた場合に、何をすべきか、ということです。これらの場合、
-[BREAK]は最も最近(_innermost_)のループだけを終了させるべきです。それゆえ、次のコードの断片の実行後...
+[BREAK]は最も最近(_innermost_)のループだけを終了させるべきです。そのため、次を実行すると...
 
        X ::= 0;;
        Y ::= 1;;
