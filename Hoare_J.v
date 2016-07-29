@@ -1,35 +1,17 @@
-(** * Hoare_J: ホーア論理 *)
-(* * Hoare: Hoare Logic *)
+(* * Hoare: Hoare Logic, Part I *)
+(** * Hoare_J: ホーア論理 Part I *)
 
-(* $Date: 2011-06-22 14:56:13 -0400 (Wed, 22 Jun 2011) $ *)
+Require Import Coq.Bool.Bool.
+Require Import Coq.Arith.Arith.
+Require Import Coq.Arith.EqNat.
+Require Import Coq.omega.Omega.
+Require Import SfLib.
+Require Import Imp.
+Require Import Maps.
 
-(* Alexandre Pilkiewicz suggests the following alternate type for the
-   decorated WHILE construct:
-     | DCWhile : bexp -> Assertion -> dcom -> Assertion -> dcom
-   This leads to a simpler rule in the VC generator, which is much
-   easier to explain:
-     | DCWhile b P' c  => ((fun st => post c st /\ bassn b st) ~~> P')
-                         /\ (P ~~> post c)  (* post c is the loop invariant *)
-                         /\ verification_conditions P' c
-   His full development (based on an old version of our formalized
-   decorated programs, unfortunately), can be found in the file
-   /underconstruction/PilkiewiczFormalizedDecorated.v *)
-(* Alexandre Pilkiewicz が WHILE 構文を修飾するための型について、以下の別案を
-   提案してくれた:
-     | DCWhile : bexp -> Assertion -> dcom -> Assertion -> dcom
-   これによって VC生成器の規則がよりシンプルなものになり、説明がはるかに簡単になる:
-     | DCWhile b P' c  => ((fun st => post c st /\ bassn b st) ~~> P')
-                         /\ (P ~~> post c)  (* post c is the loop invariant *)
-                         /\ verification_conditions P' c
-   彼の完全版(残念ながら、我々の修飾付きプログラムの古いバージョンをベースにしている)は
-   以下のファイルにある。
-   /underconstruction/PilkiewiczFormalizedDecorated.v *)
-   
-Require Export ImpList_J.
-
-(* We've begun applying the mathematical tools developed in the
-    first part of the course to studying the theory of a small
-    programming language, Imp.
+(*  In the past couple of chapters, we've begun applying the
+    mathematical tools developed in the first part of the course to
+    studying the theory of a small programming language, Imp.
 
     - We defined a type of _abstract syntax trees_ for Imp, together
       with an _evaluation relation_ (a partial function on states)
@@ -42,43 +24,62 @@ Require Export ImpList_J.
 
     - We proved a number of _metatheoretic properties_ -- "meta" in
       the sense that they are properties of the language as a whole,
-      rather than properties of particular programs in the language.
-      These included:
+      rather than of particular programs in the language.  These
+      included:
 
-        - determinacy of evaluation
+        - determinism of evaluation
 
         - equivalence of some different ways of writing down the
-          definition
+          definitions (e.g., functional and relational definitions of
+          arithmetic expression evaluation)
 
         - guaranteed termination of certain classes of programs
 
         - correctness (in the sense of preserving meaning) of a number
           of useful program transformations
 
-        - behavioral equivalence of programs (in the optional chapter
-          [Equiv.v]).
+        - behavioral equivalence of programs (in the [Equiv] chapter). 
 
-      If we stopped here, we would still have something useful: a set
-      of tools for defining and discussing programming languages and
-      language features that are mathematically precise, flexible, and
-      easy to work with, applied to a set of key properties.
+    If we stopped here, we would already have something useful: a set
+    of tools for defining and discussing programming languages and
+    language features that are mathematically precise, flexible, and
+    easy to work with, applied to a set of key properties.  All of
+    these properties are things that language designers, compiler
+    writers, and users might care about knowing.  Indeed, many of them
+    are so fundamental to our understanding of the programming
+    languages we deal with that we might not consciously recognize
+    them as "theorems."  But properties that seem intuitively obvious
+    can sometimes be quite subtle (sometimes also subtly wrong!).
 
-      All of these properties are things that language designers,
-      compiler writers, and users might care about knowing.  Indeed,
-      many of them are so fundamental to our understanding of the
-      programming languages we deal with that we might not consciously
-      recognize them as "theorems."  But properties that seem
-      intuitively obvious can sometimes be quite subtle -- or, in some
-      cases, actually even wrong!
+    We'll return to the theme of metatheoretic properties of whole
+    languages later in the book when we discuss _types_ and _type
+    soundness_.  In this chapter, though, we turn to a different set
+    of issues.
 
-      We'll return to this theme later in the course when we discuss
-      _types_ and _type soundness_.
+    Our goal is to carry out some simple examples of _program
+    verification_ -- i.e., to use the precise definition of Imp to
+    prove formally that particular programs satisfy particular
+    specifications of their behavior.  We'll develop a reasoning
+    system called _Floyd-Hoare Logic_ -- often shortened to just
+    _Hoare Logic_ -- in which each of the syntactic constructs of Imp
+    is equipped with a generic "proof rule" that can be used to reason
+    compositionally about the correctness of programs involving this
+    construct.
 
-    - We saw a couple of examples of _program verification_ -- using
-      the precise definition of Imp to prove formally that certain
-      particular programs (e.g., factorial and slow subtraction)
-      satisfied particular specifications of their behavior. *)
-(** コースの最初のパートで用意した数学的道具立てを、
+    Hoare Logic originated in the 1960s, and it continues to be the
+    subject of intensive research right up to the present day.  It
+    lies at the core of a multitude of tools that are being used in
+    academia and industry to specify and verify real software
+    systems. 
+
+    Hoare Logic combines two beautiful ideas: a natural way of
+    writing down _specifications_ of programs, and a _compositional
+    proof technique_ for proving that programs are correct with
+    respect to such specifications -- where by "compositional" we mean
+    that the structure of proofs directly mirrors the structure of the
+    programs that they are about. *)
+
+(** このところの数章で、コースの最初のパートで用意した数学的道具立てを、
     小さなプログラミング言語 Imp の理論の学習に適用し始めています。
 
     - Imp の抽象構文木(_abstract syntax trees_)の型を定義しました。
@@ -95,13 +96,13 @@ Require Export ImpList_J.
 
         - 評価の決定性
 
-        - 異なった書き方をした定義の同値性
+        - 異なった書き方をした定義の同値性(例えば、関数によるものと関係による演算式の評価定義)
 
         - プログラムのあるクラスの、停止性の保証
 
-        - プログラムの動作の同値性([Equiv_J.v]のオプションの章において)
+        - プログラムの動作の同値性([Equiv_J.v]の章において)
 
-      もしここで止めたとしても、有用なものを持っていることになります。
+      もしここで止めたとしても、すでに有用なものを持っていることになります。
       それは、プログラミング言語とその特性を定義し議論する、数学的に正確で、
       柔軟で、使いやすい、主要な性質に適合した道具立てです。
 
@@ -109,56 +110,32 @@ Require Export ImpList_J.
       そしてユーザも知っておくべきものです。
       実際、その多くは我々が扱うプログラミング言語を理解する上で本当に基本的なことですので、
       "定理"と意識することはなかったかもしれません。
-      しかし、直観的に明らかだと思っている性質はしばしばとても曖昧で、
-      時には間違っていることもあります!
+      しかし、直観的に明らかだと思っている性質はしばしばとても曖昧です。(
+      時には微妙に間違っていることもあります!)
 
-      この問題については、
-      後に型(_types_)とその健全性(_type soundness_)を議論する際に再度出てきます。
+      言語全体のメタ理論的性質の問題については、 後に型(_types_)とその健全性(_type soundness_)を議論する際に再度出てきます。
+      この章では、別の話題について向き合います。
 
-    - プログラムの検証(_program verification_)の例を2つ行いました。
-      Imp を厳密に定義し、ある特定のプログラム(つまり階乗計算と遅い引き算)
-      がその動作についての特定の仕様を満たすことを、形式的に証明するものでした。*)
-
-(* In this chapter, we'll take this last idea further.  We'll
-    develop a reasoning system called _Floyd-Hoare Logic_ -- commonly,
-    if somewhat unfairly, shortened to just _Hoare Logic_ -- in which
-    each of the syntactic constructs of Imp is equipped with a single,
-    generic "proof rule" that can be used to reason about programs
-    involving this construct.
-
-    Hoare Logic originates in the 1960s, and it continues to be the
-    subject of intensive research right up to the present day.  It
-    lies at the core of a huge variety of tools that are now being
-    used to specify and verify real software systems. *)
-(** この章では、この最後の考え方をさらに進めます。
-    一般にフロイド-ホーア論理(_Floyd-Hoare Logic_)、あるいは、
-    少々不公平に省略してホーア論理(_Hoare Logic_)と呼ばれている推論システムを作ります。
-    この推論システムの中では、Imp の各構文要素に対して1つの一般的な"証明規則"
-    (proof rule)が与えられ、
-    これによってその構文要素を含むプログラムについての推論ができるようになっています。
-
+    我々の目的は、シンプルなプログラムの検証(_program verification_)
+    -- Imp を厳密に定義し、ある特定のプログラム(つまり階乗計算と遅い引き算)が
+    その動作についての特定の仕様を満たすことを、形式的に証明すること--
+    を行うことです。
+    一般にフロイド-ホーア論理(_Floyd-Hoare Logic_)、しばしば、 ホーア論理(_Hoare Logic_)と
+    呼ばれている推論システムを作ります。
+    この推論システムの中では、Imp の各構文要素に対して1つの一般的な"証明規則" (proof rule)が与えられ、
+    これによってその構文要素を含むプログラムの正当性の推論が構成的にできるようになっています。
+    
     ホーア論理の起源は1960年代です。そして今現在まで継続してさかんに研究がされています。
-    実際のソフトウェアシステムの仕様を定め検証するために使われている非常に多くのツールは、
-    ホーア論理を核としているのです。*)
+    実際のソフトウェアシステムの仕様を定め検証するために学術的、工業的に使われている
+    多くのツールは、 ホーア論理を核としているのです。
 
-
-(* ####################################################### *)
-(* * Hoare Logic *)
-(** * ホーア論理 *)
-
-(* Hoare Logic offers two important things: a natural way of
-    writing down _specifications_ of programs, and a _compositional
-    proof technique_ for proving that these specifications are met --
-    where by "compositional" we mean that the structure of proofs
-    directly mirrors the structure of the programs that they are
-    about. *)
-(** ホーア論理は2つの重要なことがらを提供します。プログラムの仕様(_specification_)
-    を自然に記述する方法と、その仕様が適合していることを証明する合成的証明法(_compositional
+    ホーア論理は2つの美しい考えから構成されています。プログラムの仕様(_specification_)
+    を自然に記述する方法と、プログラムがその仕様を遵守していることを証明する合成的証明法(_compositional
     proof technique_)です。ここでの"合成的"(compositional)という意味は、
     証明の構造が証明対象となるプログラムの構造を直接的に反映しているということです。*)
 
 (* ####################################################### *)
-(* ** Assertions *)
+(*  * Assertions *)
 (** ** 表明 *)
 
 (* If we're going to talk about specifications of programs, the first
