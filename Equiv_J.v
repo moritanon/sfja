@@ -377,7 +377,6 @@ Proof.
     unfold bequiv in Hb. simpl in Hb.
     rewrite Hb. reflexivity.  Qed.
 
-(*  **** Exercise: 2 stars (IFB_false)  *)
 (** **** 練習問題: ★★ (IFB_false) *)
 Theorem IFB_false: forall b c1 c2,
   bequiv b BFalse  ->
@@ -388,7 +387,6 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* **** Exercise: 3 stars (swap_if_branches)  *)
 (** **** 練習問題: ★★ (swap_if_branches) *)
 (* Show that we can swap the branches of an IF by negating its
     condition *)
@@ -400,8 +398,6 @@ Theorem swap_if_branches: forall b e1 e2,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-
-(** *** *)
 
 (*  For [WHILE] loops, we can give a similar pair of theorems.  A loop
     whose guard is equivalent to [BFalse] is equivalent to [SKIP],
@@ -433,7 +429,6 @@ Proof.
     rewrite Hb.
     reflexivity.  Qed.
 
-(* **** Exercise: 2 stars (WHILE_false_informal) *)
 (** **** 練習問題: ★★ (WHILE_false_informal) *)
 (*  Write an informal proof of WHILE_false.
 
@@ -502,7 +497,7 @@ Proof.
   intros b c st st' Hb.
   intros H.
   remember (WHILE b DO c END) as cw eqn:Heqcw.
-  ceval_cases (induction H) Case;
+  induction H;
     (* Most rules don't apply, and we can rule them out
        by inversion *)
     inversion Heqcw; subst; clear Heqcw.
@@ -514,7 +509,6 @@ Proof.
   - (* E_WhileLoop *) (* immediate from the IH *)
     apply IHceval2. reflexivity.  Qed.
 
-(* **** Exercise: 2 stars, optional (WHILE_true_nonterm_informal) *)
 (** **** 練習問題: ★★, optional (WHILE_true_nonterm_informal) *)
 (* Explain what the lemma [WHILE_true_nonterm] means in English.
 
@@ -526,7 +520,6 @@ Proof.
 *)
 (** [] *)
 
-(* **** Exercise: 2 stars, recommended (WHILE_true) *)
 (** **** 練習問題: ★★, recommended (WHILE_true) *)
 (* You'll want to use [WHILE_true_nonterm] here. *)
 (** ここで[WHILE_true_nonterm]を使いなさい。*)
@@ -549,7 +542,7 @@ Proof.
   intros b c st st'.
   split; intros Hce.
   - (* -> *)
-    inversion Hce; subst. 
+    inversion Hce; subst.
     + (* loop doesn't run *)
       apply E_IfFalse. assumption. apply E_Skip.
     + (* loop runs *)
@@ -564,7 +557,6 @@ Proof.
     + (* loop doesn't run *)
       inversion H5; subst. apply E_WhileEnd. assumption.  Qed.
 
-(* **** Exercise: 2 stars, optional (seq_assoc) *)
 (** **** 練習問題: ★★, optional (seq_assoc) *)
 Theorem seq_assoc : forall c1 c2 c3,
   cequiv ((c1;;c2);;c3) (c1;;(c2;;c3)).
@@ -705,7 +697,6 @@ Proof.
        constructor. reflexivity.
 Qed.
 
-(*  **** Exercise: 2 stars (assign_aequiv)  *)
 (** **** 練習問題: ★★ (assign_aequiv) *)
 Theorem assign_aequiv : forall X e,
   aequiv (AId X) e ->
@@ -1868,7 +1859,7 @@ Notation "'IFB' e1 'THEN' e2 'ELSE' e3 'FI'" :=
   (CIf e1 e2 e3) (at level 80, right associativity).
 Notation "'HAVOC' l" := (CHavoc l) (at level 60).
 
-(** **** Exercise: 2 stars (himp_ceval)  *)
+(** **** 練習問題: ★★ (himp_ceval) *)
 (** Now, we must extend the operational semantics. We have provided
    a template for the [ceval] relation below, specifying the big-step
    semantics. What rule(s) must be added to the definition of [ceval]
@@ -1928,7 +1919,7 @@ Definition cequiv (c1 c2 : com) : Prop := forall st st' : state,
     programs equivalent / inequivalent. *)
 (** この定義を非決定性プログラムの同値、非同値の証明に適用してみましょう。*)
 
-(** **** Exercise: 3 stars (havoc_swap)  *)
+(** **** 練習問題: ★★★, (havoc_swap)  *)
 (** Are the following two programs equivalent? *)
 
 Definition pXY :=
@@ -1946,7 +1937,7 @@ Theorem pXY_cequiv_pYX :
 Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 4 stars, optional (havoc_copy)  *)
+(** **** 練習問題: ★★★★, optional (havoc_copy)  *)
 (** Are the following two programs equivalent? *)
 
 Definition ptwice :=
@@ -2013,7 +2004,7 @@ Theorem p1_p2_equiv : cequiv p1 p2.
 Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced (p3_p4_inquiv)  *)
+(** **** 練習問題: ★★★★, advanced (p3_p4_inquiv)  *)
 (** Prove that the following programs are _not_ equivalent. *)
 
 Definition p3 : com :=
@@ -2032,7 +2023,7 @@ Theorem p3_p4_inequiv : ~ cequiv p3 p4.
 Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 5 stars, advanced, optional (p5_p6_equiv)  *)
+(** **** 練習問題: ★★★★★, advanced, optional (p5_p6_equiv)  *)
 
 Definition p5 : com :=
   WHILE (BNot (BEq (AId X) (ANum 1))) DO
