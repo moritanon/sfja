@@ -429,12 +429,8 @@ Proof.
     rewrite Hb.
     reflexivity.  Qed.
 
-(** **** 練習問題: ★★ (WHILE_false_informal) *)
-(*  Write an informal proof of WHILE_false.
-
-(* FILL IN HERE *)
-[]
-*)
+(** **** 練習問題: ★★, advanced, optional (WHILE_false_informal) *)
+(*  Write an informal proof of WHILE_false. *)
 (** WHILE_falseの非形式的証明を記述しなさい。
 
 (* FILL IN HERE *)
@@ -442,7 +438,7 @@ Proof.
 *)
 
 (* To prove the second fact, we need an auxiliary lemma stating that
-    while loops whose guards are equivalent to [BTrue] never
+    [WHILE] loops whose guards are equivalent to [BTrue] never
     terminate:
 
     _Lemma_: If [b] is equivalent to [BTrue], then it cannot be the
@@ -450,7 +446,7 @@ Proof.
 
     _Proof_: Suppose that [(WHILE b DO c END) / st \\ st'].  We show,
     by induction on a derivation of [(WHILE b DO c END) / st \\ st'],
-    that this assumption leads to a contradiction. 
+    that this assumption leads to a contradiction.
 
       - Suppose [(WHILE b DO c END) / st \\ st'] is proved using rule
         [E_WhileEnd].  Then by assumption [beval st b = false].  But
@@ -521,8 +517,8 @@ Proof.
 (** [] *)
 
 (** **** 練習問題: ★★, recommended (WHILE_true) *)
-(* You'll want to use [WHILE_true_nonterm] here. *)
-(** ここで[WHILE_true_nonterm]を使いなさい。*)
+(*  Prove the following theorem. _Hint_: You'll want to use
+(** 次の定理を証明しなさい。ヒント: ここで[WHILE_true_nonterm]を使いなさい。*)
 
 Theorem WHILE_true: forall b c,
      bequiv b BTrue  ->
@@ -564,117 +560,12 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  ** The Functional Equivalence Axiom *)
-(** ** 関数の同値性の公理 *)
-
-(*  Finally, let's look at simple equivalences involving assignments.
-    For example, we might expect to be able to show that [X ::= AId X]
-    is equivalent to [SKIP].  However, when we try to show it, we get
-    stuck in an interesting way. *)
-(** 最後に、代入に関する簡単な同値を見てみましょう。
-    たとえば、[X ::= AId X]は、[SKIP]と同値であることを示すことが出来るかもしれないと思うかもしれません。しかしながら、それをやろうとすると簡単に行き詰まってしまいます。
-*)
-
-Theorem identity_assignment_first_try : forall (X:id),
-  cequiv (X ::= AId X) SKIP.
-Proof.
-   intros. split; intro H.
-     - (* -> *)
-       inversion H; subst.  simpl.
-       replace (update st X (st X)) with st. 
-       constructor.
-       (* 詰った... *) Abort.
-
-(*  Here we're stuck. The goal looks reasonable, but in fact it is not
-    provable!  If we look back at the set of lemmas we proved about
-    [update] in the last chapter, we can see that lemma [update_same]
-    almost does the job, but not quite: it says that the original and
-    updated states agree at all values, but this is not the same thing
-    as saying that they are [=] in Coq's sense! *)
-(** ここで行き詰まります。ゴールは合理的に見えますが、しかし実は証明できません!
-    前の章で[update]に関して証明した補題のセットをふりかえってみましょう。
-    補題[update_same]がほとんどのことをやっていますが、全部ではありません。
-    [update_same]は元の状態と更新された状態がすべての値について一致することを
-    言っていますが、
-    それは、Coqの意味で[eq]だと言っているわけではありません! *)
-
-(*  What is going on here?  Recall that our states are just
-    functions from identifiers to values.  For Coq, functions are only
-    equal when their definitions are syntactically the same, modulo
-    simplification.  (This is the only way we can legally apply the
-    [refl_equal] constructor of the inductively defined proposition
-    [eq]!) In practice, for functions built up by repeated uses of the
-    [update] operation, this means that two functions can be proven
-    equal only if they were constructed using the _same_ [update]
-    operations, applied in the same order.  In the theorem above, the
-    sequence of updates on the first parameter [cequiv] is one longer
-    than for the second parameter, so it is no wonder that the
-    equality doesn't hold. *)
-
-(** *** *)
-(** This problem is actually quite general. If we try to prove other
-    simple facts, such as
-    cequiv (X ::= X + 1;;
-            X ::= X + 1)
-           (X ::= X + 2)
-    or
-    cequiv (X ::= 1;; Y ::= 2)
-           (y ::= 2;; X ::= 1)
- 
-    we'll get stuck in the same way: we'll have two functions that
-    behave the same way on all inputs, but cannot be proven to be [eq]
-    to each other.
-
-    The reasoning principle we would like to use in these situations
-    is called _functional extensionality_:
-                        forall x, f x = g x
-                        -------------------
-                               f = g
-    Although this principle is not derivable in Coq's built-in logic,
-    it is safe to add it as an additional _axiom_.  *)
-(** 何がどうなっているのでしょう？
-    我々の状態は単に識別子から値への関数であることを思い出してください。
-    Coqでは、関数同士が等しいとは、その定義が簡単化(simplification)
-    の範囲での変形を除いて構文的に同じということです。
-    (簡単化だけが Coq で[eq]コンストラクタに適用することが許されたものなのです!)
-    実際には、[update]操作の繰り返しで構築された関数については、
-    2つの関数が等しいと証明できるのは「同じ」[update]操作を同じ順番で適用した場合だけです。
-    上述の定理では、第一パラメータ[cequiv]のupdateの列は第二パラメータのものより1つ長いので、
-    等しさが成立しないのも当然です。
-
-    しかし、この問題はかなり一般的なものです。
-    何か別の「自明な」事実、例えば
-    cequiv (X ::= X + 1;;
-            X ::= X + 1)
-           (X ::= X + 2)
-    あるいは
-    cequiv (X ::= 1;; Y ::= 2)
-           (y ::= 2;; X ::= 1)
-
-    を証明しようとするとき、同じように行き詰まることになります。
-    つまり、すべての入力に対して同一の振る舞いをする2つの関数が出てくるのですが、
-    その2つが[eq]であることが証明できないのです。
-
-    こういった状況でこれから使おうとしている推論原理は、
-    関数外延性(_functional extensionality_)と呼ばれます:
-                        forall x, f x = g x
-                        -------------------
-                               f = g
-    この原理は Coq のビルトインの論理からは導出できませんが、
-    追加公理(_axiom_)として導入することは安全です。*)   
-
-Axiom functional_extensionality : forall {X Y: Type} {f g : X -> Y},
-    (forall (x: X), f x = g x) ->  f = g.
-
-(* It can be shown that adding this axiom doesn't introduce any
-    inconsistencies into Coq.  (In this way, it is similar to adding
-    one of the classical logic axioms, such as [excluded_middle].) *)
-(** Coq にこの公理を導入することが矛盾を生むものではないことを示すことができます。
-    (このように、この公理の導入は、
-     [excluded_middle]のような古典論理の公理を追加するのと同様なのです。) *)
-
-(*  With the benefit of this axiom we can prove our theorem.  *)
-(** この公理のおかげで、先の定理を証明することができます: *)
+(*  Proving program properties involving assignments is one place
+    where the functional-extensionality axiom introduced in the
+    [Logic] chapter often comes in handy.  Here are an example and an
+    exercise. *)
+(** 代入を含むプログラムの属性を証明する際には、[Logic]の章で
+導入された関数の外延性公理がしばしば役に立ちます。例と練習問題を示します。*)
 
 Theorem identity_assignment : forall (X:id),
   cequiv
@@ -684,20 +575,18 @@ Proof.
    intros. split; intro H.
      - (* -> *)
        inversion H; subst. simpl.
-       replace (update st X (st X)) with st. 
-       constructor.
-       apply functional_extensionality. intro.
-       rewrite update_same; reflexivity. 
+       replace (t_update st X (st X)) with st.
+       + constructor.
+       + apply functional_extensionality. intro.
+         rewrite t_update_same; reflexivity.
      - (* <- *)
-       inversion H; subst.
-       assert (st' = (update st' X (st' X))).
-          apply functional_extensionality. intro.
-          rewrite update_same; reflexivity.
-       rewrite H0 at 2.
-       constructor. reflexivity.
+       replace st' with (t_update st' X (aeval st' (AId X))).
+       + inversion H. subst. apply E_Ass. reflexivity.
+       + apply functional_extensionality. intro.
+         rewrite t_update_same. reflexivity.
 Qed.
 
-(** **** 練習問題: ★★ (assign_aequiv) *)
+(** **** 練習問題: ★★, recommanded (assign_aequiv) *)
 Theorem assign_aequiv : forall X e,
   aequiv (AId X) e ->
   cequiv SKIP (X ::= e).
@@ -714,7 +603,7 @@ Proof.
 (** ここからは、定義したプログラムの同値概念の性質を調べていきましょう。*)
 
 (* ####################################################### *)
-(* ** Behavioral Equivalence is an Equivalence *)
+(* ** Behavioral Equivalence Is an Equivalence *)
 (** ** 振る舞い同値は同値関係である *)
 
 (* First, we verify that the equivalences on [aexps], [bexps], and
@@ -762,7 +651,7 @@ Lemma sym_cequiv : forall (c1 c2 : com),
 Proof.
   unfold cequiv. intros c1 c2 H st st'.
   assert (c1 / st \\ st' <-> c2 / st \\ st') as H'.
-    + (* Proof of assertion *) apply H.
+  { (* Proof of assertion *) apply H. }
   apply iff_sym. assumption.
 Qed.
 
@@ -782,29 +671,13 @@ Proof.
   apply iff_trans with (c2 / st \\ st'). apply H12. apply H23.  Qed.
 
 (* ######################################################## *)
-(* ** Behavioral Equivalence is a Congruence *)
+(* ** Behavioral Equivalence Is a Congruence *)
 (** ** 振る舞い同値は合同関係である *)
 
 (* Less obviously, behavioral equivalence is also a _congruence_.
     That is, the equivalence of two subprograms implies the
     equivalence of the larger programs in which they are embedded:
-              aequiv a1 a1'
-      -----------------------------
-      cequiv (i ::= a1) (i ::= a1')
 
-              cequiv c1 c1'   
-              cequiv c2 c2'
-         ------------------------
-         cequiv (c1;;c2) (c1';;c2')
-    ...and so on. 
-
-    (Note that we are using the inference rule notation here not as
-    part of a definition, but simply to write down some valid
-    implications in a readable format. We prove these implications
-    below.) *)
-(** よりわかりにくいですが、振る舞い同値は、合同関係(_congruence_)でもあります。
-    つまり、2つのサブプログラムが同値ならば、それを含むプログラム全体も同値です:
-[[
               aequiv a1 a1'
       -----------------------------
       cequiv (i ::= a1) (i ::= a1')
@@ -812,9 +685,28 @@ Proof.
               cequiv c1 c1'
               cequiv c2 c2'
          ------------------------
-         cequiv (c1;c2) (c1';c2')
-]]
-    ...などです。
+         cequiv (c1;;c2) (c1';;c2')
+
+    ...and so on for the other forms of commands.
+
+    (Note that we are using the inference rule notation here not as
+    part of a definition, but simply to write down some valid
+    implications in a readable format. We prove these implications
+    below.) *)
+(** よりわかりにくいですが、振る舞い同値は、合同関係(_congruence_)でもあります。
+    つまり、2つのサブプログラムが同値ならば、それを含むプログラム全体も同値です:
+
+              aequiv a1 a1'
+      -----------------------------
+      cequiv (i ::= a1) (i ::= a1')
+
+              cequiv c1 c1'
+              cequiv c2 c2'
+         ------------------------
+         cequiv (c1;;c2) (c1';;c2')
+
+    ...など他の形式のコマンドも同様です。
+
     (注意して欲しいのですが、ここで推論規則の記法を使っていますが、これは定義の一部ではありません。
     単に正しい含意を読みやすい形で書き出しただけです。
     この含意は以下で証明します。) *)
@@ -877,7 +769,7 @@ Proof.
             b1 = true], with [c1 / st \\ st'0] and [WHILE b1 DO c1
             END / st'0 \\ st'] for some state [st'0], with the
             induction hypothesis [WHILE b1' DO c1' END / st'0 \\
-            st']. 
+            st'].
 
             Since [c1] and [c1'] are equivalent, we know that [c1' /
             st \\ st'0].  And since [b1] and [b1'] are equivalent, we
@@ -1421,6 +1313,7 @@ Proof.
         choose nice variable names.  We can rename entries in the
         context with the [rename] tactic: [rename a into a1] will
         change [a] to [a1] in the current goal and context.) *)
+
     remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
     remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
     replace (aeval st a1) with (aeval st a1') by
@@ -1431,6 +1324,7 @@ Proof.
 
       (* The only interesting case is when both a1 and a2
           become constants after folding *)
+      (** 興味深い唯一のケースは、a1とa2の両方が折り畳み後に定数になる場合です。*)
       simpl. destruct (beq_nat n n0); reflexivity.
   - (* BLe *)
     (* FILL IN HERE *) admit.
@@ -1448,7 +1342,7 @@ Proof.
 (** [] *)
 
 (** **** 練習問題: ★★★ (fold_constants_com_sound) *)
-(* Complete the [WHILE] case of the following proof. *)
+(*  Complete the [WHILE] case of the following proof. *)
 (** 次の証明の[WHILE]の場合を完成させなさい。*)
 
 Theorem fold_constants_com_sound :
@@ -1500,6 +1394,7 @@ Proof.
       | AMult e1 e2 =>
           AMult (optimize_0plus e1) (optimize_0plus e2)
       end.
+
    Note that this function is defined over the old [aexp]s,
    without states.
 
@@ -1509,6 +1404,7 @@ Proof.
      optimize_0plus_aexp
      optimize_0plus_bexp
      optimize_0plus_com
+
    Prove that these three functions are sound, as we did for
    [fold_constants_*].  Make sure you use the congruence lemmas in
    the proof of [optimize_0plus_com] -- otherwise it will be _long_!
@@ -1614,7 +1510,7 @@ Fixpoint subst_aexp (i : id) (u : aexp) (a : aexp) : aexp :=
 
 Example subst_aexp_ex :
   subst_aexp X (APlus (ANum 42) (ANum 53))
-             (APlus (AId Y) (AId X))
+             (APlus (AId Y) (AId X)) 
 = (APlus (AId Y) (APlus (ANum 42) (ANum 53))).
 Proof. reflexivity.  Qed.
 
@@ -1771,7 +1667,7 @@ Lemma aeval_weakening : forall i st a ni,
 Proof.
   (* FILL IN HERE *) Admitted.
 
-(*  Using [var_not_used_in_aexp], formalize and prove a correct verson
+(*  Using [var_not_used_in_aexp], formalize and prove a correct version
     of [subst_equiv_property]. *)
 (** [var_not_used_in_aexp]を使って、[subst_equiv_property]の正しいバージョンを形式化し、
     証明しなさい。*)
@@ -1790,40 +1686,60 @@ Proof.
 (** [] *)
 
 (* ################################################################## *)
-(** * Extended exercise: Non-deterministic Imp *)
+(*  * Extended Exercise: Nondeterministic Imp *)
+(** * 発展的練習問題: 非決定性を持つ Imp *)
 
-(** As we have seen (in theorem [ceval_deterministic] in the Imp
+(*  As we have seen (in theorem [ceval_deterministic] in the [Imp]
     chapter), Imp's evaluation relation is deterministic.  However,
     _non_-determinism is an important part of the definition of many
     real programming languages. For example, in many imperative
     languages (such as C and its relatives), the order in which
     function arguments are evaluated is unspecified.  The program
     fragment
+(** これまでに([Imp]の章の[ceval_deterministric]の定理で)見て来たように、
+Impの評価関係は決定的でした。しかしながら、非決定性は多くの現実のプログラミング
+言語の定義の重要な部分を形成しています。例えば、多くの命令型言語(C言語やそれに類似した)において、
+引数が評価される順序は未定義です。プログラムの断片の
 
       x = 0;;
       f(++x, x)
-
+*)(*
     might call [f] with arguments [(1, 0)] or [(1, 1)], depending how
     the compiler chooses to order things.  This can be a little
     confusing for programmers, but it gives the compiler writer useful
     freedom.
-
+*)(**
+    [f]の呼び出しは、引数[(1,0)]または、[(1,1)]で行なわれるかもしれず、
+    コンパイラがどうやって順序を選択するかに依存しています。このことは、
+    プログラマにとって、ちょっとした悩みのタネですが、コンパイラ作者には
+    自由が与えられます。
+*)(*
     In this exercise, we will extend Imp with a simple
     nondeterministic command and study how this change affects
     program equivalence.  The new command has the syntax [HAVOC X],
     where [X] is an identifier. The effect of executing [HAVOC X] is
     to assign an _arbitrary_ number to the variable [X],
     nondeterministically. For example, after executing the program:
+*)(** 
+    この練習問題では、Impに簡単な非決定性のコマンドを追加してプログラムの同値性に
+    どんな影響があるかを研究することです。新しいコマンドは[HAVOC X]という文法を持ち、
+    [X]は識別子です。[HAVOC X]を実行することの影響は、任意の数が、変数[X]に非決定的に
+    割り当てられることです。たとえば、次のプログラムを実行すると:
 
       HAVOC Y;;
       Z ::= Y * 2
-
+*)(*
     the value of [Y] can be any number, while the value of [Z] is
     twice that of [Y] (so [Z] is always even). Note that we are not
     saying anything about the _probabilities_ of the outcomes -- just
     that there are (infinitely) many different outcomes that can
     possibly happen after executing this nondeterministic code.
-
+*)(**
+    [Y]の値はどんな数でもありえます。その一方で、[Z]は[Y]の値の倍の値です(そのため
+    [Z]は常に偶数です)。出力が可能かどうかについて何も言ってないことに
+    注意してください -- ただ、この非決定性のコードを実行したあとでは、
+    多くの(無限に)異なる出力がありうるということだけです。
+*)(*
     In a sense, a variable on which we do [HAVOC] roughly corresponds
     to an unitialized variable in a low-level language like C.  After
     the [HAVOC], the variable holds a fixed but arbitrary number.  Most
@@ -1833,11 +1749,19 @@ Proof.
     will run faster).
 
     We call this new language _Himp_ (``Imp extended with [HAVOC]''). *)
+(**
+    ある意味では、[HAVOC]することで得られる変数とは、Cのような低レベルな言語の
+    未初期化変数と、ざっくり対応しています。[HAVOC]の後では、変数は固定されてはいるけれど任意の値を持ちます。
+    言語の定義の中で非決定性の最も多い原因は、プログラマがどっちだろうと気にしないこと
+    (そして、しないからこそ、コンパイラがより速くなるように選択する余地が残されているからです。)
+
+    この新しい言語を_Himp_と呼びます。([HAVOC]拡張されたImpという意味です) *)
 
 Module Himp.
 
-(** To formalize Himp, we first add a clause to the definition of
+(*  To formalize Himp, we first add a clause to the definition of
     commands. *)
+(** Himpを形式化するために、コマンドの定義に一節加えます。*)
 
 Inductive com : Type :=
   | CSkip : com
@@ -1860,10 +1784,13 @@ Notation "'IFB' e1 'THEN' e2 'ELSE' e3 'FI'" :=
 Notation "'HAVOC' l" := (CHavoc l) (at level 60).
 
 (** **** 練習問題: ★★ (himp_ceval) *)
-(** Now, we must extend the operational semantics. We have provided
+(*  Now, we must extend the operational semantics. We have provided
    a template for the [ceval] relation below, specifying the big-step
    semantics. What rule(s) must be added to the definition of [ceval]
    to formalize the behavior of the [HAVOC] command? *)
+(** ここで、操作的意味論を拡張しなければなりません。big-stepの意味論を満たす[ceval]関係をテンプレートとして
+下に提示しておきます。[HAVOC]コマンドの振舞いを形式化するために、[ceval]の定義に
+どんな規則を付け加えればよいでしょうか？ *)
 
 Reserved Notation "c1 '/' st '\\' st'"
                   (at level 40, st at level 39).
@@ -1897,8 +1824,9 @@ Inductive ceval : com -> state -> state -> Prop :=
 
   where "c1 '/' st '\\' st'" := (ceval c1 st st').
 
-(** As a sanity check, the following claims should be provable for
+(*  As a sanity check, the following claims should be provable for
     your definition: *)
+(** TODO *)
 
 Example havoc_example1 : (HAVOC X) / empty_state \\ t_update empty_state X 0.
 Proof.
@@ -1910,7 +1838,8 @@ Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** Finally, we repeat the definition of command equivalence from above: *)
+(*  Finally, we repeat the definition of command equivalence from above: *)
+(** TODO *)
 
 Definition cequiv (c1 c2 : com) : Prop := forall st st' : state,
   c1 / st \\ st' <-> c2 / st \\ st'.
@@ -1946,16 +1875,17 @@ Definition ptwice :=
 Definition pcopy :=
   HAVOC X;; Y ::= AId X.
 
-(** If you think they are equivalent, then prove it. If you think they
+(*  If you think they are equivalent, then prove it. If you think they
     are not, then prove that.  (Hint: You may find the [assert] tactic
     useful.) *)
+(** TODO *)
 
 Theorem ptwice_cequiv_pcopy :
   cequiv ptwice pcopy \/ ~cequiv ptwice pcopy.
 Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** The definition of program equivalence we are using here has some
+(*  The definition of program equivalence we are using here has some
     subtle consequences on programs that may loop forever.  What
     [cequiv] says is that the set of possible _terminating_ outcomes
     of two equivalent programs is the same. However, in a language
@@ -1965,6 +1895,7 @@ Proof. (* FILL IN HERE *) Admitted.
     others. The final part of the following exercise illustrates this
     phenomenon.
 *)
+(** TODO *)
 
 (** **** 練習問題: ★★★★★, advanced (p1_p2_equiv)  *)
 (*  Prove that [p1] and [p2] are equivalent. In this and the following
@@ -1983,10 +1914,11 @@ Definition p2 : com :=
     SKIP
   END.
 
-(** Intuitively, the programs have the same termination
+(* Intuitively, the programs have the same termination
     behavior: either they loop forever, or they terminate in the
     same state they started in.  We can capture the termination
     behavior of [p1] and [p2] individually with these lemmas: *)
+(** TODO *)
 
 Lemma p1_may_diverge : forall st st', st X <> 0 ->
   ~ p1 / st \\ st'.
@@ -1997,15 +1929,16 @@ Lemma p2_may_diverge : forall st st', st X <> 0 ->
 Proof.
 (* FILL IN HERE *) Admitted.
 
-(** You should use these lemmas to prove that [p1] and [p2] are actually
+(*  You should use these lemmas to prove that [p1] and [p2] are actually
     equivalent. *)
-
+(** TODO *)
 Theorem p1_p2_equiv : cequiv p1 p2.
 Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
 (** **** 練習問題: ★★★★, advanced (p3_p4_inquiv)  *)
-(** Prove that the following programs are _not_ equivalent. *)
+(*  Prove that the following programs are _not_ equivalent. *)
+(** 次のプログラム群が同値ではないことを証明しなさい。*)
 
 Definition p3 : com :=
   Z ::= ANum 1;;
@@ -2102,27 +2035,28 @@ Proof.
     the initial states for which [c1] terminates, [c2] also terminates
     and produces the same final state. Formally, program approximation
     is defined as follows: *)
-(** この練習問題では、プログラムの同値性の正反対の変奏を定義します。*)
+(** TODO この練習問題では、プログラムの同値性の正反対の変奏を定義します。*)
 
 Definition capprox (c1 c2 : com) : Prop := forall (st st' : state),
   c1 / st \\ st' -> c2 / st \\ st'.
 
-(** For example, the program [c1 = WHILE X <> 1 DO X ::= X - 1 END]
+(*  For example, the program [c1 = WHILE X <> 1 DO X ::= X - 1 END]
     approximates [c2 = X ::= 1], but [c2] does not approximate [c1]
     since [c1] does not terminate when [X = 0] but [c2] does.  If two
     programs approximate each other in both directions, then they are
     equivalent. *)
-
-(** Find two programs [c3] and [c4] such that neither approximates
+(** TODO *)
+(*  Find two programs [c3] and [c4] such that neither approximates
     the other. *)
-
+(** TODO *)
 Definition c3 : com := (* FILL IN HERE *) admit.
 Definition c4 : com := (* FILL IN HERE *) admit.
 
 Theorem c3_c4_different : ~ capprox c3 c4 /\ ~ capprox c4 c3.
 Proof. (* FILL IN HERE *) Admitted.
 
-(** Find a program [cmin] that approximates every other program. *)
+(*  Find a program [cmin] that approximates every other program. *)
+(** TODO *)
 
 Definition cmin : com :=
   (* FILL IN HERE *) admit.
@@ -2130,8 +2064,9 @@ Definition cmin : com :=
 Theorem cmin_minimal : forall c, capprox cmin c.
 Proof. (* FILL IN HERE *) Admitted.
 
-(** Finally, find a non-trivial property which is preserved by
+(*  Finally, find a non-trivial property which is preserved by
     program approximation (when going from left to right). *)
+(** TODO *)
 
 Definition zprop (c : com) : Prop :=
   (* FILL IN HERE *) admit.
