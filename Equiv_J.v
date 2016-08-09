@@ -1313,7 +1313,7 @@ Proof.
         choose nice variable names.  We can rename entries in the
         context with the [rename] tactic: [rename a into a1] will
         change [a] to [a1] in the current goal and context.) *)
-
+    (** (多くのコンストラクタがある場合にinductionを実行すると、変数を特定することが面倒になりますが、 Coqは常にナイスな名前を選んでくれるとは限りません。コンテキストのエントリの名前を[rename]タクティックと使うことで変えることが出来ます。 [rename a into a1]とすると、現在のゴールとコンテキストにある[a]を[a1]に変えてくれるでしょう) *)
     remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
     remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
     replace (aeval st a1) with (aeval st a1') by
@@ -1435,11 +1435,11 @@ Proof.
 
    変数を扱えるようにした、この関数の新しいバージョンを記述しなさい。
    また、[bexp]およびコマンドに対しても、同様のものを記述しなさい:
-[[
+
      optimize_0plus_aexp
      optimize_0plus_bexp
      optimize_0plus_com
-]]
+
    これらの関数の健全性を、[fold_constants_*]について行ったのと同様に証明しなさい。
    [optimize_0plus_com]の証明においては、合同性補題を確実に使いなさい
    そうしなければ証明はとても長くなるでしょう!
