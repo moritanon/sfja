@@ -6,7 +6,7 @@
 (* Final reminder: どうか練習問題の答を公にアクセス出来る場所に置かないで。ありがとう *)
 Require Export Lists.
 
-(* ----------------------------------------------------------------- *)
+(* ################################################################# *)
 (*  * Polymorphism *)
 (** * ポリモルフィズム（多相性） *)
 
@@ -19,7 +19,7 @@ Require Export Lists.
 *)
 
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (*  ** Polymorphic Lists *)
 (** ** 多相的なリスト *)
 
@@ -29,10 +29,7 @@ Require Export Lists.
     lists of strings, lists of booleans, lists of lists, etc.  We
     _could_ just define a new inductive datatype for each of these,
     for example... *)
-(** ここまでは、数値のリストについて学んできました。もちろん、数値以外の文字列、
-ブール値、リストといったものを要素として持つリストを扱えるプログラムは、
-より興味深いものとなるでしょう。これまで学んできたことだけでも、
-実は新しい帰納的なデータ型を作ることはできるのです。例えば次のように... *)
+(** ここまでは、数値のリストについて学んできました。もちろん、数値以外の、文字列、ブール値、リストといったものを要素として持つリストを扱えるプログラムは、より興味深いものとなるでしょう。これまで学んできたことだけでも、実は新しい帰納的なデータ型を作ることはできるのです。例えば次のように... *)
 
 Inductive boollist : Type :=
   | bool_nil : boollist
@@ -41,7 +38,7 @@ Inductive boollist : Type :=
 (*  ... but this would quickly become tedious, partly because we
     have to make up different constructor names for each datatype, but
     mostly because we would also need to define new versions of all
-    our list manipulating functions ([length], [rev], etc.) for each
+    our list manipulating functions ([length], [rev], etc.)  for each
     new datatype definition. *)
 (** ... しかし、こんなことをやっていると、すぐに嫌になってしまうでしょう。その理由の一つは、データ型ごとに違ったコンストラクタの名前をつけなければならないことですが、もっと大変なのは、こういったリストを扱う関数（[length]、[rev]など）を、新しく対応した型ごとに作る必要が出てくることです。 *)
 
@@ -61,14 +58,14 @@ Inductive list (X:Type) : Type :=
     [natlist] in the types of the constructors have been replaced by
     [list X].  (We can re-use the constructor names [nil] and [cons]
     because the earlier definition of [natlist] was inside of a
-    [Module] definition that is now out of scope.)
+    [Module] definition that is now out of scope.) 
 
     What sort of thing is [list] itself?  One good way to think
     about it is that [list] is a _function_ from [Type]s to
     [Inductive] definitions; or, to put it another way, [list] is a
     function from [Type]s to [Type]s.  For any particular type [X],
     the type [list X] is an [Inductive]ly defined set of lists whose
-    elements are of type [X]. *)
+    elements are things of type [X]. *)
 (** これは、前の章にある[natlist]の定義とほとんどそっくりですが、コンストラクタ[cons]の引数の型が[nat]であったのに対し、任意の型を表す[X]がそれに変わっています。この[X]はヘッダに加えられた[X]と結びつけられ、さらに[natlist]であったものが[list X]に置き換わっています（ここで、コンストラクタに[nil]や[cons]といった名前を付けられるのは、最初に定義した[natlist]が[Module]の中で定義されていて、ここからはスコープの外になっているからです）。
  それでは、[list]とはいったい何なのか、ということを正確に考えて見ましょう。これを考える一つの手がかりは、リストが「型を引数にとり、帰納的な定義を返す関数である」と考えることです。あるいは「型を引数にとり、型を返す関数」と考えてもいいかもしれません。任意の型[X]について、[list X]という型は、帰納的に定義されたリストの集合で、その要素の型が[X]となっているものと考えることもできます。
  *)
@@ -85,17 +82,13 @@ Check nil.
 Check cons.
 (* ===> cons : forall X : Type, X -> list X -> list X *)
 
-(*  (Side note on notation: In .v files, the "forall" quantifier
-    is spelled out in letters.  In the generated HTML files and in the
-    way various IDEs show .v files (with certain settings of their
-    display controls), [forall] is usually typeset as the usual
-    mathematical "upside down A," but you'll still see the spelled-out
-    "forall" in a few places.  This is just a quirk of typesetting:
-    there is no difference in meaning.) *)
-(** 記法の点から: .vファイル内で、"forall"量化子は文字で綴られてます。生成されたHTMLファイル内やいくつかの
-    IDEの.vファイルの表示(表示設定がそうなっている場合にですが)において、 [forall]は通常、
-    数学の"ひっくりかえったA"が見えていると思います。しかし、上記のコメントなど、少数の場所では"forall"がそのまま見えているかもしれません。
-    これは植字のよじれに過ぎません。意味に違いはありません *)
+(** (Side note on notation: In .v files, the "forall" quantifier is
+    spelled out in letters.  In the generated HTML files, [forall] is
+    usually typeset as the usual mathematical "upside down A," but
+    you'll see the spelled-out "forall" in a few places, as in the
+    above comments.  This is just a quirk of typesetting: there is no
+    difference in meaning.) *)
+(** 記法の点から: .vファイル内で、"forall"量化子は文字で綴られてます。生成されたHTMLファイルにおいて、[forall]は通常、数学の"ひっくりかえったA"が見えていると思います。しかし、上記のコメントなど、少数の場所では"forall"がそのまま見えているかもしれません。これは植字のよじれに過ぎません。意味に違いはありません *)
 
 (*  The "[forall X]" in these types can be read as an additional
     argument to the constructors that determines the expected types of
@@ -109,7 +102,9 @@ Check (cons nat 2 (cons nat 1 (nil nat))).
 (*  (We've written [nil] and [cons] explicitly here because we haven't
     yet defined the [ [] ] and [::] notations for the new version of
     lists.  We'll do that in a bit.) *)
-(** （ここでは[nil]や[cons]を明示的に記述していますが、それは我々がまだ[[]]や[::]の表記法（Notation）をまだ記述していないからです。この後でやります） *)
+(** （ここでは[nil]や[cons]を明示的に記述していますが、
+    それは我々がまだ[[]]や[::]の表記法（Notation）をまだ記述していないからですa
+    。この後でやります） *)
 
 (*  We can now go back and make polymorphic versions of all the
     list-processing functions that we wrote before.  Here is [repeat],
@@ -177,12 +172,45 @@ Inductive grumble (X:Type) : Type :=
 
 End MumbleGrumble.
 
+(** 次の式のうち、ある型[X]について[grumble X]の要素として正しく定義されているものはどれでしょうか。
+- [d (b a 5)]
+- [d mumble (b a 5)]
+- [d bool (b a 5)]
+(* Note that the uses of [nil] and [cons] in [match] patterns
+    do not require any type annotations: Coq already knows that the list
+    [l] contains elements of type [X], so there's no reason to include
+    [X] in the pattern.  (More precisely, the type [X] is a parameter
+    of the whole definition of [list], not of the individual
+    constructors.  We'll come back to this point later.)
+
+    As with [nil] and [cons], we can use [length] by applying it first
+    to a type and then to its list argument: *)
+(** ここで、[match]に使われている[nil]や[cons]に型修飾がついていないことに注意してください。我々はすでにリスト[l]が型[X]の要素を持っていることを知っていますが、それはパターンマッチに[X]を含める理由になりません。(さらに正確には、[X]はリスト定義全体での型であって、個々のコンストラクタの型ではないのです。この点に関しては、後で戻ってきます。)
+
+    [nil]や[cons]と同様に、[length]も与えるリストと同じ型を最初に適用すれば使えます。 *)
+
+Example test_length1 :
+    length nat (cons nat 1 (cons nat 2 (nil nat))) = 2.
+Proof. reflexivity.  Qed.
+
+(* To use our length with other kinds of lists, we simply
+    instantiate it with an appropriate type parameter: *)
+(** この[length]を別の型のリストに使いたい場合は、適切な型パラメータを与えるだけで済みます。 *)
+
+Example test_length2 :
+    length bool (cons bool true (nil bool)) = 1.
+Proof. reflexivity.  Qed.
+
+
+(** *** *)
+
+
 (* ----------------------------------------------------------------- *)
 (*  *** Type Annotation Inference *)
 (** *** 型推論 *)
 
 (*  Let's write the definition of [repeat] again, but this time we
-    won't specify the types of any of the arguments. Will Coq still
+    won't specify the types of any of the arguments.  Will Coq still
     accept it? *)
 
 (** それでは、[repeat]関数の定義をもう一度書いてみましょう。ただし今回は、引数の型を指定しないでおきます。Coqはこれを受け入れてくれるでしょうか？ *)
@@ -217,18 +245,9 @@ Check repeat.
     few (which forces readers to perform type inference in their heads
     in order to understand your code). *)
 
-(** 両者は[repeat]として全く同じ型であることが分かります。Coqは型推論という機構を持っていて、
-    これを使い、[X]と[x]と[count]の型が何であるべきかを、その使われ方から導き出します。
-    例えば、[X]が[cons]の引数として使われたことがあれば、それは型に違いなく、
-    さらに[cons]の最初に引数で型が指定されていて、[l1]が[nil]や[cons]とマッチされているなら、
-    それは[list]に違いなかろう、といった具合です。
+(** 両者は[repeat]として全く同じ型であることが分かります。Coqは型推論という機構を持っていて、これを使い、[X]と[x]と[count]の型が何であるべきかを、その使われ方から導き出します。例えば、[X]が[cons]の引数として使われたことがあれば、それは型に違いなく、さらに[cons]の最初に引数で型が指定されていて、[l1]が[nil]や[cons]とマッチされているなら、それは[list]に違いなかろう、といった具合です。
 
-    このパワフルな機構の存在は、型情報を常にそこら中に書かなければならないわけではない、
-    ということを意味します。とはいえ、型を明示的に書くことは、ドキュメント作成やプログラムの
-    健全性をチェックする際に大いに意味はあるのですが。とにかく、これからは自分の書くコードで、
-    型指定を書くところ、書かないところのバランスを考えていく必要があります
-    （多すぎれば、コードが目障りな型指定で読みにくくなりますし、
-    少なすぎると、プログラムを読む人に型推論の結果をいちいち推測させなければならなくなります）。
+    このパワフルな機構の存在は、型情報を常にそこら中に書かなければならないわけではない、ということを意味します。とはいえ、型を明示的に書くことは、ドキュメント作成やプログラムの健全性をチェックする際に大いに意味はあるのですが。とにかく、これからは自分の書くコードで、型指定を書くところ、書かないところのバランスを考えていく必要があります（多すぎれば、コードが目障りな型指定で読みにくくなりますし、少なすぎると、プログラムを読む人に型推論の結果をいちいち推測させなければならなくなります）。
 *)
 
 (* ----------------------------------------------------------------- *)
@@ -253,7 +272,7 @@ Check repeat.
     application appears -- to determine what concrete type should
     replace the [_].
 
-    This may sound similar to type annotation inference -- indeed, the
+    This may sound similar to type annotation inference -- indeed,
     two procedures rely on the same underlying mechanisms.  Instead of
     simply omitting the types of some arguments to a function, like
 
@@ -265,8 +284,8 @@ Check repeat.
 
     to tell Coq to attempt to infer the missing information.
 
-    Using implicit arguments, the [count] function can be written like
-    this: *)
+    Using implicit arguments, the [count] function can be written
+    like this: *)
 (** 多相的な関数を使うためには、通常の引数に加えて型を一つ以上渡さなければなりません。例えば、[repeat]関数で自分を再帰している部分には、型[X]として渡されたものをそのまま渡すことになります。しかし[repeat]の二番目の引数は[X]の要素になり、最初の引数は、[X]以外になり得ないのはあきらかに見えます。・・・ならなぜわざわざそれを書く必要があるのでしょう。
 
     幸いなことに、Coqではこの種の冗長性を避けることができます。型を引数に渡すところではどこでも同化した引数"[_]"を書くことができるのです。これは「ここをあるべき型に解釈してください」という意味です。もう少し正確に言うと、Coqが[_]を見つけると、手近に集められる情報を集めます。それは、適用されている関数の型や、その適用が現れている文脈から予想される型などですが、それを使って[_]と置き換えるべき具体的な型を決定するのです。
@@ -346,7 +365,12 @@ Fixpoint repeat''' {X : Type} (x : X) (count : nat) : list X :=
     instance, consider the following alternative definition of the
     [list] type: *)
 (** （ここで注意してほしいのは、再帰呼び出しの[repeat''']ではもうすでに型を引数で指定していない、ということです。実のところ、引数に指定するとエラーになってしまいます！）
-これからは、この書き方をできるだけ使っていくことにします。ただし、[Inductive]宣言のコンストラクタでは[Implicit Arguments]を明示的に書くようにします。 その理由は、再帰的な型パラメータを暗黙的に宣言することは、コンストラクタだけでなく、その型自身が暗黙的になる事態を引き起します。例えば、次のような[list]型の定義を考えてみましょう。*)
+これからは、この書き方をできるだけ使っていくことにします。
+ただし、[Inductive]宣言のコンストラクタでは[Implicit Arguments]を
+明示的に書くようにします。
+その理由は、再帰的な型パラメータを暗黙的に宣言することは、
+コンストラクタだけでなく、その型自身が暗黙的になる事態を引き起します。
+例えば、次のような[list]型の定義を考えてみましょう。*)
 
 Inductive list' {X:Type} : Type :=
   | nil' : list'
@@ -357,7 +381,11 @@ Inductive list' {X:Type} : Type :=
     [list'] whether we are talking about lists of numbers or booleans
     or anything else, rather than [list' nat] or [list' bool] or
     whatever; this is a step too far. *)
-(** [X]は [list']それ自身を含んだ再帰的定義全体で、暗黙的に宣言されているために、その[list']が数値やbooleanやその他の型のリストであったとしても、 [list' nat]や[list' bool]などの書き方ではなく、ただ[list']とだけ書かなくてはならなくなりました。やりすぎです。*)
+(** [X]は [list']それ自身を含んだ再帰的定義全体で、
+暗黙的に宣言されているために、
+その[list']が数値やbooleanやその他の型のリストであったとしても、 
+[list' nat]や[list' bool]などの書き方ではなく、
+ただ[list']とだけ書かなくてはならなくなりました。やりすぎです。*)
 
 (*  Let's finish by re-implementing a few other standard list
     functions on our new polymorphic lists... *)
@@ -395,8 +423,6 @@ Proof. reflexivity.  Qed.
 
 (* ----------------------------------------------------------------- *)
 (*  *** Supplying Type Arguments Explicitly *)
-(** *** 明示的に型引数を与えること *)
-
 (*  One small problem with declaring arguments [Implicit] is
     that, occasionally, Coq does not have enough local information to
     determine a type argument; in such cases, we need to tell Coq that
@@ -453,7 +479,95 @@ Definition list123''' := [1; 2; 3].
 (** *** 練習問題 *)
 
 (*  **** Exercise: 2 stars, optional (poly_exercises) *)
-(** **** 練習問題: ★★, optional (poly_exercises) *combines them
+(** **** 練習問題: ★★, optional (poly_exercises) *)
+(*  Here are a few simple exercises, just like ones in the [Lists]
+    chapter, for practice with polymorphism.  Complete the proofs below. *)
+(** ここにあるいくつかの練習問題は、List_J.vにあったものと同じですが、多相性の練習になります。以下の証明を完成させなさい。 *)
+
+Theorem app_nil_r : forall (X:Type), forall l:list X,
+  l ++ [] = l.
+Proof.
+  (* FILL IN HERE *) Admitted.
+
+Theorem app_assoc : forall A (l m n:list A),
+  l ++ m ++ n = (l ++ m) ++ n.
+Proof.
+  (* FILL IN HERE *) Admitted.
+
+Lemma app_length : forall (X:Type) (l1 l2 : list X),
+  length (l1 ++ l2) = length l1 + length l2.
+Proof.
+  (* FILL IN HERE *) Admitted.
+(** [] *)
+
+(** **** Exercise: 2 stars, optional (more_poly_exercises)  *)
+(*  **** 練習問題: ★★, optional (more_poly_exercises) *)
+(*  Here are some slightly more interesting ones... *)
+(** もっと興味深い定理があります... *)
+
+Theorem rev_app_distr: forall X (l1 l2 : list X),
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+  (* FILL IN HERE *) Admitted.
+
+Theorem rev_involutive : forall X : Type, forall l : list X,
+  rev (rev l) = l.
+Proof.
+  (* FILL IN HERE *) Admitted.
+(** [] *)
+
+(* ================================================================= *)
+(*  ** Polymorphic Pairs *)
+(** ** 多相的なペア *)
+
+(** Following the same pattern, the type definition we gave in
+    the last chapter for pairs of numbers can be generalized to
+    _polymorphic pairs_ (or _products_): *)
+(** 次も同様に、前の章で作った数値のペア(良くプロダクト(積)とも呼ばれます)を多相的にすることを考えます。 *)
+
+Inductive prod (X Y : Type) : Type :=
+| pair : X -> Y -> prod X Y.
+
+Arguments pair {X} {Y} _ _.
+
+(*  As with lists, we make the type arguments implicit and define the
+    familiar concrete notation. *)
+(** リストと同様、型引数を暗黙にし、具体的な表記法を定義します。 *)
+
+Notation "( x , y )" := (pair x y).
+
+(*  We can also use the [Notation] mechanism to define the standard
+    notation for product _types_: *)
+(** また、_型_の掛け合わせとしての、より標準的な表記法も登録しておきます。 *)
+
+Notation "X * Y" := (prod X Y) : type_scope.
+
+(*  (The annotation [: type_scope] tells Coq that this abbreviation
+    should only be used when parsing types.  This avoids a clash with
+    the multiplication symbol.) *)
+(** （[type_scope]というアノテーションは、この省略形が、型を解析する際にのみ使われるものであることを示しています。これによって、[*]が乗算の演算子と衝突することを避けています。*)
+
+(*  It is easy at first to get [(x,y)] and [X*Y] confused.
+    Remember that [(x,y)] is a _value_ built from two other values,
+    while [X*Y] is a _type_ built from two other types.  If [x] has
+    type [X] and [y] has type [Y], then [(x,y)] has type [X*Y]. *)
+(** 最初は、[(x,y)]と[X*Y]がこんがらがりやすいかもしれません。[(x,y)]は二つの別の値から生成された_値_であり、[X*Y]は、二つの別の型から生成される_型_であることを忘れないでいてください。もし[x]が型[X]を持っており[y]が型[Y]を持っているならば、[(x,y)]は、型[X*Y]を持ちます。*)
+
+(*  The first and second projection functions now look pretty
+    much as they would in any functional programming language. *)
+(** ペアの最初の要素、２番目の要素を返す射影関数は他のプログラミング言語で書いたものと比べると若干長くなります。 *)
+
+Definition fst {X Y : Type} (p : X * Y) : X :=
+  match p with
+  | (x, y) => x
+  end.
+
+Definition snd {X Y : Type} (p : X * Y) : Y :=
+  match p with
+  | (x, y) => y
+  end.
+
+(* The following function takes two lists and combines them
     into a list of pairs.  In other functional languages, it is often
     called [zip]; we call it [combine] for consistency with Coq's
     standard library. *)
@@ -498,8 +612,8 @@ Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y)
 (** [split]関数は[combine]と全く逆で、ペアのリストを引数に受け取り、リストのペアを返します。多くの関数型言語とで[unzip]と呼ばれているものです。次の段落のコメントをはずし、[split]関数の定義を完成させなさい。続くテストを通過することも確認しなさい。 *)
 
 Fixpoint split {X Y : Type} (l : list (X*Y))
-               : (list X) * (list Y) :=
-(* FILL IN HERE *) admit.
+               : (list X) * (list Y)
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example test_split:
   split [(1,false);(2,false)] = ([1;2],[false;false]).
@@ -507,7 +621,7 @@ Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (* ** Polymorphic Options *)
 (** ** 多相的オプション *)
 
@@ -524,7 +638,7 @@ Arguments None {X}.
 
 (*  We can now rewrite the [nth_error] function so that it works
     with any type of lists. *)
-(** また、[index]関数も、色々な型のリストで使えるように定義し直しましょう。 *)
+(** また、[nth_error]関数も、色々な型のリストで使えるように定義し直しましょう。 *)
 
 Fixpoint nth_error {X : Type} (l : list X) (n : nat)
                    : option X :=
@@ -547,8 +661,8 @@ Proof. reflexivity. Qed.
     passes the unit tests below. *)
 (** 前の章に出てきた[hd_error]関数の多相版を定義しなさい。。次の単体テストでの確認も忘れずに。 *)
 
-Definition hd_error {X : Type} (l : list X) : option X :=
-  (* FILL IN HERE *) admit.
+Definition hd_error {X : Type} (l : list X) : option X
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 (*  Once again, to force the implicit arguments to be explicit,
     we can use [@] before the name of the function. *)
@@ -562,7 +676,7 @@ Example test_hd_error2 : hd_error  [[1];[2]]  = Some [1].
  (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ----------------------------------------------------------------- *)
+(* ################################################################# *)
 (* * Functions as Data *)
 (** * データとしての関数 *)
 
@@ -573,7 +687,7 @@ Example test_hd_error2 : hd_error  [[1];[2]]  = Some [1].
     results, stored in data structures, etc.*)
 (** 他の多くの近代的なプログラミング言語 --全ての関数型言語(ML, Haskell, Scheme, Scala, Clojureなど) を含む -- と同様、Coqは関数をファーストクラスに属するものとして取り扱います。つまりそれは、関数を他の関数の引数として渡したり、結果として関数を返したり、データ構造の中に関数を含めたりすることができるということです。*)
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (* ** Higher-Order Functions *)
 (** ** 高階関数 *)
 
@@ -599,7 +713,7 @@ Proof. reflexivity.  Qed.
 Example test_doit3times': doit3times negb true = false.
 Proof. reflexivity.  Qed.
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (** ** Filter *)
 (** ** フィルター (Filter)関数 *)
 
@@ -648,7 +762,7 @@ Proof. reflexivity.  Qed.
 Example test_countoddmembers'3:   countoddmembers' nil = 0.
 Proof. reflexivity.  Qed.
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (** ** 無名（匿名）関数 *)
 
 (*  It is arguably a little sad, in the example just above, to
@@ -688,10 +802,10 @@ Proof. reflexivity.  Qed.
     [filter_even_gt7] that takes a list of natural numbers as input
     and returns a list of just those that are even and greater than
     7. *)
-(** [filter]関数を使い、数値のリストを入力すると、そのうち偶数でなおかつ7より大きい要素だけを取り出す[filter_even_gt7]関数を書きなさい。 *)
+(** [filter]関数を使い、数値のリストを入力すると、そのうち偶数でなおかつ7より大きい要素だけを取り出す[filter_even_gt7]関数を([Fixpoint]を使わずに)書きなさい。 *)
 
-Definition filter_even_gt7 (l : list nat) : list nat :=
-  (* FILL IN HERE *) admit.
+Definition filter_even_gt7 (l : list nat) : list nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example test_filter_even_gt7_1 :
   filter_even_gt7 [1;2;6;9;10;3;12;8] = [10;12;8].
@@ -722,8 +836,8 @@ Example test_filter_even_gt7_2 :
 Definition partition {X : Type}
                      (test : X -> bool)
                      (l : list X)
-                   : list X * list X :=
-(* FILL IN HERE *) admit.
+                   : list X * list X
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example test_partition1: partition oddb [1;2;3;4;5] = ([1;3;5], [2;4]).
 (* FILL IN HERE *) Admitted.
@@ -731,7 +845,7 @@ Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
 (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (*  ** Map *)
 (** ** マップ（Map）関数 *)
 
@@ -803,8 +917,8 @@ Proof.
 *)
 
 Fixpoint flat_map {X Y:Type} (f:X -> list Y) (l:list X)
-                   : (list Y) :=
-  (* FILL IN HERE *) admit.
+                   : (list Y)
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example test_flat_map1:
   flat_map (fun n => [n;n;n]) [1;5;4]
@@ -833,9 +947,13 @@ Definition option_map {X Y : Type} (f : X -> Y) (xo : option X)
     done so correctly.  (This exercise is not to be turned in; it is
     probably easiest to do it on a _copy_ of this file that you can
     throw away afterwards.)  [] *)
-(** [filter]や[map]関数を定義したり使ったりするケースでは、多くの場合暗黙的な型引数が使われます。暗黙の型引数定義に使われている中括弧を普通の括弧に置き換え、必要なところに型引数を明示的に書くようにして、それが正しいかどうかをCoqでチェックしなさい。 [] *)
+(** [filter]や[map]関数を定義したり使ったりするケースでは、
+ 多くの場合暗黙的な型引数が使われます。
+ 暗黙の型引数定義に使われている中括弧を普通の括弧に置き換え、
+ 必要なところに型引数を明示的に書くようにして、
+ それが正しいかどうかをCoqでチェックしなさい。 [] *)
 
-(* ----------------------------------------------------------------- *)
+(* ================================================================= *)
 (*  ** Fold *)
 (** ** 畳み込み（Fold）関数 *)
 
@@ -901,7 +1019,10 @@ Proof. reflexivity. Qed.
     different? *)
 (** [fold]関数が[X]と[Y]二つの型引数をとっていて、関数[f]が型[X]を引数にとり型[Y]を返すようになっていることに注目してください。[X]と[Y]が別々の型となっていることで、どのような場合に便利であるかを考えてください。 *)
 
-(* ----------------------------------------------------------------- *)
+(* FILL IN HERE *)
+(** [] *)
+
+(* ================================================================= *)
 (*  ** Functions That Construct Functions *)
 (** ** 関数を作成する関数 *)
 
@@ -955,7 +1076,7 @@ Proof. reflexivity.  Qed.
 Example test_plus3'' :  doit3times (plus 3) 0 = 9.
 Proof. reflexivity.  Qed.
 
-(* ----------------------------------------------------------------- *)
+(* ################################################################# *)
 (*  * Additional Exercises *)
 (** * さらなる練習問題 *)
 
@@ -987,8 +1108,8 @@ Theorem fold_length_correct : forall X (l : list X),
     below. *)
 (** [map]関数も[fold]を使って書くことができます。以下の[fold_map]を完成させなさい。 *)
 
-Definition fold_map {X Y:Type} (f : X -> Y) (l : list X) : list Y :=
-(* FILL IN HERE *) admit.
+Definition fold_map {X Y:Type} (f : X -> Y) (l : list X) : list Y
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 (*  Write down a theorem [fold_map_correct] in Coq stating that
    [fold_map] is correct, and prove it. *)
@@ -1026,8 +1147,8 @@ Definition prod_curry {X Y Z : Type}
 (** 練習問題として、その逆の[prod_uncurry]を定義し、二つの関数が互いに逆関数であることを証明しなさい。 *)
 
 Definition prod_uncurry {X Y Z : Type}
-  (f : X -> Y -> Z) (p : X * Y) : Z :=
-  (* FILL IN HERE *) admit.
+  (f : X -> Y -> Z) (p : X * Y) : Z
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 (*  As a trivial example of the usefulness of currying, we can use it
     to shorten one of the examples that we saw above: *)
@@ -1134,8 +1255,8 @@ Definition three : nat := @doit3times.
 (* Successor of a natural number *)
 (** 自然数の後者関数 *)
 
-Definition succ (n : nat) : nat :=
-  (* FILL IN HERE *) admit.
+Definition succ (n : nat) : nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example succ_1 : succ zero = one.
 Proof. (* FILL IN HERE *) Admitted.
@@ -1149,8 +1270,8 @@ Proof. (* FILL IN HERE *) Admitted.
 (*  Addition of two natural numbers: *)
 (** 二つの自然数の和: *)
 
-Definition plus (n m : nat) : nat :=
-  (* FILL IN HERE *) admit.
+Definition plus (n m : nat) : nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example plus_1 : plus zero one = one.
 Proof. (* FILL IN HERE *) Admitted.
@@ -1165,8 +1286,8 @@ Proof. (* FILL IN HERE *) Admitted.
 (*  Multiplication *)
 (** 積 *)
 
-Definition mult (n m : nat) : nat :=
-  (* FILL IN HERE *) admit.
+Definition mult (n m : nat) : nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example mult_1 : mult one one = one.
 Proof. (* FILL IN HERE *) Admitted.
@@ -1186,8 +1307,8 @@ Proof. (* FILL IN HERE *) Admitted.
     type: [nat] itself is usually problematic.) *)
 (** ヒント: 多相がここでは重要な役割を演じます。しかし、繰りかえし適用する正しい型を選ぶことは、技巧的になりえます。もし "Universe inconsistency"エラーに遭遇したら、違う型を試してみましょう。[nat]それ自身は、通常解決の難しいものです。 *)
 
-Definition exp (n m : nat) : nat :=
-  (* FILL IN HERE *) admit.
+Definition exp (n m : nat) : nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example exp_1 : exp two two = plus two two.
 Proof. (* FILL IN HERE *) Admitted.
@@ -1203,144 +1324,4 @@ End Church.
 
 End Exercises.
 
-(** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
-
-
-
-
-
-
-
-
-
-
-
-
-################################################### *)
-Digression: Currying *)
- 余談： カリー化 *)
-
-Similarly, but a bit more interestingly, here is a function
-at takes a function [f] from numbers to some type [X], a number
-], and a value [x], and constructs a function that behaves
-actly like [f] except that, when called with the argument [k],
- returns [x]. *)
-う少し面白い例を挙げます。次の関数は、数値から型[X]を戻す関数[f]と、数値[k]、型[X]の値[x]を引数にとり、[f]に[k]と同じ引数が与えられた場合だけ値[x]を返し、それ以外のときは[f]に[k]を渡した戻り値を返します。 *)
-
-tion override {X: Type} (f: nat->X) (k:nat) (x:X) : nat->X:=
-(k':nat) => if beq_nat k k' then x else f k'.
-
-r example, we can apply [override] twice to obtain a
-nction from numbers to booleans that returns [false] on [1] and
-] and returns [true] on all other arguments. *)
-とえば、この[override]関数を数値から[bool]型への関数に以下のように２回適用すると、値が[1]と[3]のときだけ[false]を返し、それ以外はtrueを返すようにすることができます。 *)
-
-tion fmostlytrue := override (override ftrue 1 false) 3 false.
-
-* *)
-
-e override_example1 : fmostlytrue 0 = true.
- reflexivity. Qed.
-
-e override_example2 : fmostlytrue 1 = false.
- reflexivity. Qed.
-
-e override_example3 : fmostlytrue 2 = true.
- reflexivity. Qed.
-
-e override_example4 : fmostlytrue 3 = false.
- reflexivity. Qed.
-
-* *)
-
-** 練習問題: ★ (override_example)  *)
-fore starting to work on the following proof, make sure you
-derstand exactly what the theorem is saying and can paraphrase
- in your own words.  The proof itself is straightforward. *)
-の証明にとりかかる前に、あなたがこの証明の意味することを理解しているか確認するため、証明内容を別の言葉で言い換えてください。証明自体は単純なものです。 *)
-
-m override_example : forall (b:bool),
-rride (constfun b) 3 true) 2 = b.
-
-ILL IN HERE *) Admitted.
- *)
-
-'ll use function overriding heavily in parts of the rest of the
-urse, and we will end up needing to know quite a bit about its
-operties.  To prove these properties, though, we need to know
-out a few more of Coq's tactics; developing these is the main
-pic of the next chapter.  For now, though, let's introduce just
-e very useful tactic that will also help us with proving
-operties of some of the other functions we have introduced in
-is chapter. *)
-のコースでこれ以降、関数のオーバーライド（上書き）がよく登場しますが、この性質について多くを知る必要はありません。しかし、これらの性質を証明するには、さらにいくつかのCoqのタクティックを知らなければなりません。それが、この章の残りの部分の主なトピックになります。 *)
-
-################################################### *)
-
-################################################### *)
-[unfold]タクティック *)
-
-metimes, a proof will get stuck because Coq doesn't
-tomatically expand a function call into its definition.  (This
- a feature, not a bug: if Coq automatically expanded everything
-ssible, our proof goals would quickly become enormous -- hard to
-ad and slow for Coq to manipulate!) *)
-折、Coqが関数を自動的に展開してくれないために証明が行き詰まってしまうことがあります（これは仕様であって、バグではありません。Coqがもし可能な展開を全て自動でやってしまったら、証明のゴールはたちまち巨大化して、読むこともCoqで操作することもできなくなってしまいます）。 *)
-
-m unfold_example_bad : forall m n,
-n = m ->
-3 n + 1 = m + 1.
-
-os m n H.
-t this point, we'd like to do [rewrite -> H], since 
-plus3 n] is definitionally equal to [3 + n].  However, 
-oq doesn't automatically expand [plus3 n] to its 
-efinition. *)
-  (* ここでは[rewrite -> H]としたいところです。なぜなら、[plus3 n]はと同じ定義と言えるからです。しかしCoqは[plus3 n]をその定義に従って自動的に展開してくれません。 *)
-  Abort.
-
-(*  The [unfold] tactic can be used to explicitly replace a
-    defined name by the right-hand side of its definition.  *)
-(** [unfold]タクティックは、定義された名前を、その定義の右側の記述に置き換えてくれるものです。  *)
-
-Theorem unfold_example : forall m n,
-  3 + n = m ->
-  plus3 n + 1 = m + 1.
-Proof.
-  intros m n H.
-  unfold plus3.
-  rewrite -> H.
-  reflexivity.  Qed.
-
-(*  Now we can prove a first property of [override]: If we
-    override a function at some argument [k] and then look up [k], we
-    get back the overridden value. *)
-(** 今我々は、[override]の最初の性質を証明することができるようになりました。もしある関数の引数のある値[k]をオーバーライドしてから引数[k]を与えると、オーバーライドされた値が帰る、というものです。 *)
-
-Theorem override_eq : forall {X:Type} x k (f:nat->X),
-  (override f k x) k = x.
-Proof.
-  intros X x k f.
-  unfold override.
-  rewrite <- beq_nat_refl.
-  reflexivity.  Qed.
-
-(*  This proof was straightforward, but note that it requires
-    [unfold] to expand the definition of [override]. *)
-(** この証明はストレートなものですが、[override]関数の展開に[unfold]を必要としている点だけ注意してください。 *)
-
-(** **** 練習問題: ★★ (override_neq) *)
-Theorem override_neq : forall (X:Type) x1 x2 k1 k2 (f : nat->X),
-  f k1 = x1 ->
-  beq_nat k2 k1 = false ->
-  (override f k2 x2) k1 = x1.
-Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
-
-(*  As the inverse of [unfold], Coq also provides a tactic
-    [fold], which can be used to "unexpand" a definition.  It is used
-    much less often. *)
-(** [unfold]の逆の機能として、Coqには[fold]というタクティックも用意されています。これは、展開された定義を元に戻してくれますが、あまり使われることはありません。 *)
-
-
+(** $Date: 2016-12-17 23:53:20 -0500 (Sat, 17 Dec 2016) $ *)
