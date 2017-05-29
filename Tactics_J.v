@@ -246,9 +246,9 @@ Proof.
     constructors are never equal.  For lists, the [cons] constructor
     is injective and [nil] is different from every non-empty list.
     For booleans, [true] and [false] are different.  (Since neither
-    [true] nor [false] take any arguments, their injectivity is not an
-    issue.)  And so on. *)
-(** 同じ原理が、全ての帰納的に定義された型にあてはまります。全てのコンストラクタは単射で、コンストラクタが違えば同じ値は生まれません。リストについて言えば[cons]コンストラクタは単射で、[nil]は全ての空でないリストと異なっています。[bool]型では、[true]と[false]は異なるものです（ただ、[true]も[false]も引数を取らないため、単射かどうか、という議論には意味がありません）。 *)
+    [true] nor [false] take any arguments, their injectivity is not
+    interesting.)  And so on. *)
+(** 同じ原理が、全ての帰納的に定義された型にあてはまります。全てのコンストラクタは単射で、コンストラクタが違えば同じ値は生まれません。リストについて言えば[cons]コンストラクタは単射で、[nil]は全ての空でないリストと異なっています。[bool]型では、[true]と[false]は異なるものです（ただ、[true]も[false]も引数を取らないため、単射かどうか、という議論は興味深いものではありません）。 *)
 
 (** Coq provides a tactic called [inversion] that allows us to
     exploit these principles in proofs. To see how to use it, let's
@@ -261,7 +261,7 @@ Theorem S_injective : forall (n m : nat),
 Proof.
   intros n m H.
 
-(*  By writing [inversion H] at this point, we ask Coq to
+(*  By writing [inversion H] at this point, we are asking Coq to
     generate all equations that it can infer from [H] as additional
     hypotheses, replacing variables in the goal as it goes. In the
     present example, this amounts to adding a new hypothesis [H1 : n =
@@ -1462,5 +1462,3 @@ Proof.
 (** [] *)
 
 (** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
-
-
