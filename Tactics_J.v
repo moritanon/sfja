@@ -1,31 +1,31 @@
 (*  * Tactics: More Basic Tactics *)
 (** * タクティック: 基本的なタクティックについてもう少し *)
 
-(*  This chapter introduces several more proof strategies and
-    tactics that allow us to prove more interesting properties of
-    functional programs.  We will see:
+(*  This chapter introduces several additional proof strategies
+    and tactics that allow us to begin proving more interesting
+    properties of functional programs.  We will see:
 
     - how to use auxiliary lemmas in both "forward-style" and
       "backward-style" proofs;
     - how to reason about data constructors (in particular, how to use
       the fact that they are injective and disjoint);
-    - how to create a strong induction hypothesis (and when such
+    - how to strengthen an induction hypothesis (and when such
       strengthening is required); and
     - more details on how to reason by case analysis. *)
 (* この章では、興味深い関数プログラムの特質を証明するのに便利な証明戦略とタクティックを幾つか紹介します。
  - "前向き"および、後ろ向きの証明における、補助定理の使いかた。
  - データコンストラクタについての推論。(特にそれらデータが単射であったり、互いに素であるという事実を使用するやりかた)
- - 強力な帰納法の仮定(そのような強力さが必要である場合)の生成の仕方。
+ - 帰納法の仮定(そのような強力さが必要である場合)の強化の仕方。
  - ケース分析による推論について詳しく。*)
 
 Require Export Poly.
 
-(* ###################################################### *)
+(* ################################################################# *)
 (*  * The [apply] Tactic *)
 (** * [apply] タクティック *)
 
 (*  We often encounter situations where the goal to be proved is
-    exactly the same as some hypothesis in the context or some
+    _exactly_ the same as some hypothesis in the context or some
     previously proved lemma. *)
 (** 証明をしていると、証明すべきゴールがコンテキスト中の仮定と同じであったり以前証明した補題と同じ>であることがしばしばあります。*)
 Theorem silly1 : forall (n m o p : nat),
@@ -106,29 +106,24 @@ Theorem silly3_firsttry : forall (n : nat),
 Proof.
   intros n H.
   simpl.
-  (* Here we cannot use [apply] directly *)
-Abort.
 
-(*  In this case we can use the [symmetry] tactic, which switches the
-    left and right sides of an equality in the goal. *)
-(** そのような場合には [symmetry] タクティックを使って、ゴールの等式の左辺と右辺を入れ替えることができます。 *)
-
-Theorem silly3 : forall (n : nat),
-     true = beq_nat n 5  ->
-     beq_nat (S (S n)) 7 = true.
-Proof.
-  intros n H.
+(** Here we cannot use [apply] directly, but we can use the [symmetry]
+    tactic, which switches the left and right sides of an equality in
+    the goal. *)
+(** ここで、[apply]を直接使うことは出来ませんが、[symmetry]タクティックを使って
+ゴールの等式の左辺と右辺を入れ替えることができます。 *)
   symmetry.
-  simpl. (* Actually, this [simpl] is unnecessary, since
-            [apply] will perform simplification first. *)
+  simpl. (* (This [simpl] is optional, since [apply] will perform
+            simplification first, if needed *)
+         (* この[simpl]はオプショナルなものですので、[apply]は必要ならば最初に簡約もしてくれます *)
   apply H.  Qed.
 
 (*  **** Exercise: 3 stars (apply_exercise1)  *)
-(** **** 練習問題: ★★★, recommended (apply_exercise1) *)
+(** **** 練習問題: ★★★, (apply_exercise1) *)
 (*  (_Hint_: You can use [apply] with previously defined lemmas, not
-    just hypotheses in the context.  Remember that [SearchAbout] is
+    just hypotheses in the context.  Remember that [Search] is
     your friend.) *)
-(** ヒント: コンテスキト中の補題以外にも、以前に定義した補題を [apply] することができます。こんなときには [SearchAbout] を使うのでしたね。*)
+(** ヒント: コンテスキト中の補題以外にも、以前に定義した補題を [apply] することができます。こんなときには [Search] を使うのでしたね。*)
 
 Theorem rev_exercise1 : forall (l l' : list nat),
      l = rev l' ->
@@ -137,17 +132,19 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 1 star, optional (apply_rewrite)  *)
-(** **** 練習問題: ★, optional (apply_rewrite) *)
+(*  **** Exercise: 1 star, optionalM (apply_rewrite)  *)
+(** **** 練習問題: ★, optionalM (apply_rewrite) *)
 (*  Briefly explain the difference between the tactics [apply] and
     [rewrite].  What are the situations where both can usefully be
-    applied? *)
+    applied?
+(* FILL IN HERE *)
+*)
 (** [apply] と [rewrite] の違いを簡単に説明しなさい。どちらもうまく使えるような場面はありますか？
 (* FILL IN HERE *)
 *)
 (** [] *)
 
-(* ###################################################### *)
+(* ################################################################# *)
 (*  * The [apply ... with ...] Tactic *)
 (** ** [apply ... with ...]タクティック *)
 
@@ -194,7 +191,8 @@ Proof.
     adding [with (m:=[c,d])] to the invocation of [apply]. *)
 (** ここで単純に[apply trans_eq]とすると（その補題の結論をゴールにマッチすることで）[X]を[[nat]]に、[n]を[[a,b]]に、[o]を[[e,f]]にあてはめようとします。しかしこのマッチングでは、[m]に何をあてはめるかを決めることができません。そこで、[with (m:=[c,d])]を明示的に情報として追加することで[apply]を動かします。 *)
 
-  apply trans_eq with (m:=[c;d]). apply eq1. apply eq2.   Qed.
+  apply trans_eq with (m:=[c;d]).
+  apply eq1. apply eq2.   Qed.
 
 (** Actually, we usually don't have to include the name [m] in
     the [with] clause; Coq is often smart enough to figure out which
@@ -212,7 +210,7 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ###################################################### *)
+(* ################################################################# *)
 (*  * The [inversion] Tactic *)
 (** *  [inversion] タクティック *)
 
@@ -280,14 +278,14 @@ Theorem inversion_ex1 : forall (n m o : nat),
 Proof.
   intros n m o H. inversion H. reflexivity. Qed.
 
-(*  It is possible to name the equations that [inversion]
-    generates with an [as ...] clause: *)
+(*  We can name the equations that [inversion] generates with an
+    [as ...] clause: *)
 (** [inversion]が生成する等式に、[as ...]を使って名前をつけることも出来ます。 *)
 Theorem inversion_ex2 : forall (n m : nat),
   [n] = [m] ->
   n = m.
 Proof.
-  intros n o H. inversion H as [Hno]. reflexivity.  Qed.
+  intros n m H. inversion H as [Hnm]. reflexivity.  Qed.
 
 (*  **** Exercise: 1 star (inversion_ex3)  *)
 (** **** 練習問題: ★ (inversion_ex3) *)
@@ -298,16 +296,6 @@ Example inversion_ex3 : forall (X : Type) (x y z : X) (l j : list X),
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-
-(*  While the injectivity of constructors allows us to reason
-    that [forall (n m : nat), S n = S m -> n = m], the converse of
-    this implication is an instance of a more general fact about
-    constructors and functions, which we will find useful below: *)
-(** コンストラクタの単射性が、[forall (n m : nat), S n = S m -> n = m]を示している一方で、この含意の反対がコンストラクタと関数についての一般的な事実の例です。このことはまた後で役立つことがわかるでしょう。*)
-
-Theorem f_equal : forall (A B : Type) (f: A -> B) (x y: A),
-  x = y -> f x = f y.
-Proof. intros A B f x y eq. rewrite eq.  reflexivity.  Qed.
 
 (*  When used on a hypothesis involving an equality between
     _different_ constructors (e.g., [S n = O]), [inversion] solves the
@@ -398,19 +386,34 @@ Proof.
 
     - If [c] and [d] are different constructors, then the hypothesis
       [H] is contradictory, and the current goal doesn't have to be
-      considered. In this case, [inversion H] marks the current goal
-      as completed and pops it off the goal stack. *)
-(** 以上の議論をまとめると、[H]をコンテキスト中に現われる仮説、またはすでに証明された、次のような形をした補題とすると、
+      considered at all.  In this case, [inversion H] marks the
+      current goal as completed and pops it off the goal stack. *)
+(** 以上の議論をまとめると、[H]をコンテキスト中に現われる仮説、
+    またはすでに証明された、次のような形をした補題とすると、
       c a1 a2 ... an = d b1 b2 ... bm
 
 コンストラクタ [c]と[d]と引数[a1 ... an]と[b1 ... bn]を持っています。そのとき、[inversion H]は次のような効果を持ちます。
 
     - もし[c]と[d]が同じコンストラクタであるならば、このコンストラクタの単射性によって、[a1 = b1] [a2 = b2]..であることが分かります。
       [inversio H]はこれらの事実をコンテキストに加えます。そして、それらを使ってゴールを書き換えます。
-    - [c]と[d]が異なるコンストラクタである場合、仮説[H]は矛盾していますので現在のゴールについて考える必要はありません。
+    - [c]と[d]が異なるコンストラクタである場合、仮説[H]は矛盾していますので
+    現在のゴールについて考える必要は全くありません。
     この場合、[Inversion H]は現在のゴールに終了マークをつけてゴールスタックから取り除きます。*)
 
-(* ###################################################### *)
+(*  The injectivity of constructors allows us to reason that
+    [forall (n m : nat), S n = S m -> n = m]. The converse of this
+    implication is an instance of a more general fact about both
+    constructors and functions, which we will find useful in a few
+    places below: *)
+(** コンストラクタの単射性が、[forall (n m : nat), S n = S m -> n = m]を示している一方で、
+    この含意の反対がコンストラクタと関数についての一般的な事実の例です。
+    このことはまた後の何箇所かで役立つことになるでしょう。*)
+
+Theorem f_equal : forall (A B : Type) (f: A -> B) (x y: A),
+  x = y -> f x = f y.
+Proof. intros A B f x y eq. rewrite eq.  reflexivity.  Qed.
+
+(* ################################################################# *)
 (*  * Using Tactics on Hypotheses *)
 (** ** タクティックを仮定に使用する *)
 
@@ -486,7 +489,7 @@ Proof.
     (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ###################################################### *)
+(* ################################################################# *)
 (** * Varying the Induction Hypothesis *)
 (** * 帰納法の仮定の変更 *)
 
@@ -496,9 +499,9 @@ Proof.
     assumptions we move (using [intros]) from the goal to the context
     before invoking the [induction] tactic.  For example, suppose
     we want to show that the [double] function is injective -- i.e.,
-    that it always maps different arguments to different results:
+    that it maps different arguments to different results:
 
-    Theorem double_injective: forall n m, 
+    Theorem double_injective: forall n m,
       double n = double m -> n = m.
 
     The way we _start_ this proof is a bit delicate: if we begin with
@@ -536,9 +539,9 @@ Proof.
     + (* m = S m' *) inversion eq.
   - (* n = S n' *) intros eq. destruct m as [| m'].
     + (* m = O *) inversion eq.
-    + (* m = S m' *)  apply f_equal.
+    + (* m = S m' *) apply f_equal.
 
-(*  At this point, the induction hypothesis, [IHn'], does not give us
+(*  At this point, the induction hypothesis, [IHn'], does _not_ give us
     [n' = m'] -- there is an extra [S] in the way -- so the goal is
     not provable. *)
 (** ここでつまってしまいました。  帰納法の仮定 [IHn']は n' = m' を与えてくれません。 --  余計なSがあります。 そのためゴールは証明不可能です。*)
@@ -698,7 +701,7 @@ Proof.
     performed automatically by the [apply] in the next step), then
     [IHn'] gives us exactly what we need to finish the proof. *)
 (** ここで、[destruct m]の二つ目のケースに我々はいます。[m']はこの時点のコンテキストのなかで言及されている[m']は実際、我々が言及を開始したものの一つ前のものです。もし、一般の[m]をIHの中で我
-々がたった今言及した[m']を用いてインスタンス化する(このインスタンス化は[apply]を実行することで自動的に行われるのですが)ならば、 我々が証明を終らせるために必要なものを確かに与えてくれるでしょう。なに書いてんだかさっぱり *)
+々がたった今言及した[m']を用いてインスタンス化する(このインスタンス化は[apply]を実行することで自動的に行われるのですが)ならば、 我々が証明を終らせるために必要なものを確かに与えてくれるでしょう。*)
 
       apply IHn'. inversion eq. reflexivity. Qed.
 
@@ -719,8 +722,8 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(** **** Exercise: 2 stars, advanced (beq_nat_true_informal)  *)
-(** **** 練習問題: ★★, advanced (beq_nat_true_informal) *)
+(** **** Exercise: 2 stars, advancedM (beq_nat_true_informal)  *)
+(** **** 練習問題: ★★, advancedM (beq_nat_true_informal) *)
 (** Give a careful informal proof of [beq_nat_true], being as explicit
     as possible about quantifiers. *)
 (** [beq_nat_true]の 非形式的な証明を可能な限り、数量子について明示的に行いなさい。*)
@@ -745,11 +748,11 @@ Proof.
     + (* n = S n' *) inversion eq.
   - (* m = S m' *) intros eq. destruct n as [| n'].
     + (* n = O *) inversion eq.
-    + (* n = S n' *)  apply f_equal.
+    + (* n = S n' *) apply f_equal.
         (* Stuck again here, just like before. *)
 Abort.
 
-(*  The problem here is that, to do induction on [m], we must first
+(*  The problem is that, to do induction on [m], we must first
     introduce [n].  (If we simply say [induction m] without
     introducing anything first, Coq will automatically introduce [n]
     for us!)  *)
@@ -757,7 +760,7 @@ Abort.
 
 (*  What can we do about this?  One possibility is to rewrite the
     statement of the lemma so that [m] is quantified before [n].  This
-    will work, but it's not nice: We don't want to have to twist the
+    works, but it's not nice: We don't want to have to twist the
     statements of lemmas to fit the needs of a particular strategy for
     proving them -- we want to state them in the most clear and
     natural way. *)
@@ -896,7 +899,7 @@ Proof.
 (*  **** Exercise: 4 stars, optional (app_length_twice)  *)
 (** **** 練習問題: ★★★★, optional (app_length_twice) *)
 (*  Prove this by induction on [l], without using [app_length] from [Lists]. *)
-(** [l1]に関する帰納法を用いて証明しなさい。また、[app_length]は使用しないこと *)
+(** [l]に関する帰納法を用いて証明しなさい。また、[app_length]は使用しないこと *)
 
 Theorem app_length_twice : forall (X:Type) (n:nat) (l:list X),
      length l = n ->
@@ -1200,7 +1203,7 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ################################################################## *)
+(* ################################################################# *)
 (*  * Review *)
 (** * レビュー *)
 
@@ -1257,8 +1260,8 @@ Proof.
       - [inversion]: reason by injectivity and distinctness of
         constructors
 
-      - [assert (e) as H]: introduce a "local lemma" [e] and call it
-        [H]
+      - [assert (H: e)] (or [assert (e) as H]): introduce a "local
+        lemma" [e] and call it [H]
 
       - [generalize dependent x]: move the variable [x] (and anything
         else that depends on it) from the context back to an explicit
