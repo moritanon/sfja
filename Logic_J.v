@@ -1,7 +1,7 @@
 (* * Logic: Logic in Coq *)
 (** * Logic_J: Coqにおける論理 *)
 
-Require Export Tactics. 
+Require Export Tactics.
 
 (* In previous chapters, we have seen many examples of factual
     claims (_propositions_) and ways of presenting evidence of their
@@ -10,6 +10,7 @@ Require Export Tactics.
     implications ([P -> Q]), and with quantified propositions ([forall
     x, P]).  In this chapter, we will see how Coq can be used to carry
     out other familiar forms of logical reasoning.
+
     Before diving into details, let's talk a bit about the status of
     mathematical statements in Coq.  Recall that Coq is a _typed_
     language, which means that every sensible expression in its world
@@ -35,10 +36,12 @@ Check 3 = 3.
 Check forall n m : nat, n + m = m + n.
 (* ===> Prop *)
 
-(*  Note that all well-formed propositions have type [Prop] in Coq,
-    regardless of whether they are true or not. Simply _being_ a
-    proposition is one thing; being _provable_ is something else! *)
-(** Coqでは、全てのちゃんとした形の命題は、[Prop]という型を持っており、それが真であるかどうかは関係ありません。
+(*  Note that _all_ syntactically well-formed propositions have type
+    [Prop] in Coq, regardless of whether they are true or not.
+
+    Simply _being_ a proposition is one thing; being _provable_ is
+    something else! *)
+(** Coqでは、文法的に正しい形の_全ての_命題は、[Prop]という型を持っており、それが真であるかどうかは関係ありません。
 単に_命題である_ということは、その命題が証明可能であるかどうかとは別のことです! *)
 
 Check forall n : nat, n = 2.
@@ -63,121 +66,149 @@ Proof. reflexivity.  Qed.
     can give a name to a proposition using a [Definition], just as we
     have given names to expressions of other sorts. *)
 (** しかし命題は、多くの他の方法でも使用されています。例えば、他の種類の式に名前をつけるのと同じように、[Definition]を使って、命題に名前をつけることができます。
-Definition plus_fact : Prop  :=  2 + 2 = 4.
+Definition plus_fact : Prop := 2 + 2 = 4.
 Check plus_fact.
 (* ===> plus_fact : Prop *)
+
 (*  We can later use this name in any situation where a proposition is
     expected -- for example, as the claim in a [Theorem] declaration. *)
 (** 後なって命題が必要となるあらゆる状況で、その命題につけた名前が使われます。-- 例えば、[Theorem]の宣言の中とかです。*)
 Theorem plus_fact_is_true :
   plus_fact.
 Proof. reflexivity.  Qed.
+
 (*  We can also write _parameterized_ propositions -- that is,
     functions that take arguments of some type and return a
-    proposition. For instance, the following function takes a number
+    proposition. *)
+(** _パラメータつきの_命題というものを書くことも出来ます。--すなわち、何か型を物引数を取ったり、命題を返す関数です。*)
+
+(*  For instance, the following function takes a number
     and returns a proposition asserting that this number is equal to
     three: *)
-(** _パラメータつきの_命題というものを書くことも出来ます。--すなわち、何か型を物引数を取ったり、命題を返す関数です。
-例えば、次の関数は、自然数を引数にとり、その自然数が3と等しいことを主張する命題を返却します: *)
+(** 例えば、次の関数は、自然数を引数にとり、その自然数が3と等しいことを主張する命題を返却します: *)
 Definition is_three (n : nat) : Prop :=
   n = 3.
 Check is_three.
 (* ===> nat -> Prop *)
+
 (*  In Coq, functions that return propositions are said to define
-    _properties_ of their arguments.  For instance, here's a
-    polymorphic property defining the familiar notion of an _injective
-    function_. *)
-(** Coqにおいて、命題を返す関数は、それら引数のプロパティを定義するものであると言われます。よく知られた概念である単射関数を定義する多相的な属性の例を挙げてみましょう。*)
+    _properties_ of their arguments.
+
+    For instance, here's a (polymorphic) property defining the
+    familiar notion of an _injective function_. *)
+(** Coqにおいて、命題を返す関数は、それら引数のプロパティを定義するものであると言われます。
+よく知られた概念である単射関数を定義する(多相的な)属性の例を挙げてみましょう。*)
+
 Definition injective {A B} (f : A -> B) :=
   forall x y : A, f x = f y -> x = y.
+
 Lemma succ_inj : injective S.
 Proof.
   intros n m H. inversion H. reflexivity.
 Qed.
-(** The equality operator [=] that we have been using so far is also
-    just a function that returns a [Prop]. The expression [n = m] is
-    just syntactic sugar for [eq n m], defined using Coq's [Notation]
-    mechanism. Because [=] can be used with elements of any type, it
-    is also polymorphic: *)
+
+(*  The equality operator [=] is also a function that returns a
+    [Prop].
+
+    The expression [n = m] is syntactic sugar for [eq n m], defined
+    using Coq's [Notation] mechanism. Because [eq] can be used with
+    elements of any type, it is also polymorphic: *)
 (** これまでにも使用してきた、等しさを表す演算子[=]も[Prop]を返す関数に過ぎません。[n = m]という式は、[eq n m]の糖衣構文であり、
-Coqの「Notation]メカニズムを使用して定義されています。[=]はあらゆる型の要素と使用出来るのは、多相的でもあるからです。*)
+Coqの「Notation]メカニズムを使用して定義されています。[eq]はあらゆる型の要素と使用出来るのは、多相的でもあるからです。*)
+
 Check @eq.
 (* ===> forall A : Type, A -> A -> Prop *)
-(** (Notice that we wrote [@eq] instead of [eq]: The type argument [A]
-    to [eq] is declared as implicit, so we need to turn off implicit
-    arguments to see the full type of [eq].) *)
+
+(** (Notice that we wrote [@eq] instead of [eq]: The type
+    argument [A] to [eq] is declared as implicit, so we need to turn
+    off implicit arguments to see the full type of [eq].) *)
 (** [eq]の代わりに[@eq]と書いたことに気をつけましょう: [eq]に与える型変数[A]は暗黙的に宣言されていますので、
 [eq]の完全な型を見るために、暗黙の宣言から切り替える必要があります。*)
-(* #################################################################### *)
+
+(* ################################################################# *)
 (*  * Logical Connectives *)
 (** * 論理結合子 *)
+
+(* ================================================================= *)
 (*  ** Conjunction *)
 (** * 論理積 *)
-(*  The _conjunction_ or _logical and_ of propositions [A] and [B] is
-    written [A /\ B], denoting the claim that both [A] and [B] are
-    true. *)
-(** 命題[A]と[B]からなる_論理積_ 又は論理的なand_ は [A /\ B]と書きます。[A]と[B]が共に真であることを主張している。ということを意味します。 *)
+
+(*  The _conjunction_ (or _logical and_) of propositions [A] and [B]
+    is written [A /\ B], representing the claim that both [A] and [B]
+    are true. *)
+(** 命題[A]と[B]からなる_論理積_(又は_論理and_) は [A /\ B]と書きます。[A]と[B]が共に真であることを主張している。ということを意味します。 *)
+
 Example and_example : 3 + 4 = 7 /\ 2 * 2 = 4.
-(*  To prove a conjunction, use the [split] tactic.  Its effect is to
-    generate two subgoals, one for each part of the statement: *)
+
+(*  To prove a conjunction, use the [split] tactic.  It will generate
+    two subgoals, one for each part of the statement: *)
 (** 論理積を証明するために、[split]タクティックを使います。その効果は二つのサブゴールを生成して、それぞれの部分に割り当てます。*)
 Proof.
+  (* WORKED IN CLASS *)
   split.
   - (* 3 + 4 = 7 *) reflexivity.
   - (* 2 + 2 = 4 *) reflexivity.
 Qed.
-(*  More generally, the following principle works for any two
-    propositions [A] and [B]: *)
-(** もっと一般的に言えば、任意の二つの命題[A][B]に対して次に示す原理が働いています。
+
+(*  For any propositions [A] and [B], if we assume that [A] is true
+    and we assume that [B] is true, we can conclude that [A /\ B] is
+    also true. *)
+(*  任意の二つの命題[A]と[B]において、[A]と[B]が真であると仮定したとすると、
+    [A /\ B]も真であると結論着けることが出来ます *)
+
 Lemma and_intro : forall A B : Prop, A -> B -> A /\ B.
 Proof.
   intros A B HA HB. split.
   - apply HA.
   - apply HB.
 Qed.
-(** A logical statement with multiple arrows is just a theorem that
-    has several hypotheses.  Here, [and_intro] says that, for any
-    propositions [A] and [B], if we assume that [A] is true and we
-    assume that [B] is true, then [A /\ B] is also true.
-    Since applying a theorem with hypotheses to some goal has the
+
+(*  Since applying a theorem with hypotheses to some goal has the
     effect of generating as many subgoals as there are hypotheses for
-    that theorem, we can, apply [and_intro] to achieve the same effect
+    that theorem, we can apply [and_intro] to achieve the same effect
     as [split]. *)
-(** 複数の矢印を持つ論理的な文は仮説を持つ定理に過ぎません。ここで、[and_intro]が言うことは、任意の命題[A]と[B]があるとして、
-[A]がtrueであると仮定し、[B]もtrueであると仮定するならば、[A /\ B]もまたtrueである。ということです。
-仮説を伴う[and_intro]定理をゴールに適用することによって、仮説のぶんだけ、サブゴールが生成される、[split]と同じ効果があります。
+(** 仮説を伴う[and_intro]定理をゴールに適用することによって、仮説のぶんだけサブゴールが
+生成される、[split]と同じ効果を得ることが出来ます。*)
+
 Example and_example' : 3 + 4 = 7 /\ 2 * 2 = 4.
 Proof.
   apply and_intro.
   - (* 3 + 4 = 7 *) reflexivity.
   - (* 2 + 2 = 4 *) reflexivity.
 Qed.
+
 (** **** 練習問題: ★★ (and_exercise) *)
 Example and_exercise :
   forall n m : nat, n + m = 0 -> n = 0 /\ m = 0.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  So much for proving conjunctive statements.  To go in the other
-    direction -- i.e., to _use_ a conjunctive hypothesis to prove
+    direction -- i.e., to _use_ a conjunctive hypothesis to help prove
     something else -- we employ the [destruct] tactic.
-    If the proof context contains a hypothesis [H] of the form [A /\
-    B], writing [destruct H as [HA HB]] will remove [H] from the
+
+    If the proof context contains a hypothesis [H] of the form
+    [A /\ B], writing [destruct H as [HA HB]] will remove [H] from the
     context and add two new hypotheses: [HA], stating that [A] is
-    true, and [HB], stating that [B] is true.  For instance: *)
+    true, and [HB], stating that [B] is true.  *)
 (**  論理積の文を証明するのはこれまでとします。別の方向 -- 論理積を仮定として使って何かを証明したり---
 に行くために、[destruct]タクティックを使うことにします。*)
+
 Lemma and_example2 :
   forall n m : nat, n = 0 /\ m = 0 -> n + m = 0.
 Proof.
+  (* WORKED IN CLASS *)
   intros n m H.
   destruct H as [Hn Hm].
   rewrite Hn. rewrite Hm.
   reflexivity.
 Qed.
-(*  As usual, we can also destruct [H] when we introduce it instead of
-    introducing and then destructing it: *)
-(** 通常、[H]を導入してそのあとデストラクトする代わりに、導入したときに[H]をデストラクト出来ます。*)
+
+(*  As usual, we can also destruct [H] right when we introduce it,
+    instead of introducing and then destructing it: *)
+(** 通常、[H]を導入するときに、[H]を正しくデストラクトすることが出来ます。*)
+
 Lemma and_example2' :
   forall n m : nat, n = 0 /\ m = 0 -> n + m = 0.
 Proof.
@@ -185,11 +216,13 @@ Proof.
   rewrite Hn. rewrite Hm.
   reflexivity.
 Qed.
+
 (*  You may wonder why we bothered packing the two hypotheses [n = 0]
     and [m = 0] into a single conjunction, since we could have also
     stated the theorem with two separate premises: *)
 (** 一つの論理積に対して、二つの仮説[n = 0]と[m = 0]をわざわざ包む必要があるんだろうと思うかもしれません。
 二つの分かれた前提を持つ定理をすでに提示しているからです。*)
+
 Lemma and_example2'' :
   forall n m : nat, n = 0 -> m = 0 -> n + m = 0.
 Proof.
@@ -197,12 +230,12 @@ Proof.
   rewrite Hn. rewrite Hm.
   reflexivity.
 Qed.
-(** In this case, there is not much difference between the two
-    theorems.  But it is often necessary to explicitly decompose
-    conjunctions that arise from intermediate steps in proofs,
-    especially in bigger developments.  Here's a simplified
-    example: *)
-(** この場合、二つの定理の間に違いがあまりありません。しかし、証明の途中で生成される論理積を明示的に分解する必要がしばしば出てきます。
+
+(*  For this theorem, both formulations are fine.  But it's important
+    to understand how to work with conjunctive hypotheses because
+    conjunctions often arise from intermediate steps in proofs,
+    especially in bigger developments.  Here's a simple example: *)
+(** この定理において、二つの公式の正しさは明らかです。しかし、証明の途中で生成される論理積を明示的に分解する必要がしばしば出てきます。
 とりわけ、もっと大きい証明を行なうときなどです。ここに単純化した例を示します。
 Lemma and_example3 :
   forall n m : nat, n + m = 0 -> n * m = 0.
@@ -213,16 +246,19 @@ Proof.
   destruct H' as [Hn Hm].
   rewrite Hn. reflexivity.
 Qed.
-(** Another common situation with conjunctions is that we know [A /\
-    B] but in some context we need just [A] (or just [B]).  The
-    following lemmas are useful in such cases: *)
+
+(*  Another common situation with conjunctions is that we know
+    [A /\ B] but in some context we need just [A] (or just [B]).
+    The following lemmas are useful in such cases: *)
 (** 別の論理積が出てくるよくある状況は、[A /\ B]であることは知っているが、今Contextに必要なのは単なる[A](または単なる[B])であるような場合です。
 次のような補題が、そのようなケースに役に立つでしょう。*)
+
 Lemma proj1 : forall P Q : Prop,
   P /\ Q -> P.
 Proof.
   intros P Q [HP HQ].
   apply HP.  Qed.
+
 (*  **** Exercise: 1 star, optional (proj2)  *)
 (** **** 練習問題: ★, optional (proj2) *)
 Lemma proj2 : forall P Q : Prop,
@@ -230,6 +266,7 @@ Lemma proj2 : forall P Q : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  Finally, we sometimes need to rearrange the order of conjunctions
     and/or the grouping of conjuncts in multi-way conjunctions.  The
     following commutativity and associativity theorems come in handy
@@ -258,18 +295,23 @@ Proof.
   intros P Q R [HP [HQ HR]].
 (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  By the way, the infix notation [/\] is actually just syntactic
     sugar for [and A B].  That is, [and] is a Coq operator that takes
     two propositions as arguments and yields a proposition. *)
+
 (** ところで、[/\]という中置記法は実際には、[and A B]の糖衣構文に過ぎません。すなわち、[and]はCoqの二つの命題を引数にとって、命題を返す演算子であるということです。*)
 Check and.
 (* ===> and : Prop -> Prop -> Prop *)
+
+(* ================================================================= *)
 (*  ** Disjunction *)
 (** ** 論理和 *)
 (*  Another important connective is the _disjunction_, or _logical or_
     of two propositions: [A \/ B] is true when either [A] or [B]
     is.  (Alternatively, we can write [or A B], where [or : Prop ->
     Prop -> Prop].)
+
     To use a disjunctive hypothesis in a proof, we proceed by case
     analysis, which, as for [nat] or other data types, can be done
     with [destruct] or [intros].  Here is an example: *)
@@ -287,32 +329,37 @@ Proof.
     rewrite Hm. rewrite <- mult_n_O.
     reflexivity.
 Qed.
+
 (*  We can see in this example that, when we perform case analysis on
     a disjunction [A \/ B], we must satisfy two proof obligations,
     each showing that the conclusion holds under a different
     assumption -- [A] in the first subgoal and [B] in the second.
     Note that the case analysis pattern ([Hn | Hm]) allows us to name
-    the hypothesis that is generated in each subgoal.
-    Conversely, to show that a disjunction holds, we need to show that
-    one of its sides does. This is done via two tactics, [left] and
-    [right].  As their names imply, the first one requires proving the
-    left side of the disjunction, while the second requires proving
-    its right side.  Here is a trivial use... *)
+    the hypothesis that is generated in each subgoal. *)
 (** この例の中で、論理和[A \/ B]のケース分析を行なう時、二つの証明の責任、結論が異なる仮定から保持されていること、
 -- 最初のサブゴール中の[A]と二つめのサブゴールの[B] -- を満たす必要があります。 ([Hn| Hm])というケース分析パターンは
-それぞれのサブゴールで生成される仮説に名前をつける必要があることに注意してください。
-反対に、論理和がゴールにある場合、論理和の一方が成り立つことを示す必要があります。これは二つのタクティックを経由することで達成されます。
+それぞれのサブゴールで生成される仮説に名前をつける必要があることに注意してください。*)
+
+(*  Conversely, to show that a disjunction holds, we need to show that
+    one of its sides does. This is done via two tactics, [left] and
+    [right].  As their names imply, the first one requires
+    proving the left side of the disjunction, while the second
+    requires proving its right side.  Here is a trivial use... *)
+(** 反対に、論理和がゴールにある場合、論理和の一方が成り立つことを示す必要があります。これは二つのタクティックを経由することで達成されます。
 [left]と[right]です。その名前が示すように、始めの方は、論理和の左側の証明を必要とし、もう一方は、右側を必要とします。
 簡単な使い方が以下になります… *)
+
 Lemma or_intro : forall A B : Prop, A -> A \/ B.
 Proof.
   intros A B HA.
   left.
   apply HA.
 Qed.
-(*  ... and a slightly more interesting example requiring the use of
-    both [left] and [right]: *)
+
+(*  ... and a slightly more interesting example requiring both [left]
+    and [right]: *)
 (** もう少し興味深い例は[left]と[right]の両方を必要になります。 *)
+
 Lemma zero_or_succ :
   forall n : nat, n = 0 \/ n = S (pred n).
 Proof.
@@ -1205,7 +1252,7 @@ Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
 (*  **** Exercise: 2 stars, recommended (All_forallb)  *)
-(** **** 練習問題: ★★★★ , recommended (All_forallb)  *)
+(** **** 練習問題: ★★ , recommended (All_forallb)  *)
 (*  Recall the function [forallb], from the exercise
     [forall_exists_challenge] in chapter [Tactics]: *)
 (** [Tactics]の章の[forall_exists_challenge]にあった[forallb]関数を思い出してください。*)
