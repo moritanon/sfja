@@ -381,6 +381,8 @@ Theorem or_commut : forall P Q : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
+(* ================================================================= *)
 (*  ** Falsehood and Negation *)
 (** ** 偽と否定 *)
 (*  So far, we have mostly been concerned with proving that certain
@@ -406,12 +408,17 @@ Coqにおいて、そのような否定文は否定の演算子[~]で表すこ�
 Coqちょっと違った方式をとっており、[~P]を[P -> False]として定義しています。すなわち、[False]は特別に矛盾した命題として
 標準ライブラリに定義されています。*)
 
-Module MyNot. 
+Module MyNot.
+
 Definition not (P:Prop) := P -> False.
+
 Notation "~ x" := (not x) : type_scope.
+
 Check not.
 (* ===> Prop -> Prop *)
+
 End MyNot.
+
 (*  Since [False] is a contradictory proposition, the principle of
     explosion also applies to it. If we get [False] into the proof
     context, we can [destruct] it to complete any goal: *)
@@ -422,10 +429,12 @@ Proof.
   (* WORKED IN CLASS *)
   intros P contra.
   destruct contra.  Qed.
+
 (*  The Latin _ex falso quodlibet_ means, literally, "from falsehood
     follows whatever you like"; this is another common name for the
     principle of explosion. *)
 (** ラテン語の _ex falso quodlibet_ の意味は、文字通り、「偽からは望むもの全てが得られる」というものです。これは爆発原理につけられたもう一つの名前です。*)
+
 (*  **** Exercise: 2 stars, optional (not_implies_our_not)  *)
 (** **** 練習問題: ★★, optional (not_implies_our_not) *)
 (*  Show that Coq's definition of negation implies the intuitive one
@@ -436,22 +445,27 @@ Fact not_implies_our_not : forall (P:Prop),
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  This is how we use [not] to state that [0] and [1] are different
     elements of [nat]: *)
 (** これは、[0]と[1]が[nat]の要素として異なっているということを述べるために[not]を使う方法です。*)
+
 Theorem zero_not_one : ~(0 = 1).
 Proof.
   intros contra. inversion contra.
 Qed.
+
 (*  Such inequality statements are frequent enough to warrant a
     special notation, [x <> y]: *)
 (** このような等しいことの否定を示す文は [x <> y]という記法を使うのにぴったりです。*)
 Check (0 <> 1).
 (* ===> Prop *)
+
 Theorem zero_not_one' : 0 <> 1.
 Proof.
   intros H. inversion H.
 Qed.
+
 (*  It takes a little practice to get used to working with negation in
     Coq.  Even though you can see perfectly well why a statement
     involving negation is true, it can be a little tricky at first to
@@ -463,12 +477,14 @@ Theorem not_False :
   ~ False.
 Proof.
   unfold not. intros H. destruct H. Qed.
+
 Theorem contradiction_implies_anything : forall P Q : Prop,
   (P /\ ~P) -> Q.
 Proof.
   (* WORKED IN CLASS *)
   intros P Q [HP HNA]. unfold not in HNA.
-  apply HNA in HP. destruct HP.  Qed.
+   apply HNA in HP. destruct HP.  Qed.
+
 Theorem double_neg : forall P : Prop,
   P -> ~~P.
 Proof.
@@ -477,11 +493,12 @@ Proof.
 (** **** Exercise: 2 stars, advanced, recommended (double_neg_inf)  *)
 (** Write an informal proof of [double_neg]: *)
 (** [double_neg] の非形式的な証明を書きなさい。:
-   _Theorem_: [P] implies [~~P], for any proposition [P].
-   _Proof_:
+
+   _Theorem_: [P] implies [~~P], for any proposition [P]. *)
+
 (* FILL IN HERE *)
-   []
-*)
+(** [] *)
+
 (*  **** Exercise: 2 stars, recommended (contrapositive)  *)
 (** **** 練習問題: ★★, recommended (contrapositive) *)
 Theorem contrapositive : forall P Q : Prop,
