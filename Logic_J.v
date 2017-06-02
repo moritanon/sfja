@@ -506,6 +506,7 @@ Theorem contrapositive : forall P Q : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  **** Exercise: 1 star (not_both_true_and_false)  *)
 (** **** 練習問題: ★ (not_both_true_and_false) *)
 Theorem not_both_true_and_false : forall P : Prop,
@@ -513,10 +514,12 @@ Theorem not_both_true_and_false : forall P : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  **** Exercise: 1 star, advanced (informal_not_PNP)  *)
 (** **** 練習問題: ★, advanced (informal_not_PNP) *)
 (** Write an informal proof (in English) of the proposition [forall P
     : Prop, ~(P /\ ~P)]. *)
+
 (* FILL IN HERE *)
 (** [] *)
 (*  Similarly, since inequality involves a negation, it requires a
@@ -529,6 +532,7 @@ Proof.
     [x<>y]. *)
 (** 同様に、非同値式は否定を含んでいるため、慣れるためにやっぱり練習が必要です。ここに役立つトリックを用意しました。もし無意味なゴール([true = false]みたいな)を証明しなければならくなったとき
 [ex_falso_quodlibet]を適用することで、ゴールを[False]に変更出来ます。このことは、コンテキスト中にある[~P]という形式の仮定を使うことをより容易にしてくれます。とくに、[x<>y]という形をしている仮定のときには。*)
+
 Theorem not_true_is_false : forall b : bool,
   b <> true -> b = false.
 Proof.
@@ -540,9 +544,11 @@ Proof.
   - (* b = false *)
     reflexivity.
 Qed.
+
 (*  Since reasoning with [ex_falso_quodlibet] is quite common, Coq
     provides a built-in tactic, [exfalso], for applying it. *)
 (** [ex_falso_quodlibet]を使った推論はとてもよくあるので、Coqにビルトインされたタクティック[exfalso]が用意されていて、適用することが出来ます。*)
+
 Theorem not_true_is_false' : forall b : bool,
   b <> true -> b = false.
 Proof.
@@ -553,14 +559,18 @@ Proof.
     apply H. reflexivity.
   - (* b = true *) reflexivity.
 Qed.
+
+(* ================================================================= *)
 (*  ** Truth *)
 (** 真 *)
+
 (*  Besides [False], Coq's standard library also defines [True], a
     proposition that is trivially true. To prove it, we use the
     predefined constant [I : True]: *)
 (** [False]に加えて、Coqの標準ライブラリは[True]も、単に自明に真な命題として定義しています。それを証明するには、予め定義された定数 [I :True]を使います: *)
 Lemma True_is_true : True.
 Proof. apply I. Qed.
+
 (*  Unlike [False], which is used extensively, [True] is used quite
     rarely, since it is trivial (and therefore uninteresting) to prove
     as a goal, and it carries no useful information as a hypothesis.
@@ -568,18 +578,26 @@ Proof. apply I. Qed.
     conditionals or as a parameter to higher-order [Prop]s.  We will
     see some examples such uses of [True] later on. *)
 (** [False] とは違い、広い意味で解釈すると [True] には理論的な意味で奇妙なところがあります。ゴールの証明に使うには当たり前すぎ（それゆえつまらない）、仮定として有意義な情報を与えてくれないのです。しかし条件文や、高階の[Prop]をパラメータで含む複雑な[Prop]を定義するときには役に立つこともあります) *)
+
+(* ================================================================= *)
 (*  ** Logical Equivalence *)
 (** ** 論理的同値 *)
-(** The handy "if and only if" connective, which asserts that two
+
+(*  The handy "if and only if" connective, which asserts that two
     propositions have the same truth value, is just the conjunction of
     two implications. *)
 (** この、"if and only if（～である時、その時に限り）" で表される「両含意」という論理は馴染みのあるもので、次の二つの「ならば（含意）」をandでつないだものです。*)
+
 Module MyIff.
+
 Definition iff (P Q : Prop) := (P -> Q) /\ (Q -> P).
+
 Notation "P <-> Q" := (iff P Q)
                       (at level 95, no associativity)
                       : type_scope.
+
 End MyIff.
+
 Theorem iff_sym : forall P Q : Prop,
   (P <-> Q) -> (Q <-> P).
 Proof.
@@ -588,6 +606,7 @@ Proof.
   split.
   - (* -> *) apply HBA.
   - (* <- *) apply HAB.  Qed.
+
 Lemma not_true_iff_false : forall b,
   b <> true <-> b = false.
 Proof.
@@ -597,6 +616,7 @@ Proof.
   - (* <- *)
     intros H. rewrite H. intros H'. inversion H'.
 Qed.
+
 (*  **** Exercise: 1 star, optional (iff_properties)  *)
 (** **** 練習問題: ★, optional (iff_properties) *)
 (*  Using the above proof that [<->] is symmetric ([iff_sym]) as
@@ -611,6 +631,7 @@ Theorem iff_trans : forall P Q R : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  **** Exercise: 3 stars (or_distributes_over_and)  *)
 (** **** 練習問題: ★★★, optional (or_distributes_over_and) *)
 Theorem or_distributes_over_and : forall P Q R : Prop,
@@ -618,6 +639,7 @@ Theorem or_distributes_over_and : forall P Q R : Prop,
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (** Some of Coq's tactics treat [iff] statements specially, avoiding
     the need for some low-level proof-state manipulation.  In
     particular, [rewrite] and [reflexivity] can be used with [iff]
@@ -627,6 +649,7 @@ Proof.
 (** Coqのいくつかのタクティックは、証明の際に低レベルな操作を避けるため[iff] を特別扱いします。 特に [rewrite] を [iff] に使うと、単なる等式以上のものとして扱ってくれます。
 この振舞を有効にするために、特別なCoqのライブラリをインポートする必要があります。そのライブラリを使うと等式に加えて他の公式の書き換えも出来るようになります。*)
 Require Import Coq.Setoids.Setoid.
+
 (** Here is a simple example demonstrating how these tactics work with
     [iff].  First, let's prove a couple of basic iff equivalences: *)
 (** 以下は[iff]がどのように動作するかを示す簡単な例です。まず、基本的なiffの同値性を使う証明を二つ行ないましょう *)
@@ -636,6 +659,7 @@ Proof.
   - apply mult_eq_0.
   - apply or_example.
 Qed.
+
 Lemma or_assoc :
   forall P Q R : Prop, P \/ (Q \/ R) <-> (P \/ Q) \/ R.
 Proof.
@@ -649,6 +673,7 @@ Proof.
     + right. left. apply H.
     + right. right. apply H.
 Qed.
+
 (*  We can now use these facts with [rewrite] and [reflexivity] to
     give smooth proofs of statements involving equivalences.  Here is
     a ternary version of the previous [mult_0] result: *)
@@ -660,6 +685,7 @@ Proof.
   rewrite mult_0. rewrite mult_0. rewrite or_assoc.
   reflexivity.
 Qed.
+
 (** The [apply] tactic can also be used with [<->]. When given an
     equivalence as its argument, [apply] tries to guess which side of
     the equivalence to use. *)
@@ -669,29 +695,33 @@ Lemma apply_iff_example :
 Proof.
   intros n m H. apply mult_0. apply H.
 Qed.
-(* ############################################################ *)
+
+(* ================================================================= *)
 (*  ** Existential Quantification *)
 (** * 存在量化子 *)
-(** Another important logical connective is _existential
+(*  Another important logical connective is _existential
     quantification_.  To say that there is some [x] of type [T] such
     that some property [P] holds of [x], we write [exists x : T,
     P]. As with [forall], the type annotation [: T] can be omitted if
     Coq is able to infer from the context what the type of [x] should
-    be.
-    To prove a statement of the form [exists x, P], we must show that
+    be. *)
+(** もう一つの重要な論理結合子は、存在量化子（ _existential quantification_ ）です。ある[T]型の[x]があって、[x]はプロパティ[P]を満たす、といった意味で、 [exists x : T, P]と書きます。
+[forall]と同じように、型注釈[: T]は、Coqが文脈から推論出来るならば、省略可能です。 *)
+
+(*  To prove a statement of the form [exists x, P], we must show that
     [P] holds for some specific choice of value for [x], known as the
     _witness_ of the existential.  This is done in two steps: First,
     we explicitly tell Coq which witness [t] we have in mind by
-    invoking the tactic [exists t]; then we prove that [P] holds after
-    all occurrences of [x] are replaced by [t].  Here is an example: *)
-(** もう一つの重要な論理結合子は、存在量化子（ _existential quantification_ ）です。ある[T]型の[x]があって、[x]はプロパティ[P]を満たす、といった意味で、 [exists x : T, P]と書きます。
-[forall]と同じように、型注釈[: T]は、Coqが文脈から推論出来るならば、省略可能です。
-[exists x, P]という形の文を証明するために、[P]を満たす特定の値[x](、存在の証拠になります)を示す必要があります。 これは二つのステップで行なわれます。第一に、明示的にCoqに証拠[t]を[exists t]タクティックを呼び出すことで示します。
-それから、全ての[x]を[t]に置き換えたあとにそれらが全て、[P]を満すことを証明します。次は例です。*)
+    invoking the tactic [exists t]. Then we prove that [P] holds after
+    all occurrences of [x] are replaced by [t]. *)
+(** [exists x, P]という形の文を証明するために、[P]を満たす特定の値[x](、存在の証拠になります)を示す必要があります。 これは二つのステップで行なわれます。第一に、明示的にCoqに証拠[t]を[exists t]タクティックを呼び出すことで示します。
+それから、全ての[x]を[t]に置き換えたあとにそれらが全て、[P]を満すことを証明します。*)
+
 Lemma four_is_even : exists n : nat, 4 = n + n.
 Proof.
   exists 2. reflexivity.
 Qed.
+
 (* Conversely, if we have an existential hypothesis [exists x, P] in
     the context, we can destruct it to obtain a witness [x] and a
     hypothesis stating that [P] holds of [x]. *)
@@ -700,6 +730,7 @@ Theorem exists_example_2 : forall n,
   (exists m, n = 4 + m) ->
   (exists o, n = 2 + o).
 Proof.
+  (* WORKED IN CLASS *)
   intros n [m Hm].
   exists (2 + m).
   apply Hm.  Qed.
@@ -723,43 +754,54 @@ Theorem dist_exists_or : forall (X:Type) (P Q : X -> Prop),
 Proof.
    (* FILL IN HERE *) Admitted.
 (** [] *)
-(* #################################################################### *)
+
+(* ################################################################# *)
 (*  * Programming with Propositions *)
 (** 命題を使ったプログラミング *)
 (*  The logical connectives that we have seen provide a rich
     vocabulary for defining complex propositions from simpler ones.
     To illustrate, let's look at how to express the claim that an
     element [x] occurs in a list [l].  Notice that this property has a
-    simple recursive structure:
-    - If [l] is the empty list, then [x] cannot occur on it, so the
+    simple recursive structure: *)
+(** これまでに見て来た論理結合子は、シンプルな命題から複雑な命題までを定義するための豊富な語彙を提供しています。そのことを説明するために、ある要素[x]がリスト中に現れるという主張を表現する方法について見て行くことにしましょう。この属性は単純な再帰的構造を持つことに注意してください。*)
+
+(*  - If [l] is the empty list, then [x] cannot occur on it, so the
       property "[x] appears in [l]" is simply false.
+
     - Otherwise, [l] has the form [x' :: l'].  In this case, [x]
       occurs in [l] if either it is equal to [x'] or it occurs in
-      [l']. *)
-(** これまでに見て来た論理結合子は、シンプルな命題から複雑な命題までを定義するための豊富な語彙を提供しています。そのことを説明するために、ある要素[x]がリスト中に現れるという主張を表現する方法について見て行くことにしましょう。この属性は単純な再帰的構造を持つことに注意してください。
-	
-    - [l]が空リストであるならば、[x]は[l]上に現れることはない。そのため、属性 "[x] appears in [l]"は false。
+      [l'].
+
+    We can translate this directly into a straightforward recursive
+    function from taking an element and a list and returning a
+    proposition: *)
+(** - [l]が空リストであるならば、[x]は[l]上に現れることはない。そのため、属性 "[x] appears in [l]"は false。
+
     - [l]が [x' :: l']という形の場合、「x']が[x]と等しいか、[l']の中に現れれば、[x]は[l]に現れると言える。 *)
-(*  We can translate this directly into a straightforward Coq
-    function, [In].  (It can also be found in the Coq standard
-    library.) *)
-(** この記述をCoqの関数[In]に直接翻訳出来ます。(同じものはCoqの標準ライブラリにありますが) *)
+
+    この記述を要素とリストを引数に取って命題を返す再帰的な関数に直接翻訳出来ます。 *)
+
 Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
   match l with
   | [] => False
   | x' :: l' => x' = x \/ In x l'
   end.
+
 (*  When [In] is applied to a concrete list, it expands into a
-    concrete sequence of nested conjunctions. *)
+    concrete sequence of nested disjunctions. *)
 (** [In]が具体的なリストに適用された場合、ネストした論理和の列に展開されます。*)
-Example In_example_1 : In 4 [3; 4; 5].
+
+Example In_example_1 : In 4 [1; 2; 3; 4; 5].
 Proof.
-  simpl. right. left. reflexivity.
+  (* WORKED IN CLASS *)
+  simpl. right. right. right. left. reflexivity.
 Qed.
+
 Example In_example_2 :
   forall n, In n [2; 4] ->
   exists n', n = 2 * n'.
 Proof.
+  (* WORKED IN CLASS *)
   simpl.
   intros n [H | [H | []]].
   - exists 1. rewrite <- H. reflexivity.
@@ -768,10 +810,12 @@ Qed.
 (*  (Notice the use of the empty pattern to discharge the last case
     _en passant_.) *)
 (** ところで、最後に捨てられる空パターンの使用に気をつけてください。*)
+
 (*  We can also prove more generic, higher-level lemmas about [In].
     Note, in the next, how [In] starts out applied to a variable and
     only gets expanded when we do case analysis on this variable: *)
 (** [In]についての高レベルな補題を使って、もっと一般的に証明することも出来ます。次は[In]がある引数に対してケース分析をしたとき、どのようにその変数に適用を始めて、展開されるのかについて注意してください。*)
+
 Lemma In_map :
   forall (A B : Type) (f : A -> B) (l : list A) (x : A),
     In x l ->
@@ -786,15 +830,17 @@ Proof.
     + rewrite H. left. reflexivity.
     + right. apply IHl'. apply H.
 Qed.
-(** This way of defining propositions, though convenient in some
-    cases, also has some drawbacks.  In particular, it is subject to
-    Coq's usual restrictions regarding the definition of recursive
-    functions, e.g., the requirement that they be "obviously
+
+(*  This way of defining propositions recursively, though convenient
+    in some cases, also has some drawbacks.  In particular, it is
+    subject to Coq's usual restrictions regarding the definition of
+    recursive functions, e.g., the requirement that they be "obviously
     terminating."  In the next chapter, we will see how to define
     propositions _inductively_, a different technique with its own set
     of strengths and limitations. *)
-(** 命題を定義するこの方法は、ある場合では十分に便利ですが、欠点もあります。特に、再帰的関数の定義に関してCoqが課す制限(関数は明々白々に終了しなければならないってやつ)にひっかかる場合です。
+(** 命題を再帰的に定義するこの方法は、ある場合では十分に便利ですが、欠点もあります。特に、再帰的関数の定義に関してCoqが課す制限(関数は明々白々に終了しなければならないってやつ)にひっかかる場合です。
 次の章において、命題を再帰的に定義する方法を見る予定です。その方法自体に強みと制限もあって、命題を返す関数とは異なるテクニックです。*)
+
 (*  **** Exercise: 2 stars (In_map_iff)  *)
 (** **** 練習問題: ★★ (In_map_iff) *)
 Lemma In_map_iff :
@@ -804,6 +850,7 @@ Lemma In_map_iff :
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  **** Exercise: 2 stars (in_app_iff)  *)
 (** **** 練習問題: ★★ (in_map_iff) *)
 Lemma in_app_iff : forall A l l' (a:A),
@@ -811,11 +858,13 @@ Lemma in_app_iff : forall A l l' (a:A),
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (** **** Exercise: 3 stars (All)  *)
 (** **** 練習問題: ★★★ (All) *)
 (** Recall that functions returning propositions can be seen as
     _properties_ of their arguments. For instance, if [P] has type
     [nat -> Prop], then [P n] states that property [P] holds of [n].
+
     Drawing inspiration from [In], write a recursive function [All]
     stating that some property [P] holds of all elements of a list
     [l]. To make sure your definition is correct, prove the [All_In]
@@ -823,8 +872,10 @@ Proof.
     restate the left-hand side of [All_In].) *)
 (** 命題を返す関数は、関数の引数の_属性_と考えることが出来る、ということを思い出してください。たとえば、もし[P]が[nat -> Prop]という型を持っているなら、[P n]は属性[P]が[n]で成り立つ。ということを主張しています。
 [In]を参考に、[All]という再帰的関数を書きなさい。関数[All]は属性[P]がリストの全要素で成り立つ、ということを述べる関数です。あなたの定義が正しいことを確かめるために、[All_In]という補題を下に用意しました。(もちろんあなたの定義は[All_In]の左側を単に述べ直すというものであるべきではありません。*)
-Fixpoint All {T} (P : T -> Prop) (l : list T) : Prop :=
-  (* FILL IN HERE *) admit.
+
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+
 Lemma All_In :
   forall T (P : T -> Prop) (l : list T),
     (forall x, In x l -> P x) <->
