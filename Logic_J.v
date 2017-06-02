@@ -903,6 +903,7 @@ Theorem combine_odd_even_intro :
     combine_odd_even Podd Peven n.
 Proof.
   (* FILL IN HERE *) Admitted.
+
 Theorem combine_odd_even_elim_odd :
   forall (Podd Peven : nat -> Prop) (n : nat),
     combine_odd_even Podd Peven n ->
@@ -910,6 +911,7 @@ Theorem combine_odd_even_elim_odd :
     Podd n.
 Proof.
   (* FILL IN HERE *) Admitted.
+
 Theorem combine_odd_even_elim_even :
   forall (Podd Peven : nat -> Prop) (n : nat),
     combine_odd_even Podd Peven n ->
@@ -918,9 +920,11 @@ Theorem combine_odd_even_elim_even :
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(* #################################################################### *)
+
+(* ################################################################# *)
 (*  * Applying Theorems to Arguments *)
 (** * 定理を引数に適用すること *)
+
 (*  One feature of Coq that distinguishes it from many other proof
     assistants is that it treats _proofs_ as first-class objects.
     There is a great deal to be said about this, but it is not
