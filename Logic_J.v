@@ -943,33 +943,37 @@ Check plus_comm.
 (*  Coq prints the _statement_ of the [plus_comm] theorem in the same
     way that it prints the _type_ of any term that we ask it to
     [Check].  Why?
+
     The reason is that the identifier [plus_comm] actually refers to a
     _proof object_ -- a data structure that represents a logical
     derivation establishing of the truth of the statement [forall n m
     : nat, n + m = m + n].  The type of this object _is_ the statement
-    of the theorem that it is a proof of.
-    Intuitively, this makes sense because the statement of a theorem
+    of the theorem that it is a proof of. *)
+(** なぜ[plus_comm]定理の文が型とおなじく[Check]コマンドという同じ方法で出力されるのでしょうか？
+その理由は、[plus_comm]という識別子が実際に参照しているのは、_証明オブジェクト_と呼ばれるものです。
+証明オブジェクトは、[forall n m:nat, n + m = m + n]といった真なる文の立証を行う論理的な導出を表すデータ構造です。
+このオブジェクトの型は、証明された定理からなる文(statement)です。*)
+
+(*  Intuitively, this makes sense because the statement of a theorem
     tells us what we can use that theorem for, just as the type of a
     computational object tells us what we can do with that object --
     e.g., if we have a term of type [nat -> nat -> nat], we can give
     it two [nat]s as arguments and get a [nat] back.  Similarly, if we
     have an object of type [n = m -> n + n = m + m] and we provide it
-    an "argument" of type [n = m], we can derive [n + n = m + m].
-    Operationally, this analogy goes even further: by applying a
+    an "argument" of type [n = m], we can derive [n + n = m + m]. *)
+(** 直感的に、定理の文とは、計算可能なオブジェクトの型とはそのオブジェクトを -- 型が [nat -> nat -> nat]であるとき、それが二つのnatを引数にとって、natを返すものであることが分かるように -- どのように使うかを示すものであるのと同様に、定理をどう使うかを示すものなので、理にかなっているように聞こえます。同様に、[n = m -> n + n = m + m]という型のオブジェクトは、その[n = m]という型の引数から、[n + n = m + m]を導出することが出来るものです。*)
+
+(*  Operationally, this analogy goes even further: by applying a
     theorem, as if it were a function, to hypotheses with matching
     types, we can specialize its result without having to resort to
     intermediate assertions.  For example, suppose we wanted to prove
     the following result: *)
-(** なぜ[plus_comm]定理の文が型とおなじく[Check]コマンドという同じ方法で出力されるのでしょうか？
-その理由は、[plus_comm]という識別子が実際に参照しているのは、_証明オブジェクト_と呼ばれるものです。
-証明オブジェクトは、[forall n m:nat, n + m = m + n]といった真なる文の立証を行う論理的な導出を表すデータ構造です。
-このオブジェクトの型は、証明された定理からなる文(statement)です。
-直感的に、定理の文とは、計算可能なオブジェクトの型とはそのオブジェクトを -- 型が [nat -> nat -> nat]であるとき、それが二つのnatを引数にとって、natを返すものであることが分かるように -- どのように使うかを示すものであるのと同様に、定理をどう使うかを示すものなので、理にかなっているように聞こえます。同様に、[n = m -> n + n = m + m]という型のオブジェクトは、その[n = m]という型の引数から、[n + n = m + m]を導出することが出来るものです。
-   
-操作上、このアナロジーは次のようなものです。 定理を適用することによって、まるで関数のように、型を仮定にマッチングさせることで、中間的な表明を必要とすることなく、その結果を追求することが出来ます。
+(** 操作上、このアナロジーは次のようなものです。 定理を適用することによって、まるで関数のように、型を仮定にマッチングさせることで、中間的な表明を必要とすることなく、その結果を追求することが出来ます。
 例えば、次の結果を証明しようとしているとします。*)
+
 Lemma plus_comm3 :
   forall n m p, n + (m + p) = (p + m) + n.
+
 (*  It appears at first sight that we ought to be able to prove this
     by rewriting with [plus_comm] twice to make the two sides match.
     The problem, however, is that the second [rewrite] will undo the
@@ -979,23 +983,32 @@ Proof.
   intros n m p.
   rewrite plus_comm.
   rewrite plus_comm.
+  (* We are back where we started... *)
   (* 最初に戻ってしまいました... *)
+Abort.
+
 (*  One simple way of fixing this problem, using only tools that we
     already know, is to use [assert] to derive a specialized version
     of [plus_comm] that can be used to rewrite exactly where we
     want. *)
 (** この問題を解決する最も単純な方法の一つは、我々もすでに知っているツール[assert]を持ちいて、[plus_comm]で我々が望む書き換え方法を導出することです。*)
+
+Lemma plus_comm3_take2 :
+  forall n m p, n + (m + p) = (p + m) + n.
+Proof.
+  intros n m p.
   rewrite plus_comm.
   assert (H : m + p = p + m).
   { rewrite plus_comm. reflexivity. }
   rewrite H.
   reflexivity.
 Qed.
+
 (** A more elegant alternative is to apply [plus_comm] directly to the
     arguments we want to instantiate it with, in much the same way as
     we apply a polymorphic function to a type argument. *)
 (** もっとエレガントな選択肢は、[plus_comm]を直接我々が望むところに適用することです。多相的な関数を適用するのと似たような方法です。*)
-Lemma plus_comm3_take2 :
+Lemma plus_comm3_take3 :
   forall n m p, n + (m + p) = (p + m) + n.
 Proof.
   intros n m p.
@@ -1022,12 +1035,15 @@ Proof.
            as [m [Hm _]].
   rewrite mult_0_r in Hm. rewrite <- Hm. reflexivity.
 Qed.
+
 (*  We will see many more examples of the idioms from this section in
     later chapters. *)
 (** 後の章で、このセクションのイデオムの例をもっと見ることになるでしょう。 *)
-(* #################################################################### *)
+
+(* ################################################################# *)
 (*  * Coq vs. Set Theory *)
 (** * Coq 対 集合論 *)
+
 (** Coq's logical core, the _Calculus of Inductive Constructions_,
     differs in some important ways from other formal systems that are
     used by mathematicians for writing down precise and rigorous
@@ -1037,11 +1053,12 @@ Qed.
     many different sets; a term in Coq's logic, on the other hand, is
     a member of at most one type.  This difference often leads to
     slightly different ways of capturing informal mathematical
-    concepts, though these are by and large quite natural and easy to
+    concepts, but these are, by and large, quite natural and easy to
     work with.  For example, instead of saying that a natural number
     [n] belongs to the set of even numbers, we would say in Coq that
     [ev n] holds, where [ev : nat -> Prop] is a property describing
     even numbers.
+
     However, there are some cases where translating standard
     mathematical reasoning into Coq can be either cumbersome or
     sometimes even impossible, unless we enrich the core logic with
@@ -1052,29 +1069,40 @@ Qed.
 例えば、もっともポピュラーな紙とペンを使う主流の数学たるツェルメロ-フレンケルの集合論(ZFC)において、 数学的オブジェクトは潜在的に、多くの異なった集合のメンバーでありえますが、一方、Coqの扱うロジックにおいては大抵、一つの型のメンバーです。
 この違いは、非形式的な数学的概念を、(これらは全般的に極めて自然で、理解するのがやさしいのですが) を理解するのに、しばしば少し異なった道に導きます。
 例えば、「自然数[n]は偶数の集合に属している」と言う代わりにCoqでは、[ev n]が成り立つならば、そのとき、[ev : nat -> Prop]は偶数の属性であると言わねばなりません
+
 しかしながら、通常の数学的推論をCoqに翻訳出来る場合もありますが、コアとなるロジックに公理を追加しないと、翻訳が難しかったり、そもそも不可能な場合があります。
 この章の結びとして、手短な議論、二つの世界の最も大きくて重要な違いを論じることにします。*)
-(** ** Functional Extensionality
-    The equality assertions that we have seen so far mostly have
+
+(* ================================================================= *)
+(*  ** Functional Extensionality *)
+(** ** 関数の外延性 *)
+(*  The equality assertions that we have seen so far mostly have
     concerned elements of inductive types ([nat], [bool], etc.).  But
     since Coq's equality operator is polymorphic, these are not the
     only possibilities -- in particular, we can write propositions
     claiming that two _functions_ are equal to each other: *)
-(** ** 関数の外延性 
-   これまでに最もたくさん見て来た同値性の主張は、帰納的な型(natやboolなど)を要素としたものでした。しかしCoqの同値オペレータは多相的であるので、可能性だけでなく、--とりわけ、二つの関数がお互いに等しいという主張を持つ命題を書くことも出来ます。*)
-Example function_equality_ex : plus 3 = plus (pred 4).
+(** これまでに最もたくさん見て来た同値性の主張は、帰納的な型(natやboolなど)を要素としたものでした。しかしCoqの同値オペレータは多相的であるので、可能性だけでなく、--とりわけ、二つの関数がお互いに等しいという主張を持つ命題を書くことも出来ます。*)
+
+Example function_equality_ex1 : plus 3 = plus (pred 4).
 Proof. reflexivity. Qed.
+
 (** In common mathematical practice, two functions [f] and [g] are
     considered equal if they produce the same outputs:
+
     (forall x, f x = g x) -> f = g
+
     This is known as the principle of _functional extensionality_.
+
     Informally speaking, an "extensional property" is one that
     pertains to an object's observable behavior.  Thus, functional
     extensionality simply means that a function's identity is
     completely determined by what we can observe from it -- i.e., in
     Coq terms, the results we obtain after applying it.
-    Functional extensionality is not part of Coq's basic axioms: the
-    only way to show that two functions are equal is by
+
+    Functional extensionality is not part of Coq's basic axioms.  This
+    means that some "reasonable" propositions are not provable. *)
+
+    (* two functions are equal is by
     simplification (as we did in the proof of [function_equality_ex]).
     But we can add it to Coq's core logic using the [Axiom]
     command. *)
@@ -1082,46 +1110,77 @@ Proof. reflexivity. Qed.
     (forall x, f x = g x) -> f = g
     これは関数の外延性の原理として知られています。
     非形式的には、伸長特性とは、オブジェクトの観察される振舞に付随しているものです。それゆえ関数の外延性は単純に関数の同一性はそれらから出力されるものい --- Coqの言葉で言えば、我々がそれを適用したあとに得られた結果 --を観察することによって、完璧に決定可能であるというこをと意味します。
-    関数の外延性はCoqの基本の公理の一部ではありません。二つの関数が同じであることを示す唯一の方法は簡約です。(我々が、[function_equality_ex]の証明で行なったようにです) しかし、Coqのコア論理に、[Axiom]コマンドを使って、追加することも出来ます。*)
+
+    関数の外延性はCoqの基本の公理の一部ではありません。
+    このことは"推論出来そうな"いくつかの命題が証明可能ではない。ということを意味します。*)
+
+Example function_equality_ex2 :
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+   (* 困った... *)
+Abort.
+
+(*  However, we can add functional extensionality to Coq's core logic
+    using the [Axiom] command. *)
+(** しかしながら、[Axiom]コマンドを使ってCoqのコアのロジックに関数の外延性公理を追加することが出来ます。
+*)
+
 Axiom functional_extensionality : forall {X Y: Type}
                                     {f g : X -> Y},
   (forall (x:X), f x = g x) -> f = g.
+
 (** Using [Axiom] has the same effect as stating a theorem and
     skipping its proof using [Admitted], but it alerts the reader that
     this isn't just something we're going to come back and fill in
     later!
+
     We can now invoke functional extensionality in proofs: *)
 (** [Axiom]を使うことは定理を述べたり、証明を[Admitted]を使ってスキップするのと同じ効果がありますが、読者に、これは単に戻ったり、埋めたりするものではないと警告しておきます。。
 これで証明中に、関数の外延性を呼び出すことが出来るようになりました。*)
+
+Example function_equality_ex2 :
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+  apply functional_extensionality. intros x.
+  apply plus_comm.
+Qed.
+
+    (* 二つの関数が同じであることを示す唯一の方法は簡約です。(我々が、[function_equality_ex]の証明で行なったようにです) しかし、Coqのコア論理に、[Axiom]コマンドを使って、追加することも出来ます。*)
 Lemma plus_comm_ext : plus = fun n m => m + n.
 Proof.
   apply functional_extensionality. intros n.
   apply functional_extensionality. intros m.
   apply plus_comm.
 Qed.
+
 (** Naturally, we must be careful when adding new axioms into Coq's
-    logic, as they may render it inconsistent -- that is, it may
-    become possible to prove every proposition, including [False]!
+    logic, as they may render it _inconsistent_ -- that is, they may
+    make it possible to prove every proposition, including [False]!
     Unfortunately, there is no simple way of telling whether an axiom
-    is safe: hard work is generally required to establish the
-    consistency of any particular combination of axioms.  Fortunately,
-    it is known that adding functional extensionality, in particular,
-    _is_ consistent.
-    Note that it is possible to check whether a particular proof
-    relies on any additional axioms, using the [Print Assumptions]
-    command. For instance, if we run it on [plus_comm_ext], we see
-    that it uses [functional_extensionality]: *)
+    is safe to add: hard work is generally required to establish the
+    consistency of any particular combination of axioms.
+
+    However, it is known that adding functional extensionality, in
+    particular, _is_ consistent.
+
+    To check whether a particular proof relies on any additional
+    axioms, use the [Print Assumptions] command.  *)
 (** 当たり前のことですが、新しい公理をCoqの論理に追加することは慎重にならなければなりません。他の公理と矛盾するかもしれないからです。
 すなわち、[False]が含まれることによって、全ての命題が証明可能になるかもしれません! 残念なことに、公理が安全かどうかが分かる簡単な方法は存在しません。公理のあらゆる組み合わせが一貫していることを保証することは大変難しいことです。
-幸運なことに、関数の外延性公理を追加することは無矛盾であることが知られています。*)
-Print Assumptions plus_comm_ext.
+
+しかしながら、関数の外延性公理を追加することは無矛盾であることが知られています。
+
+ある特定の証明が追加された公理に依存しているかどうかをチェックするために、[Print Assumptions]コマンドが使用出来ます。*)
+*)
+
+Print Assumptions function_equality_ex2.
 (* ===>
      Axioms:
      functional_extensionality :
          forall (X Y : Type) (f g : X -> Y),
                 (forall x : X, f x = g x) -> f = g *)
-(*  **** Exercise: 5 stars (tr_rev)  *)
-(** **** 練習問題: ★★★★★ (tr_rev) *)
+(*  **** Exercise: 4 stars (tr_rev)  *)
+(** **** 練習問題: ★★★★ (tr_rev) *)
 (*  One problem with the definition of the list-reversing function
     [rev] that we have is that it performs a call to [app] on each
     step; running [app] takes time asymptotically linear in the size
@@ -1147,19 +1206,24 @@ Definition tr_rev {X} (l : list X) : list X :=
 Lemma tr_rev_correct : forall X, @tr_rev X = @rev X.
 (* FILL IN HERE *) Admitted.
 (** [] *)
+
+(* ================================================================= *)
 (*  ** Propositions and Booleans *)
 (** ** 命題とブール値 *)
-(** We've seen that Coq has two different ways of encoding logical
-    facts: with _booleans_ (of type [bool]), and with
-    _propositions_ (of type [Prop]). For instance, to claim that a
-    number [n] is even, we can say either (1) that [evenb n] returns
-    [true] or (2) that there exists some [k] such that [n = double k].
-    Indeed, these two notions of evenness are equivalent, as can
-    easily be shown with a couple of auxiliary lemmas (one of which is
-    left as an exercise).
+(** We've seen two different ways of encoding logical facts in Coq:
+    with _booleans_ (of type [bool]), and with _propositions_ (of type
+    [Prop]).
+
+    For instance, to claim that a number [n] is even, we can say
+    either
+       - (1) that [evenb n] returns [true], or
+       - (2) that there exists some [k] such that [n = double k].
+             Indeed, these two notions of evenness are equivalent, as
+             can easily be shown with a couple of auxiliary lemmas.
+
     We often say that the boolean [evenb n] _reflects_ the proposition
     [exists k, n = double k].  *)
-(** これまでに論理的な事実をCoqによってエンコードする二つの異なる方法、一つは、[bool]型を持つブール値であり、もう一つは、[Prop]型を持つ命題、を見てきました。例えば、[n]が偶数であることを主張するために、(1) [evenb n]が[true]を返すこと。(2)[n = double k]を満す[k]が存在すること。のどちらかで言うことが出来ます。確かにこれら二つの偶数性の記述は等価です。数個の補助的な補題を使って示すことが出来ます。(その一つは練習問題として残しておきましょう。)
+(** これまでに論理的な事実をCoqにおいてエンコードされる二つの異なる方法、一つは、[bool]型を持つブール値であり、もう一つは、[Prop]型を持つ命題、を見てきました。例えば、[n]が偶数であることを主張するために、(1) [evenb n]が[true]を返すこと。(2)[n = double k]を満す[k]が存在すること。のどちらかで言うことが出来ます。確かにこれら二つの偶数性の記述は等価です。数個の補助的な補題を使って示すことが出来ます。(その一つは練習問題として残しておきましょう。)
 我々はしばしば、ブール値[evenb n]は、命題[exists k, n = double k]を反映している。と言うことがあります。*)
 
 Theorem evenb_double : forall k, evenb (double k) = true.
@@ -1185,6 +1249,7 @@ Proof.
     rewrite Hk. rewrite H. exists k. reflexivity.
   - intros [k Hk]. rewrite Hk. apply evenb_double.
 Qed.
+
 (*  Similarly, to state that two numbers [n] and [m] are equal, we can
     say either (1) that [beq_nat n m] returns [true] or (2) that [n =
     m].  These two notions are equivalent. *)
@@ -1198,21 +1263,24 @@ Proof.
   - apply beq_nat_true.
   - intros H. rewrite H. rewrite <- beq_nat_refl. reflexivity.
 Qed.
+
 (*  However, while the boolean and propositional formulations of a
-    claim are equivalent from a purely logical perspective, we have
-    also seen that they need not be equivalent _operationally_.
-    Equality provides an extreme example: knowing that [beq_nat n m =
-    true] is generally of little help in the middle of a proof
-    involving [n] and [m]; however, if we convert the statement to the
-    equivalent form [n = m], we can rewrite with it.
-    The case of even numbers is also interesting.  Recall that, when
-    proving the backwards direction of
-    [even_bool_prop] ([evenb_double], going from the propositional to
-    the boolean claim), we used a simple induction on [k]).  On the
-    other hand, the converse (the [evenb_double_conv] exercise)
-    required a clever generalization, since we can't directly prove
-    [(exists k, n = double k) -> evenb n = true].
-    For these examples, the propositional claims were more useful than
+    claim are equivalent from a purely logical perspective, they need
+    not be equivalent _operationally_.  Equality provides an extreme
+    example: knowing that [beq_nat n m = true] is generally of little
+    direct help in the middle of a proof involving [n] and [m];
+    however, if we convert the statement to the equivalent form [n =
+    m], we can rewrite with it.
+
+    The case of even numbers is also interesting.  Recall that,
+    when proving the backwards direction of [even_bool_prop] (
+    [evenb_double], going from the propositional to the boolean
+    claim), we used a simple induction on [k].  On the other hand, the
+    converse (the [evenb_double_conv] exercise) required a clever
+    generalization, since we can't directly prove [(exists k, n =
+    double k) -> evenb n = true].
+
+    For these examples, the propositional claims are more useful than
     their boolean counterparts, but this is not always the case.  For
     instance, we cannot test whether a general proposition is true or
     not in a function definition; as a consequence, the following code
@@ -1223,7 +1291,8 @@ Qed.
 Fail Definition is_even_prime n :=
   if n = 2 then true
   else false.
-(** Coq complains that [n = 2] has type [Prop], while it expects an
+
+(*  Coq complains that [n = 2] has type [Prop], while it expects an
     elements of [bool] (or some other inductive type with two
     elements).  The reason for this error message has to do with the
     _computational_ nature of Coq's core language, which is designed
@@ -1233,6 +1302,7 @@ Fail Definition is_even_prime n :=
     [Prop] in Coq does _not_ have a universal case analysis operation
     telling whether any given proposition is true or false, since such
     an operation would allow us to write non-computable functions.
+
     Although general non-computable properties cannot be phrased as
     boolean computations, it is worth noting that even many
     _computable_ properties are easier to express using [Prop] than
@@ -1243,25 +1313,31 @@ Fail Definition is_even_prime n :=
     amount to writing a regular expression matcher, which would be
     more complicated, harder to understand, and harder to reason
     about.
+
     Conversely, an important side benefit of stating facts using
     booleans is enabling some proof automation through computation
     with Coq terms, a technique known as _proof by
-    reflection_. Consider the following statement: *)
-(* Coqにおいては、[n = 2]の型は[Prop]ですが、[bool]型(あるいは、二つの枝を持つ帰納的な型)であることが期待されています。このエラーメッセージの理由は、Coqのコア言語の計算可能という本質を外してはならない、ということです。そのため、Coqのコアにおいて、全ての関数は計算可能であり、かつ完全であるように設計されています。その理由の一つは実行可能なプログラムをCoqのプログラムから抽出ことを許すためです。結果として、Coqにおいて、[Prop]は、与えられた命題が真かどうかを知るための一般的なケース分析をする手段を持っていません。そのような方法は、計算可能な関数として書くことは不可能であるからです。
+    reflection_.  Consider the following statement: *)
+(** Coqにおいては、[n = 2]の型は[Prop]ですが、[bool]型(あるいは、二つの枝を持つ帰納的な型)であることが期待されています。このエラーメッセージの理由は、Coqのコア言語の計算可能という本質を外してはならない、ということです。そのため、Coqのコアにおいて、全ての関数は計算可能であり、かつ完全であるように設計されています。その理由の一つは実行可能なプログラムをCoqのプログラムから抽出ことを許すためです。結果として、Coqにおいて、[Prop]は、与えられた命題が真かどうかを知るための一般的なケース分析をする手段を持っていません。そのような方法は、計算可能な関数として書くことは不可能であるからです。
 一般的な計算可能でない属性はブール値の計算として表現出来ませんが、 多くの計算可能な属性が[bool]ではなく、[Prop]を使ってより簡単に表現出来ます。なぜなら再帰関数はCoqにおいて、重大な制限下にあるからです。例えば、次の章において、[Prop]を使って与えられた文字列が正規表現にマッチする属性を定義する方法を学びます。[bool]を持ちいて、正規表現マッチャーを書くことは、より複雑で、理解しにくく、それに関して推論しにくいものになります。
 逆に、ブール値を使って事実を述べることの重要な利点は、Coqにおいて、いくつかの証明の自動化を可能にすることです。このテクニックは、「反映による証明」として知られています。次の文で考えましょう。*)
 
 Example even_1000 : exists k, 1000 = double k.
+
 (*  The most direct proof of this fact is to give the value of [k]
     explicitly. *)
 (** 最も直接的な証明は、[k]の値を明示的に与えることです。 *)
- Proof. exists 500. reflexivity. Qed.
+
+Proof. exists 500. reflexivity. Qed.
+
 (* On the other hand, the proof of the corresponding boolean
+
     statement is even simpler: *)
 (** 一方、ブール式に対応する証明はずっとシンプルです。*)
 
 Example even_1000' : evenb 1000 = true.
 Proof. reflexivity. Qed.
+
 (*  What is interesting is that, since the two notions are equivalent,
     we can use the boolean formulation to prove the other one without
     mentioning 500 explicitly: *)
@@ -1269,6 +1345,7 @@ Proof. reflexivity. Qed.
 
 Example even_1000'' : exists k, 1000 = double k.
 Proof. apply even_bool_prop. reflexivity. Qed.
+
 (*  Although we haven't gained much in terms of proof size in this
     case, larger proofs can often be made considerably simpler by the
     use of reflection.  As an extreme example, the Coq proof of the
@@ -1278,11 +1355,13 @@ Proof. apply even_bool_prop. reflexivity. Qed.
     showing the complementary strengths of booleans and general
     propositions. *)
 (** このケースでは、証明の記述量に関して大した利点はありませんでしたが、もっと大きな証明において、リフレクションの使用は顕著にあらわれます。極端な例として、Coqの4色問題の証明では、reflectionの使用によって、数百の異なるケース分析をブール値の計算に変換して減らすことだ出来ました。ここでreflectionの細かな説明は行いませんが、ここでブール値と一般的な命題がお互い補完しあうものであることを示すよい例を示します。*)
+
 (*  **** Exercise: 2 stars (logical_connectives)  *)
 (** **** 練習問題: ★★ (logical_connectives)  *)
 (*  The following lemmas relate the propositional connectives studied
     in this chapter to the corresponding boolean operations. *)
 (** 次の補題は、この章で学んだ命題の結合と、それに対応するブール値の操作と関係があります。
+
 Lemma andb_true_iff : forall b1 b2:bool,
   b1 && b2 = true <-> b1 = true /\ b2 = true.
 Proof.
@@ -1313,9 +1392,10 @@ Proof.
     definition is correct, prove the lemma [beq_list_true_iff]. *)
 (** 型[A]の要素の等価性のテストを行うブール値の演算子[beq]が与えられたとすると、[A]を要素に物リストの等価性をテストする関数[beq_list beq]を定義することが出来ます。下記の[beq_list]関数の定義を完成させ、補題[beq_list_true_iff]を証明しなさい。*)
 
-Fixpoint beq_list {A} (beq : A -> A -> bool)
-                  (l1 l2 : list A) : bool :=
-  (* FILL IN HERE *) admit.
+Fixpoint beq_list {A : Type} (beq : A -> A -> bool)
+                  (l1 l2 : list A) : bool
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+
 Lemma beq_list_true_iff :
   forall A (beq : A -> A -> bool),
     (forall a1 a2, beq a1 a2 = true <-> a1 = a2) ->
@@ -1323,29 +1403,38 @@ Lemma beq_list_true_iff :
 Proof.
 (* FILL IN HERE *) Admitted.
 (** [] *)
+
 (*  **** Exercise: 2 stars, recommended (All_forallb)  *)
 (** **** 練習問題: ★★ , recommended (All_forallb)  *)
 (*  Recall the function [forallb], from the exercise
     [forall_exists_challenge] in chapter [Tactics]: *)
 (** [Tactics]の章の[forall_exists_challenge]にあった[forallb]関数を思い出してください。*)
+
 Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
   match l with
   | [] => true
   | x :: l' => andb (test x) (forallb test l')
   end.
+
 (*  Prove the theorem below, which relates [forallb] to the [All]
     property of the above exercise. *)
 (** 下記の定理を証明しなさい。この定理は[forallb]を[All]属性に関係付けます。*)
+
 Theorem forallb_true_iff : forall X test (l : list X),
    forallb test l = true <-> All (fun x => test x = true) l.
 Proof.
   (* FILL IN HERE *) Admitted.
+
 (*  Are there any important properties of the function [forallb] which
-    are not captured by your specification? *)
-(** あなたの[forallb]関数実装が捉え切れていない重要な属性がなにかあるでしょうか？ *)
+    are not captured by this specification? *)
+(** この[forallb]関数実装が捉え切れていない重要な属性がなにかあるでしょうか？ *)
 (* FILL IN HERE *)
 (** [] *)
-(** ** Classical vs. Constructive Logic *)
+
+(* ================================================================= *)
+(*  ** Classical vs. Constructive Logic *)
+(** 古典論理と構成的論理 *)
+
 (** We have seen that it is not possible to test whether or not a
     proposition [P] holds while defining a Coq function.  You may be
     surprised to learn that a similar restriction applies to _proofs_!
@@ -1353,21 +1442,25 @@ Proof.
     derivable in Coq: *)
 (** Coqの関数を定義する命題[P]が真かどうかをテストすることが出来ないこと見てきました。
 同様な制限が証明に課せられていること知って驚くかもしれません。 別の言葉で言えば、次の直感的な推論原理をCoqから引き出すことが出来ません。*)
+
 Definition excluded_middle := forall P : Prop,
   P \/ ~ P.
-(*  To understand operationally why this is the case, recall that, to
-    prove a statement of the form [P \/ Q], we use the [left] and
-    [right] tactics, which effectively require knowing which side of
-    the disjunction holds.  However, the universally quantified [P] in
+
+(*  To understand operationally why this is the case, recall 
+    that, to prove a statement of the form [P \/ Q], we use the [left]
+    and [right] tactics, which effectively require knowing which side
+    of the disjunction holds.  But the universally quantified [P] in
     [excluded_middle] is an _arbitrary_ proposition, which we know
     nothing about.  We don't have enough information to choose which
     of [left] or [right] to apply, just as Coq doesn't have enough
     information to mechanically decide whether [P] holds or not inside
-    a function.  On the other hand, if we happen to know that [P] is
-    reflected in some boolean term [b], then knowing whether it holds
-    or not is trivial: we just have to check the value of [b].  This
-    leads to the following theorem: *)
-(** これがなぜなのかを手を動かして理解するために、[P \/ Q]という形の文を証明するために、選言のどちらを必要とするかを知るために、[left]と[right]タクティックを使ったことを思い出してください。しかし、例外なく、[excluded_middle]の中で量化された[P]は任意の命題で、どんなものか分かりません。そのため[left]と[right]のどちらを選んで適用すべきかを知るための十分な情報を持っていないのです。一方、[P]があるブール値を反映したものであると知っているならば、それがどちらの値であるかどうか知ることは些細なことです: 単に[b]の値をチェックすればよいのです。このことが以下の定理を導きます。*)
+    a function. *)
+(** これがなぜなのかを手を動かして理解するために、[P \/ Q]という形の文を証明するために、選言のどちらを必要とするかを知るために、[left]と[right]タクティックを使ったことを思い出してください。*)
+
+(*  However, if we happen to know that [P] is reflected in some
+    boolean term [b], then knowing whether it holds or not is trivial:
+    we just have to check the value of [b]. *)
+(* しかしながら、[P]があるブール値を反映したものであると知っているならば、それがどちらの値であるかどうか知ることは些細なことです: 単に[b]の値をチェックすればよいのです。*)
 
 Theorem restricted_excluded_middle : forall P b,
   (P <-> b = true) -> P \/ ~ P.
@@ -1376,9 +1469,21 @@ Proof.
   - left. rewrite H. reflexivity.
   - right. rewrite H. intros contra. inversion contra.
 Qed.
+
 (** In particular, the excluded middle is valid for equations [n = m],
-    between natural numbers [n] and [m].
-    You may find it strange that the general excluded middle is not
+    between natural numbers [n] and [m]. *)
+(** 特に、自然数[n]と[m]の間の等価性に対する排中律は常に成り立ちます。*)
+
+Theorem restricted_excluded_middle_eq : forall (n m : nat),
+  n = m \/ n <> m.
+Proof.
+  intros n m.
+  apply (restricted_excluded_middle (n = m) (beq_nat n m)).
+  symmetry.
+  apply beq_nat_true_iff.
+Qed.
+
+(*  It may seem strange that the general excluded middle is not
     available by default in Coq; after all, any given claim must be
     either true or false.  Nonetheless, there is an advantage in not
     assuming the excluded middle: statements in Coq can make stronger
@@ -1386,29 +1491,39 @@ Qed.
     Notably, if there is a Coq proof of [exists x, P x], it is
     possible to explicitly exhibit a value of [x] for which we can
     prove [P x] -- in other words, every proof of existence is
-    necessarily _constructive_.  Because of this, logics like Coq's,
-    which do not assume the excluded middle, are referred to as
-    _constructive logics_.  More conventional logical systems such as
-    ZFC, in which the excluded middle does hold for arbitrary
-    propositions, are referred to as _classical_.
-    The following example illustrates why assuming the excluded middle
-    may lead to non-constructive proofs: *)
-(** 特に、自然数[n]と[m]の間の等価性に対する排中律は常に成り立ちます。一般的な排中律が最初からCoqで使えないことは奇妙だと最初は思うかもしれません。結局、どんな主張も真か偽のどっちかであるべきであると。とはいえ、排中律を仮定しないことには利点があります: Coqの文が一般的な数学における類似した主張よりも強い主張を行なうことが出来るのです。とりわけ、Coqの[exists x, P x]の証明は、[P x]を証明するために、明示的に値[x]を提示することが可能です。-- 別の言葉で言うと、全ての存在証明は必ず構成的でなければなりません。このため、排中律を仮定しないCoqと同じロジックは構成的論理と言われます。もっと普通のFZFCのような任意の命題に対する排中律を含む論理体系は、古典的であると言われます。次の例は排中律を仮定することがなぜ非構成的な証明を導くかを説明します。*)
+    necessarily _constructive_. *)
+(** 一般的な排中律が最初からCoqで使えないことは奇妙だと最初は思うかもしれません。結局、どんな主張も真か偽のどっちかであるべきであると。とはいえ、排中律を仮定しないことには利点があります: Coqの文が一般的な数学における類似した主張よりも強い主張を行なうことが出来るのです。とりわけ、Coqの[exists x, P x]の証明は、[P x]を証明するために、明示的に値[x]を提示することが可能です。-- 別の言葉で言うと、全ての存在証明は必ず構成的でなければなりません。*)
 
-(** _Claim_: There exist irrational numbers [a] and [b] such that [a ^
+(*  Logics like Coq's, which do not assume the excluded middle, are
+    referred to as _constructive logics_.
+
+    More conventional logical systems such as ZFC, in which the
+    excluded middle does hold for arbitrary propositions, are referred
+    to as _classical_. *)
+(* 排中律を仮定しないCoqと同じロジックは構成的論理と言われます。
+もっと普通のZFCのような任意の命題に対する排中律を含む論理体系は、_古典的_であると言われます。*)
+
+
+(*  The following example illustrates why assuming the excluded middle
+    may lead to non-constructive proofs: 
+
+   _Claim_: There exist irrational numbers [a] and [b] such that [a ^
     b] is rational.
+
     _Proof_: It is not difficult to show that [sqrt 2] is irrational.
     If [sqrt 2 ^ sqrt 2] is rational, it suffices to take [a = b =
     sqrt 2] and we are done.  Otherwise, [sqrt 2 ^ sqrt 2] is
     irrational.  In this case, we can take [a = sqrt 2 ^ sqrt 2] and
     [b = sqrt 2], since [a ^ b = sqrt 2 ^ (sqrt 2 * sqrt 2) = sqrt 2 ^
     2 = 2].  []
+
     Do you see what happened here?  We used the excluded middle to
     consider separately the cases where [sqrt 2 ^ sqrt 2] is rational
     and where it is not, without knowing which one actually holds!
     Because of that, we wind up knowing that such [a] and [b] exist
     but we cannot determine what their actual values are (at least,
     using this line of argument).
+
     As useful as constructive logic is, it does have its limitations:
     There are many statements that can easily be proven in classical
     logic but that have much more complicated constructive proofs, and
@@ -1418,6 +1533,7 @@ Qed.
     add it safely as an axiom.  However, we will not need to do so in
     this book: the results that we cover can be developed entirely
     within constructive logic at negligible extra cost.
+
     It takes some practice to understand which proof techniques must
     be avoided in constructive reasoning, but arguments by
     contradiction, in particular, are infamous for leading to
@@ -1429,21 +1545,23 @@ Qed.
     intermediate fact results in a contradiction, we arrive at an
     existence proof without ever exhibiting a value of [x] for which
     [P x] holds!
+
     The technical flaw here, from a constructive standpoint, is that
-    we claimed to prove [exists x, P x] using a proof of [~ ~ exists
-    x, P x]. However, allowing ourselves to remove double negations
-    from arbitrary statements is equivalent to assuming the excluded
-    middle, as shown in one of the exercises below.  Thus, this line
-    of reasoning cannot be encoded in Coq without assuming additional
-    axioms. *)
-(** 主張: [a ^ b] が有理数になるような、無理数[a]と[b]が存在する。
+    we claimed to prove [exists x, P x] using a proof of
+    [~ ~ (exists x, P x)].  Allowing ourselves to remove double
+    negations from arbitrary statements is equivalent to assuming the
+    excluded middle, as shown in one of the exercises below.  Thus,
+    this line of reasoning cannot be encoded in Coq without assuming
+    additional axioms. *)
+(** 次の例は排中律を仮定することがなぜ非構成的な証明を導くかを説明します:
+    主張: [a ^ b] が有理数になるような、無理数[a]と[b]が存在する。
     証明: [sqrt 2]が無理数であることを示すことは難しくない。
     [sqrt 2 ^ sqrt 2]が、有理数であるとする。すると、[a = b = sqrt 2]が、条件を満たす数字である。あるいは、[sqrt 2 ^ sqrt 2]が無理数であったとする。その場合、
   [ a = sqrt 2 ^ sqrt 2]と[b = sqrt 2]が我々の求めるものである。なぜなら、[a ^ b = (sqrt 2 ^ sqrt 2) ^ sqrt 2 = sqrt 2 ^ 2 = 2]と有理数になるからである。証明終り。
     ここで何が起ったか分かりますか？ ここで我々は排中律を[sqrt 2 ^ sqrt 2]が有理数かそうでないかを場合を分けて考えるために使用しました。実際にその値がなんであるか知ることなしにです。このため、そのような[a]と[b]が存在することは分かりますが、実際にその値が何であるかを決定することは出来ません。(少なくともこの論法では)
 構成的論理と同じくらい使いやすいように、その限界も持っています: 古典論理で容易く証明出来るけれども、構成的証明では証明が複雑になってしまう文が多くあります。また、そもそも全く証明出来ない文も存在します!幸運なことに、関数の外延性のように、排中律もCoqの論理に混ぜることが可能で、公理として、安全に加えることが許されています。しかし、この本においては、そうする必要はありません:我々がカバーする結果は構成的論理の範囲で達成可能で追加のコストを必要としません。
 構成的論理の推論において、どの証明技法を避けるべきなのかを理解するために少しばかり練習が必要ですが、とりわけ、矛盾による論法は非構成的な証明を導くと評判がよろしくありません。ここで、典型的な例を用意しました: ある属性[P]を持つ[x]が存在することを示したいと仮定します。我々の結論が偽であることを仮定して証明を開始します。すなわち、[~ exists x, P x]です。この前提から、[forall x, ~ P x]を導くことは難しくありません。もし、この証明の中間状態が矛盾することをなんとかして示したいとすると、[P x]が成り立つ[x]のどんな値を提示することのない存在証明にたどりつきます。
-構成的観点から、この技術的欠陥は、[~ ~ exists x, P x]の証明を使って[exists x, P x]の証明をしたと言うことです。任意の文の二重否定を除去を許すことは、以下の練習問題で見るように、排中律を仮定することと等しいのです。それゆえ、この推論は、Coqにおいては、追加の公理なしで書き下すことは出来ません。*)
+構成的観点から、この技術的欠陥は、[~ ~ (exists x, P x)]の証明を使って[exists x, P x]の証明をしたと言うことです。任意の文の二重否定を除去を許すことは、以下の練習問題で見るように、排中律を仮定することと等しいのです。それゆえ、この推論は、Coqにおいては、追加の公理なしで書き下すことは出来ません。*)
 
 (*  ** Exercise: 3 stars (excluded_middle_irrefutable)  *)
 (** **** 練習問題: ★★★ (excluded_middle_irrefutable)  *)
@@ -1481,27 +1599,32 @@ Theorem not_exists_dist :
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-(*  **** Exercise: 5 stars, advanced, optional (classical_axioms)  *)
-(** **** 練習問題: ★★★★★★, advanced, optional (classical_axioms)  *)
+
+(*  **** Exercise: 5 stars, optional (classical_axioms)  *)
+(** **** 練習問題: ★★★★★, optional (classical_axioms)  *)
 (** For those who like a challenge, here is an exercise taken from the
     Coq'Art book by Bertot and Casteran (p. 123).  Each of the
     following four statements, together with [excluded_middle], can be
     considered as characterizing classical logic.  We can't prove any
     of them in Coq, but we can consistently add any one of them as an
     axiom if we wish to work in classical logic.
+
     Prove that all five propositions (these four plus
     [excluded_middle]) are equivalent. *)
 (**  さらなる挑戦を求める人のために、 Coq'Art book (p. 123) から一つ練習問題を取り上げてみます。次のそれぞれの文は、よく「古典論理の特性」と考えられているもの（Coqにビルトインされている構成的論理の対極にあるもの）です。これらをCoqで証明することはできませんが、古典論理を使うことが必要なら、矛盾なく「証明されていない公理」として道具に加えることができます。これら5つの命題(以下の4つに[excluded_middle]を加えたもの)が等価であることを証明しなさい。 *)
+
 Definition peirce := forall P Q: Prop,
   ((P->Q)->P)->P.
+
 Definition double_negation_elimination := forall P:Prop,
   ~~P -> P.
+
 Definition de_morgan_not_and_not := forall P Q:Prop,
   ~(~P /\ ~Q) -> P\/Q.
-  
+
 Definition implies_to_or := forall P Q:Prop,
   (P->Q) -> (~P\/Q).
+
 (* FILL IN HERE *)
 (** [] *)
-(** $Date: 2015-08-11 12:03:04 -0400 (Tue, 11 Aug 2015) $ *)
 
