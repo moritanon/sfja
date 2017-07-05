@@ -555,7 +555,7 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ####################################################### *)
+(* ################################################################# *)
 (*  * Inductive Relations *)
 (** * 帰納的関係 *)
 
@@ -566,10 +566,11 @@ Proof.
     thought of as a _relation_ -- i.e., it defines a set of pairs for
     which the proposition is provable. *)
 (** 数値をパラメータとして持つ命題(例えば、[ev]など)は属性 _property_と 見なすこともできます。つまり、それに属する値についてその命題が証明可能である ような nat の部分集合の定義と見ることができるということです。 同様に、引数（パラメータ）を二つ持つ命題は、その二つの「関係」を表していると考えられます。つまり、その命題について証明可能な値のペアの集合の定義、 というわけです。 *)
-Module LeModule.
 
-(*  One useful example is the "less than or equal to"
-    relation on numbers. *)
+Module Playground.
+
+(*  One useful example is the "less than or equal to" relation on
+    numbers. *)
 (** よく使われるものの例として「等しいかまたは小さい」 という関係があります。 *)
 
 (*  The following definition should be fairly intuitive.  It
@@ -620,10 +621,11 @@ Proof.
   (* WORKED IN CLASS *)
   intros H. inversion H. inversion H2.  Qed.
 
-(** The "strictly less than" relation [n < m] can now be defined
+(*  The "strictly less than" relation [n < m] can now be defined
     in terms of [le]. *)
 (** "より小さい"という関係 [n < m]は、[le]を使って定義出来ます。
-End LeModule.
+
+End Playground.
 
 Definition lt (n m:nat) := le (S n) m.
 
@@ -633,7 +635,7 @@ Notation "m < n" := (lt m n).
 (** 数についての簡単な関係をいくつか示します。*)
 
 Inductive square_of : nat -> nat -> Prop :=
-  sq : forall n:nat, square_of n (n * n).
+  | sq : forall n:nat, square_of n (n * n).
 
 Inductive next_nat : nat -> nat -> Prop :=
   | nn : forall n:nat, next_nat n (S n).
@@ -642,7 +644,7 @@ Inductive next_even : nat -> nat -> Prop :=
   | ne_1 : forall n, ev (S n) -> next_even n (S n)
   | ne_2 : forall n, ev (S (S n)) -> next_even n (S (S n)).
 
-(*  **** Exercise: 2 stars, recommended (total_relation)  *)
+(*  **** Exercise: 2 stars, optional (total_relation)  *)
 (** **** 練習問題: ★★, recommended (total_relation)  *)
 (*  Define an inductive binary relation [total_relation] that holds
     between every pair of natural numbers. *)
@@ -652,12 +654,12 @@ Inductive next_even : nat -> nat -> Prop :=
 (* FILL IN HERE *)
 (** [] *)
 
-(*  **** Exercise: 2 stars (empty_relation)  *)
+(*  **** Exercise: 2 stars, optional (empty_relation)  *)
 (** **** 練習問題: ★★ (empty_relation)  *)
 (*  Define an inductive binary relation [empty_relation] (on numbers)
     that never holds. *)
-(** 自然数の間では決して成り立たない関係 [empty_relation] を帰納的に
-    定義しなさい。 *)
+(** 自然数の間では決して成り立たない関係 [empty_relation] を帰納的に定義しなさい。 *)
+
 (* FILL IN HERE *)
 (** [] *)
 
@@ -780,8 +782,8 @@ Inductive R : nat -> nat -> nat -> Prop :=
     in Coq? *)
 (** 上記の関係[R]は実際に、もっと分かりやすい関数をエンコードしたものです。どの関数か挙げなさい。Coqにおけるその関数と関係について述べて、証明しなさい*)
 
-Definition fR : nat -> nat -> nat :=
-  (* FILL IN HERE *) admit.
+Definition fR : nat -> nat -> nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Theorem R_equiv_fR : forall m n o, R m n o <-> fR m n = o.
 Proof.
@@ -852,7 +854,8 @@ End R.
     (* FILL IN HERE *)
     (** [] *)
 
-(** **** 練習問題 ★★, optional (R_provability) *)
+(*  **** Exercise: 2 stars, optionalM (R_provability2)  *)
+(** **** 練習問題 ★★, optionalM (R_provability2)  *)
 (*  Suppose we give Coq the following definition:
 
     Inductive R : nat -> list nat -> Prop :=
@@ -878,7 +881,7 @@ End R.
 (** [] *)
 
 
-(* ############################################################ *)
+(* ################################################################# *)
 (*  * Case Study: Regular Expressions *)
 (** * ケーススタディ: 正規表現 *)
 
@@ -914,39 +917,44 @@ Arguments App {T} _ _.
 Arguments Union {T} _ _.
 Arguments Star {T} _.
 
-(** Note that this definition is _polymorphic_: Regular expressions in
-    [reg_exp T] describe strings with characters drawn from [T] --
-    that is, lists of elements of [T].  (We depart slightly from
-    standard practice in that we do not require the type [T] to be
-    finite.  This results in a somewhat different theory of regular
-    expressions, but the difference is not significant for our
-    purposes.)
+(** Note that this definition is _polymorphic_: Regular
+    expressions in [reg_exp T] describe strings with characters drawn
+    from [T] -- that is, lists of elements of [T].
 
-    We connect regular expressions and strings via the following
+    (We depart slightly from standard practice in that we do not
+    require the type [T] to be finite.  This results in a somewhat
+    different theory of regular expressions, but the difference is not
+    significant for our purposes.) *)
+(** この定義が多相的なものであることに気がついたでしょうか: [req_exp T]中の正規表現は文字列を[T]から採られる文字によって記述します。すなわち、[T]の要素のリストです。(有限の型[T]を必要としない標準的な練習から開始します。その結果正規表現といくらか異なるものになりますが、この違いは、我々の目的からすれば、重要なものではありません) *)
+
+(*  We connect regular expressions and strings via the following
     rules, which define when a regular expression _matches_ some
     string:
 
-    - The expression [EmptySet] does not match any string.
+      - The expression [EmptySet] does not match any string.
 
-    - The expression [EmptyStr] matches the empty string [[]].
+      - The expression [EmptyStr] matches the empty string [[]].
 
-    - The expression [Char x] matches the one-character string [[x]].
+      - The expression [Char x] matches the one-character string [[x]].
 
-    - If [re1] matches [s1], and [re2] matches [s2], then [App re1
-      re2] matches [s1 ++ s2].
+      - If [re1] matches [s1], and [re2] matches [s2], then [App re1
+        re2] matches [s1 ++ s2].
 
-    - If at least one of [re1] and [re2] matches [s], then [Union re1
-      re2] matches [s].
+      - If at least one of [re1] and [re2] matches [s], then [Union re1
+        re2] matches [s].
 
-    - Finally, if we can write some string [s] as the concatenation of
-      a sequence of strings [s = s_1 ++ ... ++ s_k], and the
-      expression [re] matches each one of the strings [s_i], then
-      [Star re] matches [s].  (As a special case, the sequence of
-      strings may be empty, so [Star re] always matches the empty
-      string [[]] no matter what [re] is.) *)
-(** この定義が多相的なものであることに気がついたでしょうか: [req_exp T]中の正規表現は文字列を[T]から採られる文字によって記述します。すなわち、[T]の要素のリストです。(有限の型[T]を必要としない標準的な練習から開始します。その結果正規表現といくらか異なるものになりますが、この違いは、我々の目的からすれば、重要なものではありません)
+      - Finally, if we can write some string [s] as the concatenation of
+        a sequence of strings [s = s_1 ++ ... ++ s_k], and the
+        expression [re] matches each one of the strings [s_i], then
+        [Star re] matches [s].
 
-正規表現と文字列を以下の規則で結び付けます。そのルールは正規表現が文字列にいつマッチするかを定義します:
+        As a special case, the sequence of strings may be empty, so
+        [Star re] always matches the empty string [[]] no matter what
+        [re] is.
+
+    We can easily translate this informal definition into an
+    [Inductive] one as follows: *)
+(** 正規表現と文字列を以下の規則で結び付けます。そのルールは正規表現が文字列にいつマッチするかを定義します:
 
     - [EmptySet]式はどんな文字列にもマッチしません。
 
@@ -958,11 +966,9 @@ Arguments Star {T} _.
 
     - もし、[re1]と[re2]の少くともどちらかが文字列[s]にマッチするならば、[Union re1 re2]は[s]にマッチします。
 
-    - 最後に、もし文字列[s]を[s = s_1 ++ ... ++ s_k]のように、文字列の並びの結合として書くことが出来て、正規表現[re]がそれぞれの文字列[s_i]にマッチするならば、[Star re]は[s]にマッチします。(特別な場合として、文字列の並びが空である場合、[Star re]は常に、[re]が何であるかに関係なく、空の文字列[[]]にマッチします。*)
+    - 最後に、もし文字列[s]を[s = s_1 ++ ... ++ s_k]のように、文字列の並びの結合として書くことが出来て、正規表現[re]がそれぞれの文字列[s_i]にマッチするならば、[Star re]は[s]にマッチします。(特別な場合として、文字列の並びが空である場合、[Star re]は常に、[re]が何であるかに関係なく、空の文字列[[]]にマッチします。
 
-(*  We can easily translate this informal definition into an
-    [Inductive] one as follows: *)
-(** この非形式的定義を[Inductive]を使用したものに翻訳するのは簡単です: *)
+    この非形式的定義を[Inductive]を使用したものに翻訳するのは簡単です: *)
 
 Inductive exp_match {T} : list T -> reg_exp T -> Prop :=
 | MEmpty : exp_match [] EmptyStr
@@ -983,10 +989,11 @@ Inductive exp_match {T} : list T -> reg_exp T -> Prop :=
                exp_match s2 (Star re) ->
                exp_match (s1 ++ s2) (Star re).
 
-(*  Once again, for readabilit^y, we can also display this definition
-    using inference-rule notation.  At the same time, let's introduce
-    a more readable infix notation. *)
+(*  Again, for readability, we can also display this definition using
+    inference-rule notation.  At the same time, let's introduce a more
+    readable infix notation. *)
 (** もう一度、読み易いように、この定義を推論規則の記法を使って書き直してみましょう。それど同時に、もっと読み易い記法を導入してみることにしましょう。*)
+
 Notation "s =~ re" := (exp_match s re) (at level 80).
 
 (**
@@ -1015,7 +1022,6 @@ Notation "s =~ re" := (exp_match s re) (at level 80).
                       s1 =~ re    s2 =~ Star re
                      ---------------------------            (MStarApp)
                         s1 ++ s2 =~ Star re
-
 *)
 
 (*  Notice that these rules are not _quite_ the same as the informal
@@ -1098,6 +1104,7 @@ Qed.
     the following lemma shows that every string [s] that matches [re]
     also matches [Star re]. *)
 (** [exp_match]に関する一般的な事実を証明することも出来ます。例えば、次の補題は、[re]にマッチする全ての文字列(群)が、[Star re]にもマッチすることを示します。*)
+
 Lemma MStar1 :
   forall T s (re : reg_exp T) ,
     s =~ re ->
@@ -1113,12 +1120,14 @@ Qed.
 (*  (Note the use of [app_nil_r] to change the goal of the theorem to
     exactly the same shape expected by [MStarApp].) *)
 (** (定理のゴールを[MStarApp]で期待される形と全く同じに変更する[app_nil_r]の使用には気をつけましょう。*)
+
 (*  **** Exercise: 3 stars (exp_match_ex1)  *)
 (** **** 練習問題: ★★★ stars (exp_match_ex1)  *)
 (*  The following lemmas show that the informal matching rules given
     at the beginning of the chapter can be obtained from the formal
     inductive definition. *)
 (** 次の補題は、この節の最初に提示された非形式的なマッチング規則が形式的な帰納的定義からも得られることを示しています。*)
+
 Lemma empty_is_empty : forall T (s : list T),
   ~ (s =~ EmptySet).
 Proof.
@@ -1237,8 +1246,8 @@ Qed.
     is correct. *)
 (** 正規表現がある文字列にマッチするかどうかをテストする帰納的な関数[re_not_empty]を書いて、あなたの関数が正しいことを証明しなさい。*)
 
-Fixpoint re_not_empty {T} (re : reg_exp T) : bool :=
-  (* FILL IN HERE *) admit.
+Fixpoint re_not_empty {T : Type} (re : reg_exp T) : bool
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Lemma re_not_empty_correct : forall T (re : reg_exp T),
   (exists s, s =~ re) <-> re_not_empty re = true.
@@ -1246,15 +1255,16 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
+(* ================================================================= *)
 (*  ** The [remember] Tactic *)
 (** ** [remember] タクティック *)
 
 (*  One potentially confusing feature of the [induction] tactic is
     that it happily lets you try to set up an induction over a term
-    that isn't sufficiently general.  The net effect of this will be
-    to lose information (much as [destruct] can do), and leave you
-    unable to complete the proof. Here's an example: *)
-(** [induction]タクティックの混乱しやすいかもしれない特徴として、十分に一般的でない項に対して帰納法を行なうことが出来てしまうことです。このことの正味の影響は([destruct]でよくやるように)情報を失なってしまって、証明を完了出来なくなってしまうことです。次の例では: *)
+    that isn't sufficiently general.  The effect of this is to lose
+    information (much as [destruct] can do), and leave you unable to
+    complete the proof.  Here's an example: *)
+(** [induction]タクティックの混乱しやすいかもしれない特徴として、十分に一般的でない項に対して帰納法を行なうことが出来てしまうことです。このことの影響は([destruct]でよくやるように)情報を失なってしまって、証明を完了出来なくなってしまうことです。次の例では: *)
 
 Lemma star_app: forall T (s1 s2 : list T) (re : reg_exp T),
   s1 =~ Star re ->
@@ -1274,25 +1284,25 @@ Proof.
         |re''|s1 s2' re'' Hmatch1 IH1 Hmatch2 IH2].
 
 (*  But now, although we get seven cases (as we would expect from the
-    definition of [exp_match]), we lost a very important bit of
+    definition of [exp_match]), we have lost a very important bit of
     information from [H1]: the fact that [s1] matched something of the
     form [Star re].  This means that we have to give proofs for _all_
     seven constructors of this definition, even though all but two of
     them ([MStar0] and [MStarApp]) are contradictory.  We can still
     get the proof to go through for a few constructors, such as
     [MEmpty]... *)
-(** しかしここで、7つのケース([exp_match]の定義から期待されるように)があるにも拘らず、[H1]からの僅かな、しかし非常に重要な情報が失われているのです: [s1]が[Star re]の形式にマッチしたという事実です。
+(** しかしここで、7つのケース([exp_match]の定義から期待されるように)があるにも拘らず、[H1]からの僅かな、しかし非常に重要な情報が失われてしまっているのです: [s1]が[Star re]の形式にマッチしたという事実です。
 このことは、この定義の7つのコンストラクタ全てに対する証明を与えなければならないことを意味しています。[MStar0]と[MStarApp]の二つを除いて矛盾しているにも拘らず、です。少数のコンスラクタのために、証明を続けることは出来ます。[MEmpty]のように... *)
   - (* MEmpty *)
     simpl. intros H. apply H.
 
-(*  ... but most of them get stuck.  For [MChar], for instance, we
+(*  ... but most cases get stuck.  For [MChar], for instance, we
     must show that *)
-(** ... しかし大抵は詰ってしまいます。たとえば、[MChar]では、
+(** ... しかしほとんどの場合は詰ってしまいます。たとえば、[MChar]では、
 
     s2 =~ Char x' -> x' :: s2 =~ Char x',
 
-    which is clearly impossible. *)
+    はっきりと不可能です。*)
 
   - (* MChar. 詰った... *)
 
@@ -1301,15 +1311,16 @@ Abort.
 (** The problem is that [induction] over a Prop hypothesis only works
     properly with hypotheses that are completely general, i.e., ones
     in which all the arguments are variables, as opposed to more
-    complex expressions, such as [Star re].  In this respect it
-    behaves more like [destruct] than like [inversion].
+    complex expressions, such as [Star re].
+
+    (In this respect, [induction] on evidence behaves more like
+    [destruct] than like [inversion].)
 
     We can solve this problem by generalizing over the problematic
     expressions with an explicit equality: *)
-(** この問題は、命題の仮説に対する[induction]は、完全に一般化された仮説上でしか上手く動かないことです、言い換えると、もっと複雑な表現とちがって、全ての引数が変数であるような仮定、たとえば、[Star re]のようなものです。この点において、[inversion]というよりは、[destruct]に近い振舞いを[induction]
-は行ないます。
-問題のある表現に対して明示的な等価性をもって一般化してやることで、この問題を解くことが出来ます: *)
-*)
+(** この問題は、命題の仮説に対する[induction]は、完全に一般化された仮説上でしか上手く動かないことです、言い換えると、もっと複雑な表現とちがって、全ての引数が変数であるような仮定、たとえば、[Star re]のようなものです。このような場合において、命題上の[induction]は、[inversion]というよりは、[destruct]に近い振舞いを[induction]は行ないます。
+問題のある表現に対して明示的な等価性をもって一般化してやることで、この問題を解くことが出来ます: *) *)
+
 Lemma star_app: forall T (s1 s2 : list T) (re re' : reg_exp T),
   s1 =~ re' ->
   re' = Star re ->
@@ -1323,14 +1334,16 @@ Lemma star_app: forall T (s1 s2 : list T) (re re' : reg_exp T),
 
     This idiom is so common that Coq provides a tactic to
     automatically generate such equations for us, avoiding thus the
-    need for changing the statements of our theorems.  Calling
-    [remember e as x] causes Coq to (1) replace all occurrences of the
-    expression [e] by the variable [x], and (2) add an equation [x =
-    e] to the context.  Here's how we can use it to show the above
-    result: *)
+    need for changing the statements of our theorems. *)
 (** 直接に、根拠に対する帰納法を進めて来ました。最初の仮説に対する引数は十分に一般的だったからです。
 つまり、コンテキストの中の[re' = Star re]という等式を反転することでほとんどの場合を排除することが出来ます。
-この使い方？はそのような等式を生み出すためにタクティックを用いる非常に一般的な方法です。そのため、我々の定理の文を変更する必要を避けることが出来ます。[remember e as x]を呼ぶことで、Coqに(1) 式[e]変数[x]に置き換えさせることが出来、そして(2) [x=e]という等式をコンテキストに付け加えさせます。上記の結果を示すためにそれをどう使うのか見てみましょう。*)
+このイディオムはそのような等式を生み出すためにタクティックを用いる非常に一般的な方法です。そのため、我々の定理の文を変更しなくてもよくなります。*)
+
+(*  Invoking the tactic [remember e as x] causes Coq to (1) replace
+    all occurrences of the expression [e] by the variable [x], and (2)
+    add an equation [x = e] to the context.  Here's how we can use it
+    to show the above result: *)
+(** [remember e as x]タクティックを呼び出すことで、Coqに(1) 式[e]変数[x]に置き換えさせることが出来、そして(2) [x=e]という等式をコンテキストに付け加えさせます。上記の結果を示すためにそれをどう使うのか見てみましょう。*)
 Abort.
 
 Lemma star_app: forall T (s1 s2 : list T) (re : reg_exp T),
@@ -1343,6 +1356,7 @@ Proof.
 
 (*  We now have [Heqre' : re' = Star re]. *)
 (** こうすることで、[Heqre' : re' = Star re]を使えます。*)
+
   generalize dependent s2.
   induction H1
     as [|x'|s1 re1 s2' re2 Hmatch1 IH1 Hmatch2 IH2
@@ -1394,15 +1408,14 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(* ############################################################ *)
 (*  **** Exercise: 5 stars, advanced (pumping)  *)
 (** **** 練習問題: ★★★★★, advanced (pumping)  *)
-(*  One of the first interesting theorems in the theory of regular
-    expressions is the so-called _pumping lemma_, which states,
-    informally, that any sufficiently long string [s] matching a
-    regular expression [re] can be "pumped" by repeating some middle
+(*  One of the first really interesting theorems in the theory of
+    regular expressions is the so-called _pumping lemma_, which
+    states, informally, that any sufficiently long string [s] matching
+    a regular expression [re] can be "pumped" by repeating some middle
     section of [s] an arbitrary number of times to produce a new
-    string also matching [re]. 
+    string also matching [re].
 
     To begin, we need to define "sufficiently long."  Since we are
     working in a constructive logic, we actually need to be able to
@@ -1512,11 +1525,12 @@ Proof.
       intros H'. right. apply IHl'. apply H'.
 Qed.
 
-(** In the first branch after [destruct], we explicitly
-    apply the [beq_nat_true_iff] lemma to the equation generated by
+(** In the first branch after [destruct], we explicitly apply
+    the [beq_nat_true_iff] lemma to the equation generated by
     destructing [beq_nat n m], to convert the assumption [beq_nat n m
     = true] into the assumption [n = m], which is what we need to
     complete this case.
+
     We can streamline this proof by defining an inductive proposition
     that yields a better case-analysis principle for [beq_nat n
     m].  Instead of generating an equation such as [beq_nat n m =
@@ -1526,6 +1540,34 @@ Qed.
     properties (and not just equalities): *)
 (** [destruct]の後の最初の分岐において、明示的に顕示的に[beq_nat_true_iff]の補題を[beq_nat n m]を場合分けすることで生成される等式[n = m]に変換するために適用しています。このケースを完了させるために必要なことです。
 この証明をもっと簡単にすることが出来ます。[beq_nat n m]に対するもっとよい場合分けの原理を導出する 再帰的な命題を定義することでです。直接にはあまり使い道のない[beq_nat n m = true]に対応する等式を生成する代わりに、この原理は、我々が必要とする仮定[n = m]をすぐさま与えてくれます。すこしだけ一般化して定義することで、任意の命題(等式だけに限らない)に対して用いることが出来るようになります。*)
+
+Module FirstTry.
+
+Inductive reflect : Prop -> bool -> Prop :=
+| ReflectT : forall (P:Prop), P -> reflect P true
+| ReflectF : forall (P:Prop), ~ P -> reflect P false.
+
+(** Before explaining this, let's rearrange it a little: Since the
+    types of both [ReflectT] and [ReflectF] begin with
+    [forall (P:Prop)], we can make the definition a bit more readable
+    and easier to work with by making [P] a parameter of the whole
+    Inductive declaration. *)
+
+End FirstTry.
+
+Inductive reflect (P : Prop) : bool -> Prop :=
+| ReflectT : P -> reflect P true
+| ReflectF : ~ P -> reflect P false.
+
+(** The [reflect] property takes two arguments: a proposition
+    [P] and a boolean [b].  Intuitively, it states that the property
+    [P] is _reflected_ in (i.e., equivalent to) the boolean [b]: [P]
+    holds if and only if [b = true].  To see this, notice that, by
+    definition, the only way we can produce evidence that [reflect P
+    true] holds is by showing that [P] is true and using the
+    [ReflectT] constructor.  If we invert this statement, this means
+    that it should be possible to extract evidence for [P] from a
+End FirstTry.
 
 Inductive reflect (P : Prop) : bool -> Prop :=
 | ReflectT : P -> reflect P true
@@ -1549,7 +1591,8 @@ Inductive reflect (P : Prop) : bool -> Prop :=
 
 Theorem iff_reflect : forall P b, (P <-> b = true) -> reflect P b.
 Proof.
-  intros P [] H.
+  (* WORKED IN CLASS *)
+  intros P b H. destruct b.
   - apply ReflectT. rewrite H. reflexivity.
   - apply ReflectF. rewrite H. intros H'. inversion H'.
 Qed.
@@ -1565,14 +1608,13 @@ Proof.
     connective is that, by destructing a hypothesis or lemma of the
     form [reflect P b], we can perform case analysis on [b] while at
     the same time generating appropriate hypothesis in the two
-    branches ([P] in the first subgoal and [~ P] in the second).
+    branches ([P] in the first subgoal and [~ P] in the second). *)
+(** 通常の"もし~でありかつそのときに限り"のiff結合子を上回る[reflect]の利点は、仮説や、[reflect P b]という形の補題を場合分けすることで、[b]についてのケース分析を進めることが出来、二つの分岐において同時に、適切な仮説を生成することが出来る点です。(最初のサブゴールにおいては、[P]が、二番目には、[~P] が)  *)
 
-    To use [reflect] to produce a better proof of
+(*  To use [reflect] to produce a better proof of
     [filter_not_empty_In], we begin by recasting the
     [beq_nat_iff_true] lemma into a more convenient form in terms of
     [reflect]: *)
-(** 通常の"もし~でありかつそのときに限り"のiff結合子を上回る[reflect]の利点は、仮説や、[reflect P b]という形の補題を場合分けすることで、[b]についてのケース分析を進めることが出来、二つの分岐において同時に、適切な仮説を生成することが出来る点です。(最初のサブゴールにおいては、[P]が、二番目には、[~P]
-が) 
 [filter_not_empty_In]のもっとよい証明を行なうために、[reflect]を使ってみましょう。まず[beq_nat_iff_true]の補題をもっと[reflect]で使い易い形に変形することから始めましょう。*)
 
 Lemma beq_natP : forall n m, reflect (n = m) (beq_nat n m).
@@ -1583,11 +1625,14 @@ Qed.
 
 (** The new proof of [filter_not_empty_In] now goes as follows.
     Notice how the calls to [destruct] and [apply] are combined into a
-    single call to [destruct].  (To see this clearly, look at the two
-    proofs of [filter_not_empty_In] in your Coq browser and observe
-    the differences in proof state at the beginning of the first case
-    of the [destruct].) *)
+    single call to [destruct]. *)
+
+(*  (To see this clearly, look at the two proofs of
+    [filter_not_empty_In] with Coq and observe the differences in
+    proof state at the beginning of the first case of the
+    [destruct].) *)
 (** [filter_not_empty_In]の新しい証明は、次のようになります。[destruct]と[apply]の呼び出しがどのように単一の[destruct]の呼び出しに統合されているか気をつけてください。(このことをはっきりと理解するために、[filter_not_emptyIn]nの二つの証明をCoqで動かしながら良く見て、[destruct]による最初の分岐の開始において、証明がどのように違うかをよく観察してみてください。*)
+
 Theorem filter_not_empty_In' : forall n l,
   filter (beq_nat n) l <> [] ->
   In n l.
@@ -1845,7 +1890,7 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
    pigeonhole must contain at least two items.  As often happens, this
    apparently trivial fact about numbers requires non-trivial
    machinery to prove, but we now have enough... *)
-(** 「鳩の巣定理（ "pigeonhole principle" ）」は、「数えるあげる」ということについての基本的な事実を
+(** 「鳩の巣定理（ "pigeonhole principle" ）」は、「数えあげる」ということについての基本的な事実を
 提示しています。「もし [n] 個の鳩の巣に[n] 個より多い数のものを入れようとするなら、どのような入れ方>
 をしてもいくつかの鳩の巣には必ず一つ以上のものが入ることになる。」というもので、この、数値に関する見
 るからに自明な事実を証明するにも、なかなか自明とは言えない手段が必要になります。我々は既にそれを知っ
@@ -1898,4 +1943,4 @@ Proof.
 (** [] *)
 
 
-(** $Date: 2015-08-11 12:03:04 -0400 (Tue, 11 Aug 2015) $ *)
+(** $Date: 2016-12-17 23:53:20 -0500 (Sat, 17 Dec 2016) $ *)
