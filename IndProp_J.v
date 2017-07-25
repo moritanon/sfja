@@ -234,6 +234,19 @@ Proof.
   - (* n = n' + 2 *) simpl. intros H. apply H.
 Qed.
 
+(** We can perform this kind of reasoning in Coq, again using
+    the [inversion] tactic.  Besides allowing us to reason about
+    equalities involving constructors, [inversion] provides a
+    case-analysis principle for inductively defined propositions.
+    When used in this way, its syntax is similar to [destruct]: We
+    pass it a list of identifiers separated by [|] characters to name
+    the arguments to each of the possible constructors.  *)
+(** この種の推論を[inversion]タクティックを使うことでCoqで行なうことが出来ます。
+  それに加えコンストラクタを含む等価性についての推論を行なうことも出来ます。
+  [inversion]は帰納的に定義された命題のためのケース分析の原理を提供してくれます。
+  上記のように使用された場合、[inversion]のシンタックスは[destruct]に似ます:
+  それぞれのありうるコンストラクタの引数として、 [|]の文字によって、分離して定義された識別子のリストを渡します。
+
 (*  We can state the same claim in terms of [ev], but this quickly
     leads us to an obstacle: Since [ev] is defined inductively --
     rather than as a function -- Coq doesn't know how to simplify a
@@ -249,9 +262,7 @@ Proof.
   - (* E = ev_0 *) simpl. apply ev_0.
   - (* E = ev_SS n' E' *) simpl. apply E'.  Qed.
 
-(*  The solution is to perform case analysis on the evidence that [ev
-    n] _directly_. By the definition of [ev], there are two cases to
-    consider:
+(*  In words, here is how the inversion reasoning works in this proof:
 
     - If the evidence is of the form [ev_0], we know that [n = 0].
       Therefore, it suffices to show that [ev (pred (pred 0))] holds.
@@ -262,7 +273,7 @@ Proof.
       [n = S (S n')] and [E'] is evidence for [ev n'].  We must then
       show that [ev (pred (pred (S (S n'))))] holds, which, after
       simplification, follows directly from [E']. *)
-(** この問題の解法は、[ev n]という根拠に対し、_直接_に場合分けを行うことです。[ev]の定義によれば、二つの場合があると考えられます。
+(** この証明のなかで、inversionがどのように動くかを言葉で書くと、
 
     - 証拠が、[ev_0]という形をしている場合、[n = 0]であると分かります。それゆえ、[ev (pred (pred 0))]が成り立つことを示すこが出来れば十分です。
       [pred]の定義によれば、これは、[ev 0]と等しいので、成り立つことが[ev_0]から直接導かれます。
@@ -384,10 +395,6 @@ Proof.
 
 ここで、[inversion] が一般にはどのように動作するかを説明します。 [I] が現在のコンテキストにおいて帰納的に宣言された仮定 [P] を参照しているとします。ここで、[inversion I] は、[P]のコンストラクタごとにサブゴールを生成します。 各サブゴールにおいて、 コンストラクタが [P] を証明するのに必要な条件によって [I] が置き換えられます。サブゴールのうちいくつかは矛盾が存在するので、 [inversion] はそれらを除外します。残っているのは、元のゴールが成り立つことを示すのに必要なサブゴールです。[inversion]は[P]に与えられた引数の全ての等式をコンテキストに加えます。(例、evSS_evの中の[S (S n') = n]のように。) *)
 
-(* ####################################################### *)
-(*  ** Induction on Evidence *)
-(** ** 根拠に対する帰納法 *)
-
 (*  The [ev_double] exercise above shows that our new notion of
     evenness is implied by the two earlier ones (since, by
     [even_bool_prop] in chapter [Logic], we already know that
@@ -496,11 +503,15 @@ Proof.
 Qed.
 
 (*  As we will see in later chapters, induction on evidence is a
-    recurring technique when studying the semantics of programming
-    languages, where many properties of interest are defined
-    inductively.  The following exercises provide simple examples of
-    this technique, to help you familiarize yourself with it. *)
-(** 後の章で見るように、根拠上の帰納法は、プログラミング言語の意味論を学ぶときに繰り返し出て来るテクニックです。そこで、多くの興味深い属性が帰納的に定義されています。次の練習問題はこのテクニックの簡単な例です。この方法に慣れるのに役立つでしょう。*)
+    recurring technique across many areas, and in particular when
+    formalizing the semantics of programming languages, where many
+    properties of interest are defined inductively. *)
+(** 後の章で見るように、根拠に対する帰納法は、 様々な分野で横断的に使用可能なテクニックです。
+とりわけプログラミング言語の意味論を形式化するのに役立ちます。 そこでは多くの興味深い属性が帰納的に定義されています。*)
+
+(*  The following exercises provide simple examples of this
+    technique, to help you familiarize yourself with it. *)
+(** 次の練習問題はこのテクニックの簡単な例です。この方法に慣れるのに役立つでしょう。*)
 
 (*  **** Exercise: 2 stars (ev_sum)  *)
 (** **** 練習問題: ★★ (ev_sum)  *)
@@ -509,8 +520,8 @@ Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-(*  **** Exercise: 4 stars, advanced (ev_alternate)  *)
-(** **** 練習問題: ★★★★ advanced (ev_alternate)  *)
+(*  **** Exercise: 4 stars, advanced, optional (ev_alternate)  *)
+(** **** 練習問題: ★★★★ advanced, optional (ev_alternate)  *)
 (*  In general, there may be multiple ways of defining a
     property inductively.  For example, here's a (slightly contrived)
     alternative definition for [ev]: *)
@@ -521,9 +532,11 @@ Inductive ev' : nat -> Prop :=
 | ev'_2 : ev' 2
 | ev'_sum : forall n m, ev' n -> ev' m -> ev' (n + m).
 
-(*  Prove that this definition is logically equivalent to
-    the old one. *)
-(** この定義が論理的に以前の定義と等価なことを証明しなさい。*)
+(*  Prove that this definition is logically equivalent to the old
+    one.  (You may want to look at the previous theorem when you get
+    to the induction step.) *)
+(** この定義が論理的に以前の定義と等価なことを証明しなさい。(帰納法のステップに到達したとき、以前の定理を見たくなるかもしれません
+)*)
 
 Theorem ev'_ev : forall n, ev' n <-> ev n.
 Proof.
@@ -827,7 +840,9 @@ End R.
       transitive -- that is, if [l1] is a subsequence of [l2] and [l2]
       is a subsequence of [l3], then [l1] is a subsequence of [l3].
       Hint: choose your induction carefully! *)
-(**あるリストが、別のリストのサブシーケンス（ _subsequence_ ）であるとは、最初のリストの要素が全て二つ目のリストに同じ順序で現れるということです。ただし、その間に何か別の要素が入ってもかまいません。例えば、
+(**あるリストが、別のリストのサブシーケンス（ _subsequence_ ）であるとは、
+最初のリストの要素が全て二つ目のリストに同じ順序で現れるということです。
+ただし、その間に何か別の要素が入ってもかまいません。例えば、
 
     [1,2,3]
 
@@ -844,7 +859,7 @@ End R.
     [1,3]
     [5,6,2,1,7,3,8]
 
-    - list nat] 上に、そのリストがサブシーケンスであることを意味するような命題 [subseq] を定義しなさい。（ヒント：三つのケースが必要になります）
+    - [list nat] 上に、そのリストがサブシーケンスであることを意味するような命題 [subseq] を定義しなさい。（ヒント：三つのケースが必要になります）
 
     -サブシーケンスである、という関係が「反射的」であることを証明しなさい。つまり、どのようなリストも、それ自身のサブシーケンスであるということです。
 
@@ -885,22 +900,19 @@ End R.
 (*  * Case Study: Regular Expressions *)
 (** * ケーススタディ: 正規表現 *)
 
-(** The [ev] property provides a simple example for illustrating
+(*  The [ev] property provides a simple example for illustrating
     inductive definitions and the basic techniques for reasoning about
     them, but it is not terribly exciting -- after all, it is
     equivalent to the two non-inductive of evenness that we had
     already seen, and does not seem to offer any concrete benefit over
     them.  To give a better sense of the power of inductive
     definitions, we now show how to use them to model a classic
-    concept in computer science: _regular expressions_. 
-
-    Regular expressions are a simple language for describing strings,
-    defined as elements of the following inductive type.  (The names
-    of the constructors should become clear once we explain their
-    meaning below.)  *)
+    concept in computer science: _regular expressions_. *)
 (** [ev]属性は、帰納的な定義とそれを使う推論の簡単な例を提供します。しかしそれほど興奮するものでもありません。-- 結局、それまでに見た二つの非帰納的な定義と等価ですし、それらを越えるどんな具体的なメリットもありません。帰納的定義のパワーをもっと感じるために、コンピュータサイエンスの古典的概念 -- 正規表現 -- を帰納的定義を使って、どのようにモデル化するかを見てみましょう。
 
-正規表現は、以下の帰納的な型によって定義された文字列を記述するための単純な言語です。(コンストラクタの名前は、以下のように、それぞれの意味を説明する曖昧でないものであるべきです。*)
+(*  Regular expressions are a simple language for describing strings,
+    defined as follows: *)
+(** 正規表現は、以下のように帰納的な型によって定義された文字列を記述するための単純な言語です:*)
 
 Inductive reg_exp (T : Type) : Type :=
 | EmptySet : reg_exp T
@@ -1028,26 +1040,28 @@ Notation "s =~ re" := (exp_match s re) (at level 80).
     ones that we gave at the beginning of the section.  First, we
     don't need to include a rule explicitly stating that no string
     matches [EmptySet]; we just don't happen to include any rule that
-    would have the effect of some string matching
-    [EmptySet].  (Indeed, the syntax of inductive definitions doesn't
-    even _allow_ us to give such a "negative rule.")
+    would have the effect of some string matching [EmptySet].  (Indeed,
+    the syntax of inductive definitions doesn't even _allow_ us to
+    give such a "negative rule.")
 
-    Furthermore, the informal rules for [Union] and [Star] correspond
+    Second, the informal rules for [Union] and [Star] correspond
     to two constructors each: [MUnionL] / [MUnionR], and [MStar0] /
     [MStarApp].  The result is logically equivalent to the original
-    rules, but more convenient to use in Coq, since the recursive
+    rules but more convenient to use in Coq, since the recursive
     occurrences of [exp_match] are given as direct arguments to the
     constructors, making it easier to perform induction on evidence.
     (The [exp_match_ex1] and [exp_match_ex2] exercises below ask you
     to prove that the constructors given in the inductive declaration
     and the ones that would arise from a more literal transcription of
-    the informal rules are indeed equivalent.) *)
+    the informal rules are indeed equivalent.)
+
+    Let's illustrate these rules with a few examples. *)
 (** これらの規則は、このセクションの最初に見た非形式的なものと全く同じものではないことに気をつけてください。まず[EmptySet]にどんな文字列もマッチしないことを述べる規則を含める必要はありません: [EmptySet]にマッチする文字列の効果を持つどんなルールを含めることは決して出来ないからです。
 (実際、再帰的定義のシンタックスは、そのような否定的な規則を含めることが許されていません。*)
 
-さらに、[Union]や[Star]の二つの非形式的な規則は、それぞれ二つのコンストラクタに対応します:[MUnionL] / [MUnionR]、[MStar0] / [MStartApp]とにです。その結果、論理的に元の規則に等しくはなるだけでなく、Coqにとっても都合のよいものになります: 再帰的な[exp_match]を直接コンスラクタの引数として与えることが出来るようになるからです。それは、根拠についての帰納法の適用をより簡単にしてくれます。(下記の[exp_match_ex1]と[exp_match_ex2]の練習問題で、再帰的に宣言されたコンストラクタと、非形式的な規則をもっと文字通りに変換したものが論理的に等しいことを証明して下さい。*)
-(*  Let's illustrate these rules with a few examples. *)
-(** これらの規則を幾つかの例で説明してみましょう。*)
+次に、[Union]や[Star]の二つの非形式的な規則は、それぞれ二つのコンストラクタに対応します:[MUnionL] / [MUnionR]、[MStar0] / [MStartApp]とにです。その結果、論理的に元の規則に等しくはなるだけでなく、Coqにとっても都合のよいものになります: 再帰的な[exp_match]を直接コンスラクタの引数として与えることが出来るようになるからです。それは、根拠についての帰納法の適用をより簡単にしてくれます。(下記の[exp_match_ex1]と[exp_match_ex2]の練習問題で、再帰的に宣言されたコンストラクタと、非形式的な規則をもっと文字通りに変換したものが論理的に等しいことを証明して下さい。
+
+これらの規則を幾つかの例で説明してみましょう。*)
 
 Example reg_exp_ex1 : [1] =~ Char 1.
 Proof.
@@ -1503,11 +1517,11 @@ End Pumping.
 (** * Improving Reflection *)
 
 (*  We've seen in the [Logic] chapter that we often need to
-    relate boolean computations to statements in [Prop].
-    Unfortunately, performing this conversion by hand can result in
-    tedious proof scripts.  Consider the proof of the following
+    relate boolean computations to statements in [Prop].  But
+    performing this conversion in the way we did it there can result
+    in tedious proof scripts.  Consider the proof of the following
     theorem: *)
-(** [Logic]の章において、[Prop]による命題をブール値の計算に関連付ける必要がよくありました。残念なことに、この変換を手動で実行することは、つまらないスクリプトを書く結果に終わります。次の定理の証明について考えてみましょう: *)
+(** [Logic]の章において、[Prop]による命題をブール値の計算に関連付ける必要がよくありました。しかし、我々がそこで行なったように変換することは、つまらないスクリプトを書く結果に終わります。次の定理の証明について考えてみましょう: *)
 
 Theorem filter_not_empty_In : forall n l,
   filter (beq_nat n) l <> [] ->
@@ -1648,11 +1662,25 @@ Proof.
       intros H'. right. apply IHl'. apply H'.
 Qed.
 
-(** Although this technique arguably gives us only a small gain
-    in convenience for this particular proof, using [reflect]
-    consistently often leads to shorter and clearer proofs. We'll see
-    many more examples where [reflect] comes in handy in later
-    chapters.
+(** **** Exercise: 3 stars, recommended (beq_natP_practice)  *)
+(** Use [beq_natP] as above to prove the following: *)
+
+Fixpoint count n l :=
+  match l with
+  | [] => 0
+  | m :: l' => (if beq_nat n m then 1 else 0) + count n l'
+  end.
+
+Theorem beq_natP_practice : forall n l,
+  count n l = 0 -> ~(In n l).
+Proof.
+  (* FILL IN HERE *) Admitted.
+(** [] *)
+
+(** This technique gives us only a small gain in convenience for
+    the proofs we've seen here, but using [reflect] consistently often
+    leads to noticeably shorter and clearer scripts as proofs get
+    larger.  We'll see many more examples in later chapters.
 
     The use of the [reflect] property was popularized by _SSReflect_,
     a Coq library that has been used to formalize important results in
@@ -1662,67 +1690,81 @@ Qed.
     small proof steps with boolean computations. *)
 (** このテクニックは、この証明では特に、僅かな前進しか与えてくれないことは間違いありませんが、[reflect]を使用することは、しばしば確実に証明を短く簡潔にしてくれます。あとの章で[reflect]が現われる例を見ることになるでしょう。
 [reflect]属性の使用は、SSReflectによってポピュラーなものになりました。SSReflectは、4色問題定理やFeit-Thompson定理を含む数学の重要な結果を形式化するために使われてきたCoqのライブラリです。SSReflectとは、(small scale reflection)の略です: 小さな証明のステップをブール値の計算に単純化するreflectionの多用です。*)
-(* ####################################################### *)
+
+(* ################################################################# *)
 (*  * Additional Exercises *)
 (** * 追加の練習問題 *)
 
-(*  **** Exercise: 4 stars, recommended (palindromes)  *)
-(** **** 練習問題 ★★★★ recommended (palindromes) *)
-(** A palindrome is a sequence that reads the same backwards as
-    forwards.
+(*  **** Exercise: 3 stars, recommended (nostutter)  *)
+(** **** 練習問題: ★★★ , recommended (nostutter) *)
+(*  Formulating inductive definitions of properties is an important
+    skill you'll need in this course.  Try to solve this exercise
+    without any help at all.
 
-    - Define an inductive proposition [pal] on [list X] that
-      captures what it means to be a palindrome. (Hint: You'll need
-      three cases.  Your definition should be based on the structure
-      of the list; just having a single constructor
+    We say that a list "stutters" if it repeats the same element
+    consecutively.  The property "[nostutter mylist]" means that
+    [mylist] does not stutter.  Formulate an inductive definition for
+    [nostutter].  (This is different from the [NoDup] property in the
+    exercise above; the sequence [1;4;1] repeats but does not
+    stutter.) *)
+(** 述語の帰納的な定義を定式化できるようになるというのは、これから先の学習に必要なスキルになってきま
+す。
 
-        c : forall l, l = rev l -> pal l
-
-      may seem obvious, but will not work very well.)
-
-    - Prove ([pal_app_rev]) that
-
-       forall l, pal (l ++ rev l).
-
-    - Prove ([pal_rev] that)
-
-       forall l, pal l -> l = rev l.
-
-*)
-(**  palindrome（回文）は、最初から読んでも逆から読んでも同じになるような シーケンスです。
-    - [list X] でパラメータ化され、それが palindrome であることを示すような帰納的命題 [pal] を定義し
-なさい。（ヒント：これには三つのケースが必要です。この定義は、リストの構造に基いたものとなるはずです
-。まず一つのコンストラクタ、
-    c : forall l, l = rev l -> pal l
-      は明らかですが、これはあまりうまくいきません。)
-
-    - 以下を証明しなさい。
-
-       forall l, pal (l ++ rev l).
-
-    - 以下を証明しなさい。
-
-       forall l, pal l -> l = rev l.
+同じ数値が連続して現れるリストを "stutters" （どもったリスト）と呼ぶことにします。述語 "[nostutter mylist]" は、 [mylist] が「どもったリスト」でないことを意味しています。[nostutter] の帰納的な定義を記
+述しなさい。（これは以前の練習問題に出てきた [no_repeats] という述語とは異なるものです。リスト [1,4,1] は repeats ではありますが stutter ではありません。）
 *)
 
-(* FILL IN HERE *)
-(** [] *)
+Inductive nostutter {X:Type} : list X -> Prop :=
+ (* FILL IN HERE *)
+.
+(*  Make sure each of these tests succeeds, but feel free to change
+    the suggested proof (in comments) if the given one doesn't work
+    for you.  Your definition might be different from ours and still
+    be correct, in which case the examples might need a different
+    proof.  (You'll notice that the suggested proofs use a number of
+    tactics we haven't talked about, to make them more robust to
+    different possible ways of defining [nostutter].  You can probably
+    just uncomment and use them as-is, but you can also prove each
+    example with more basic tactics.)  *)
+(** できた定義が、以下のテストを通過することを確認してください。通過できないものがあったら、定義を修
+正してもかまいません。あなたの書いた定義が、正しくはあるけれど私の用意した模範解答と異なっているかも
+しれません。その場合、このテストを通過するために別の証明を用意する必要があります。
 
-(** **** Exercise: 5 stars, optional (palindrome_converse)  *)
-(** Again, the converse direction is significantly more difficult, due
-    to the lack of evidence.  Using your definition of [pal] from the
-    previous exercise, prove that
-
-     forall l, l = rev l -> pal l.
-
+以下の Example にコメントとして提示された証明には、色々な種類の[nostutter] の定義に対応できるように>
+するため、まだ説明していないタクティックがいくつか使用されています。 まずこれらのコメントをはずした>
+だけの状態で確認できればいいのですが、もしそうしたいなら、これらの証明をもっと基本的なタクティックで
+書き換えて証明してもかまいません。
 *)
-(** もう一度言いますが、逆方向は大変難しいです。根拠が足りないせいです。あなたの[pal]の定義を用いて下記を証明しなさい。
 
-     forall l, l = rev l -> pal l.
-
+Example test_nostutter_1: nostutter [3;1;4;1;5;6].
+(* FILL IN HERE *) Admitted.
+(* 
+  Proof. repeat constructor; apply beq_nat_false_iff; auto.
+  Qed.
 *)
 
-(* FILL IN HERE *)
+Example test_nostutter_2:  nostutter (@nil nat).
+(* FILL IN HERE *) Admitted.
+(* 
+  Proof. repeat constructor; apply beq_nat_false_iff; auto.
+  Qed.
+*)
+
+Example test_nostutter_3:  nostutter [5].
+(* FILL IN HERE *) Admitted.
+(* 
+  Proof. repeat constructor; apply beq_nat_false; auto. Qed.
+*)
+
+Example test_nostutter_4:      not (nostutter [3;1;1;4]).
+(* FILL IN HERE *) Admitted.
+(* 
+  Proof. intro.
+  repeat match goal with
+    h: nostutter _ |- _ => inversion h; clear h; subst
+  end.
+  contradiction H1; auto. Qed.
+*)
 (** [] *)
 
 (** **** Exercise: 4 stars, advanced (filter_challenge)  *)
@@ -1779,7 +1821,66 @@ Qed.
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced (NoDup)  *)
+(*  **** Exercise: 4 stars, optional (palindromes)  *)
+(** **** 練習問題 ★★★★ recommended (palindromes) *)
+(** A palindrome is a sequence that reads the same backwards as
+    forwards.
+
+    - Define an inductive proposition [pal] on [list X] that
+      captures what it means to be a palindrome. (Hint: You'll need
+      three cases.  Your definition should be based on the structure
+      of the list; just having a single constructor like
+
+        c : forall l, l = rev l -> pal l
+
+      may seem obvious, but will not work very well.)
+
+    - Prove ([pal_app_rev]) that
+
+       forall l, pal (l ++ rev l).
+
+    - Prove ([pal_rev] that)
+
+       forall l, pal l -> l = rev l.
+
+*)
+(**  palindrome（回文）は、最初から読んでも逆から読んでも同じになるような シーケンスです。
+    - [list X] でパラメータ化され、それが palindrome であることを示すような帰納的命題 [pal] を定義し
+なさい。（ヒント：これには三つのケースが必要です。この定義は、リストの構造に基いたものとなるはずです
+。まず一つのコンストラクタ、
+    c : forall l, l = rev l -> pal l
+      は明らかですが、これはあまりうまくいきません。)
+
+    - 以下を証明しなさい。
+
+       forall l, pal (l ++ rev l).
+
+    - 以下を証明しなさい。
+
+       forall l, pal l -> l = rev l.
+*)
+
+(* FILL IN HERE *)
+(** [] *)
+
+(** **** Exercise: 5 stars, optional (palindrome_converse)  *)
+(** Again, the converse direction is significantly more difficult, due
+    to the lack of evidence.  Using your definition of [pal] from the
+    previous exercise, prove that
+
+     forall l, l = rev l -> pal l.
+
+*)
+(** もう一度言いますが、逆方向は大変難しいです。根拠が足りないせいです。あなたの[pal]の定義を用いて下記を証明しなさい。
+
+     forall l, l = rev l -> pal l.
+
+*)
+
+(* FILL IN HERE *)
+(** [] *)
+
+(** **** Exercise: 4 stars, advanced, optional (NoDup)  *)
 (** Recall the definition of the [In] property from the [Logic]
     chapter, which asserts that a value [x] appears at least once in a
     list [l]: *)
@@ -1812,78 +1913,7 @@ Qed.
 (* FILL IN HERE *)
 (** [] *)
 
-(*  **** Exercise: 3 stars, recommended (nostutter)  *)
-(** **** 練習問題: ★★★ , recommended (nostutter) *)
-(*  Formulating inductive definitions of properties is an important
-    skill you'll need in this course.  Try to solve this exercise
-    without any help at all.
-
-    We say that a list "stutters" if it repeats the same element
-    consecutively.  The property "[nostutter mylist]" means that
-    [mylist] does not stutter.  Formulate an inductive definition for
-    [nostutter].  (This is different from the [NoDup] property in the
-    exercise above; the sequence [1;4;1] repeats but does not
-    stutter.) *)
-(** 述語の帰納的な定義を定式化できるようになるというのは、これから先の学習に必要なスキルになってきま
-す。
-
-同じ数値が連続して現れるリストを "stutters" （どもったリスト）と呼ぶことにします。述語 "[nostutter mylist]" は、 [mylist] が「どもったリスト」でないことを意味しています。[nostutter] の帰納的な定義を記
-述しなさい。（これは以前の練習問題に出てきた [no_repeats] という述語とは異なるものです。リスト [1,4,1] は repeats ではありますが stutter ではありません。）
-*)
-
-Inductive nostutter {X:Type} : list X -> Prop :=
- (* FILL IN HERE *)
-.
-(*  Make sure each of these tests succeeds, but feel free to change
-    the suggested proof (in comments) if the given one doesn't work
-    for you.  Your definition might be different from ours and still
-    be correct, in which case the examples might need a different
-    proof.  (You'll notice that the suggested proofs use a number of
-    tactics we haven't talked about, to make them more robust to
-    different possible ways of defining [nostutter].  You can probably
-    just uncomment and use them as-is, but you can also prove each
-    example with more basic tactics.)  *)
-(** できた定義が、以下のテストを通過することを確認してください。通過できないものがあったら、定義を修
-正してもかまいません。あなたの書いた定義が、正しくはあるけれど私の用意した模範解答と異なっているかも
-しれません。その場合、このテストを通過するために別の証明を用意する必要があります。
-
-以下の Example にコメントとして提示された証明には、色々な種類の[nostutter] の定義に対応できるように>
-するため、まだ説明していないタクティックがいくつか使用されています。 まずこれらのコメントをはずした>
-だけの状態で確認できればいいのですが、もしそうしたいなら、これらの証明をもっと基本的なタクティックで
-書き換えて証明してもかまいません。
-*)
-Example test_nostutter_1: nostutter [3;1;4;1;5;6].
-(* FILL IN HERE *) Admitted.
-(* 
-  Proof. repeat constructor; apply beq_nat_false_iff; auto.
-  Qed.
-*)
-
-Example test_nostutter_2:  nostutter (@nil nat).
-(* FILL IN HERE *) Admitted.
-(* 
-  Proof. repeat constructor; apply beq_nat_false_iff; auto.
-  Qed.
-*)
-
-Example test_nostutter_3:  nostutter [5].
-(* FILL IN HERE *) Admitted.
-(* 
-  Proof. repeat constructor; apply beq_nat_false; auto. Qed.
-*)
-
-Example test_nostutter_4:      not (nostutter [3;1;1;4]).
-(* FILL IN HERE *) Admitted.
-(* 
-  Proof. intro.
-  repeat match goal with
-    h: nostutter _ |- _ => inversion h; clear h; subst
-  end.
-  contradiction H1; auto. Qed.
-*)
-(** [] *)
-
-(*  **** Exercise: 4 stars, advanced (pigeonhole principle)  *)
+(*  **** Exercise: 4 stars, advanced, optional (pigeonhole principle)  *)
 (** **** 練習問題: ★★★★, advanced (pigeonhole principle) *)
 (*  The _pigeonhole principle_ states a basic fact about counting: if
    we distribute more than [n] items into [n] pigeonholes, some
@@ -1894,8 +1924,8 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
 提示しています。「もし [n] 個の鳩の巣に[n] 個より多い数のものを入れようとするなら、どのような入れ方>
 をしてもいくつかの鳩の巣には必ず一つ以上のものが入ることになる。」というもので、この、数値に関する見
 るからに自明な事実を証明するにも、なかなか自明とは言えない手段が必要になります。我々は既にそれを知っ
-ているのですが...
-    *)
+ているのですが...  *)
+
 (*  First prove an easy useful lemma. *)
 (** まず簡単ですが有用な補題を証明してください。 *)
 
