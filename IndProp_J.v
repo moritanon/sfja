@@ -1752,6 +1752,7 @@ Proof.
 述しなさい。（これは以前の練習問題に出てきた [no_repeats] という述語とは異なるものです。リスト [1,4,1] は repeats ではありますが stutter ではありません。）
 *)
 
+
 Inductive nostutter {X:Type} : list X -> Prop :=
  (* FILL IN HERE *)
 .
@@ -1920,8 +1921,9 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 5 stars, optional (palindrome_converse)  *)
-(** Again, the converse direction is significantly more difficult, due
+(*  **** Exercise: 5 stars, optional (palindrome_converse)  *)
+(** **** 練習問題 ★★★★★,  optional (palindrome_converse) *)
+(*  Again, the converse direction is significantly more difficult, due
     to the lack of evidence.  Using your definition of [pal] from the
     previous exercise, prove that
 
@@ -1937,10 +1939,13 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
 (* FILL IN HERE *)
 (** [] *)
 
-(** **** Exercise: 4 stars, advanced, optional (NoDup)  *)
-(** Recall the definition of the [In] property from the [Logic]
+(*  **** Exercise: 4 stars, advanced, optional (NoDup)  *)
+(** **** 練習問題 ★★★★,  advanced, optional (NoDup) *)
+(*  Recall the definition of the [In] property from the [Logic]
     chapter, which asserts that a value [x] appears at least once in a
     list [l]: *)
+(** [Logic]の章で行なった[In]という属性の定義を思い出してください。[x]がリスト[l]に少なくとも一度表われることを
+表明します。*)
 
 (* Fixpoint In (A : Type) (x : A) (l : list A) : Prop :=
    match l with
@@ -1948,25 +1953,30 @@ Example test_nostutter_4:      not (nostutter [3;1;1;4]).
    | x' :: l' => x' = x \/ In A x l'
    end *)
 
-(** Your first task is to use [In] to define a proposition [disjoint X
+(*  Your first task is to use [In] to define a proposition [disjoint X
     l1 l2], which should be provable exactly when [l1] and [l2] are
     lists (with elements of type X) that have no elements in
     common. *)
+(** 最初の課題は、[In]を使って、[disjoint X l1 l2]という命題を定義することです。
+その命題は、(Xという型の要素を持つ)[l1]と[l2]が共通の要素を持たないときに、証明されます。*)
 
 (* FILL IN HERE *)
 
-(** Next, use [In] to define an inductive proposition [NoDup X
+(*  Next, use [In] to define an inductive proposition [NoDup X
     l], which should be provable exactly when [l] is a list (with
     elements of type [X]) where every member is different from every
     other.  For example, [NoDup nat [1;2;3;4]] and [NoDup
     bool []] should be provable, while [NoDup nat [1;2;1]] and
     [NoDup bool [true;true]] should not be.  *)
-
+(** 次に、[In]を使って、[NoDup X l]という帰納命題を定義しなさい。その命題は、[l]がそのどのメンバも他のメンバと異なっているときにのみ
+証明される命題です。
+.例えば、[NoDump nat [1;2;3;4]]と[NoDup bool []]は証明可能ですが、[NoDup not [1;2;1]]や[NoDup bool [true;true]]
+は証明不可能です。*)
 (* FILL IN HERE *)
 
-(** Finally, state and prove one or more interesting theorems relating
+(*  Finally, state and prove one or more interesting theorems relating
     [disjoint], [NoDup] and [++] (list append).  *)
-
+(** 最後に、[disjoint]と[NoDup]と[++](リストの結合)に関係した面白い定理を述べて証明しなさい *)
 (* FILL IN HERE *)
 (** [] *)
 
