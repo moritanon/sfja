@@ -2029,7 +2029,7 @@ Inductive repeats {X:Type} : list X -> Prop :=
 おそらくこの証明には「排中律（ [excluded_middle] ）」が必要になるでしょう。 *)
 
 
-Theorem pigeonhole_principle: forall (X:Type) (l1  l2:list X),
+  Theorem pigeonhole_principle: forall (X:Type) (l1  l2:list X),
    excluded_middle ->
    (forall x, In x l1 -> In x l2) ->
    length l2 < length l1 ->
