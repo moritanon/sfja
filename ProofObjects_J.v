@@ -132,11 +132,11 @@ Check (ev_SS 2 (ev_SS 0 ev_0)).
 前の章において、多相的な型[forall X, list X]がコンストラクタ [nil]がその型の要素の空リストを生成する関数であるのと同じことです。
 *)
 
-(** You may recall (as seen in the [Logic] chapter) that we can
-    use function application syntax to instantiate universally
-    quantified variables in lemmas, as well as to supply evidence for
-    assumptions that these lemmas impose. For instance: *)
-(** ([Logic]の章で見たように)補題の中の全称化された変数を裏付けるために、また、これらの補題が導入した仮定に根拠を与えるために。関数適用の構文が使用することが出来たこを覚えているかもしれません。例えば:*)
+(*  We saw in the [Logic] chapter that we can use function
+    application syntax to instantiate universally quantified variables
+    in lemmas, as well as to supply evidence for assumptions that
+    these lemmas impose.  For instance: *)
+(** [Logic]の章で見たように補題の中の全称化された変数を裏付けるために、また、これらの補題が導入した仮定に根拠を与えるために。関数適用の構文が使用することが出来たこを覚えているかもしれません。例えば:*)
 
 Theorem ev_4': ev 4.
 Proof.
@@ -152,7 +152,7 @@ Qed.
   補題や仮説は式と結合し(たとえば、証明オブジェクト) 同じ基本的な、言語内のプログラムのための規則に従います。*)
 
 
-(* ##################################################### *)
+(* ################################################################# *)
 (*  * Proof Scripts *)
 (** * 証明スクリプト *)
 
@@ -178,17 +178,16 @@ Proof.
   Show Proof.
 Qed.
 
-(*  At any given moment, Coq has constructed a term with some
-    "holes" (indicated by [?1], [?2], and so on), and it knows what
-    type of evidence is needed at each hole.  *)
-(** どの瞬間もCoqは穴を持った項([?1]や[?2]などで示される)を構築していて、それぞれの穴にどんな型の根拠が必要になるかを知っています。 *)
+(*  At any given moment, Coq has constructed a term with a
+    "hole" (indicated by [?Goal] here, and so on), and it knows what
+    type of evidence is needed to fill this hole.  *)
+(** どの瞬間もCoqは穴を持った項([?Goal]などで示される)を構築していて、それぞれの穴にどんな型の根拠が必要になるかを知っています。 *)
 
-(** Each of the holes corresponds to a subgoal, and the proof is
+(** Each hole corresponds to a subgoal, and the proof is
     finished when there are no more subgoals.  At this point, the
     evidence we've built stored in the global context under the name
     given in the [Theorem] command. *)
 (**    それぞれの穴にはサブゴールが対応しており、証明は、サブゴールがすべて無くなったときに終了します。この時において、[Theorem]コマンドは我々が構築した根拠に名前を与え、グローバルなコンテキストにそれを追加します。 *)
-
 
 (*  Tactic proofs are useful and convenient, but they are not
     essential: in principle, we can always construct the required
@@ -205,7 +204,6 @@ Definition ev_4''' : ev 4 :=
     same evidence being saved in the global environment. *)
 (** 証明を構築する方法のいろいろありますが、全て皆同じ根拠がグローバル環境にセーブされます。*)
 
-
 Print ev_4.
 (* ===> ev_4    =   ev_SS 2 (ev_SS 0 ev_0) : ev 4 *)
 Print ev_4'.
@@ -215,6 +213,7 @@ Print ev_4''.
 Print ev_4'''.
 (* ===> ev_4''' =   ev_SS 2 (ev_SS 0 ev_0) : ev 4 *)
 
+(** **** Exercise: 1 star (eight_is_even)  *)
 (** **** 練習問題: ★ (eight_is_even)  *)
 (** Give a tactic proof and a proof object showing that [ev 8]. *)
 (** [ev 8]であるということを示すタクティックによる証明と証明オブジェクトを書きなさい。*)
@@ -333,17 +332,64 @@ Definition ev_plus2'' : Prop :=
     "[forall (_:P), Q]". *)
 (** 一般的に、"[P -> Q]"というのは、"[forall (_:P), Q]"の糖衣構文です *)
 
-(* ###################################################################### *)
-(*  * Connectives as Inductive Types *)
+(* ################################################################# *)
+(*  * Programming with Tactics *)
+(** * タクティックによるプログラミング *)
+
+(*  If we can build proofs by giving explicit terms rather than
+    executing tactic scripts, you may be wondering whether we can
+    build _programs_ using _tactics_ rather than explicit terms.
+    Naturally, the answer is yes! *)
+(** 明示的な項を使用して証明を構築できるならば、明示的な項ではなく、タクティックを使用してプログラムを構築することが出来るのでしょうか？
+もちろん出来ます ! *)
+
+Definition add1 : nat -> nat.
+intro n.
+Show Proof.
+apply S.
+Show Proof.
+apply n. Defined.
+
+Print add1.
+(* ==>
+    add1 = fun n : nat => S n
+         : nat -> nat
+*)
+
+Compute add1 2.
+(* ==> 3 : nat *)
+
+(** Notice that we terminate the [Definition] with a [.] rather than
+    with [:=] followed by a term.  This tells Coq to enter _proof
+    scripting mode_ to build an object of type [nat -> nat].  Also, we
+    terminate the proof with [Defined] rather than [Qed]; this makes
+    the definition _transparent_ so that it can be used in computation
+    like a normally-defined function.  ([Qed]-defined objects are
+    opaque during computation.)
+
+    This feature is mainly useful for writing functions with dependent
+    types, which we won't explore much further in this book.  But it
+    does illustrate the uniformity and orthogonality of the basic
+    ideas in Coq. *)
+(**  ここで[Definition]を[:=]とそれに続く項ではなく、[.]で終了させたことに気を付けましょう。
+このことはCoqに対して、[nat->nat]型を持つオブジェクトを生成するために、証明スクリプトモードに入ることを告げるものです。
+それから、[Qed]ではなく、[Defined]で証明を終わらせたことにも気を付けましょう。これは、定義を普通に定義された関数のように
+_透過的_に使用出来るようにしてくれます。([Qed]で定義されたオブジェクトは、計算の上では、不透過です。)
+
+この特徴は、依存型を使って関数を書くのに主に使われますが、この本では深入りしません。しかしこれはCoqの基本的な
+概念の統一性と直交性を示すものです。*)
+
+(* ################################################################# *)
+(*  * Logical Connectives as Inductive Types *)
 (** * 帰納的な型としての論理結合子 *)
 
 (** Inductive definitions are powerful enough to express most of the
     connectives and quantifiers we have seen so far.  Indeed, only
     universal quantification (and thus implication) is built into Coq;
-    all the others are defined inductively.  We study these
+    all the others are defined inductively.  We'll see these
     definitions in this section. *)
 (** 帰納的な定義は、これまで見てきたように、結合子と量化子の殆どを表現するのに十分な力を備えています。確かに全称記号(と、含意)はCoqに組込まれています;
-すべての他のものは、帰納的に定義されています。このセクションでこれらの定義を学習しましょう *)
+すべての他のものは、帰納的に定義されています。このセクションでこれらの定義を見てみましょう *)
 
 Module Props.
 
@@ -354,6 +400,7 @@ Module Props.
     /\ Q] as consisting of a pair of two proofs: one for [P] and
     another one for [Q]. This leads to the following definition. *)
 (** ** 連言 
+
   [P /\ Q]を証明するために、[P]と[Q]の両方の根拠を提示しなければなりません。それゆえ、
   [P /\ Q]の証明オブジェクトを二つの証明のペア([P]のために一つと、[Q]のために一つです)を構成するように定義することは必然です。
   このことは次の定義を導きます。*)
@@ -499,52 +546,7 @@ Inductive False : Prop :=.
 
 End Props.
 
-(* ##################################################### *)
-(** * Programming with Tactics *)
-
-(** If we can build proofs by giving explicit terms rather than
-    executing tactic scripts, you may be wondering whether we can
-    build _programs_ using _tactics_ rather than explicit terms.
-    Naturally, the answer is yes! *)
-明示的な項を使用して証明を構築できるならば、明示的な項ではなく、タクティックを使用してプログラムを構築することが出来るのでしょうか？
-もちろん出来ます ! *)
-
-Definition add1 : nat -> nat.
-intro n.
-Show Proof.
-apply S.
-Show Proof.
-apply n. Defined.
-
-Print add1.
-(* ==>
-    add1 = fun n : nat => S n
-         : nat -> nat
-*)
-
-Compute add1 2.
-(* ==> 3 : nat *)
-
-(** Notice that we terminate the [Definition] with a [.] rather than
-    with [:=] followed by a term.  This tells Coq to enter _proof
-    scripting mode_ to build an object of type [nat -> nat].  Also, we
-    terminate the proof with [Defined] rather than [Qed]; this makes
-    the definition _transparent_ so that it can be used in computation
-    like a normally-defined function.  ([Qed]-defined objects are
-    opaque during computation.)
-
-    This feature is mainly useful for writing functions with dependent
-    types, which we won't explore much further in this book.  But it
-    does illustrate the uniformity and orthogonality of the basic
-    ideas in Coq. *)
-(**  ここで[Definition]を[:=]とそれに続く項ではなく、[.]で終了させたことに気を付けましょう。
-このことはCoqに対して、[nat->nat]型を持つオブジェクトを生成するために、証明スクリプトモードに入ることを告げるものです。
-それから、[Qed]ではなく、[Defined]で証明を終わらせたことにも気を付けましょう。これは、定義を普通に定義された関数のように
-_透過的_に使用出来るようにしてくれます。([Qed]で定義されたオブジェクトは、計算の上では、不透過です。)
-
-この特徴は、依存型を使って関数を書くのに主に使われますが、この本では深入りしません。しかしこれはCoqの基本的な
-概念の統一性と直交性を示すものです。*)
-
+(* ################################################################# *)
 (* ###################################################### *)
 (** * Equality *)
 
@@ -626,7 +628,7 @@ End MyEquality.
 Definition quiz6 : exists x,  x + 3 = 4
   := ex_intro (fun z => (z + 3 = 4)) 1 (refl_equal 4).
 
-(* ####################################################### *)
+(* ================================================================= *)
 (*  ** Inversion, Again *)
 (** ** Inversion 再び *)
 
