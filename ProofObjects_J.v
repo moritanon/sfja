@@ -291,14 +291,14 @@ Check ev_plus4''.
     second argument's type, [ev n], mentions the _value_ of the first
     argument, [n].  While such _dependent types_ are not found in
     conventional programming languages, they can be useful in
-    programming too, as recent work in the functional programming
-    community demonstrates.
+    programming too, as the recent flurry of activity in the
+    functional programming community demonstrates.
 
     Notice that both implication ([->]) and quantification ([forall])
     correspond to functions on evidence.  In fact, they are really the
     same thing: [->] is just a shorthand for a degenerate use of
     [forall] where there is no dependency, i.e., no need to give a
-    name to the type on the LHS of the arrow. *)
+    name to the type on the left-hand side of the arrow. *)
 (** [ev_plus4]によって証明される命題を関数型として見るときに、その一つの局面はあまり役に立たないように見えるかもしれません。
 二つめの引数の型、[ev n]は最初の引数である[n]の値に言及します。一方そのような依存型(_dependent types_)は通常のプログラミング言語ではあまり見られませんが、それらはとても有用なものなのです。 最近の関数型言語界隈では実装する動きが見られます。
 
@@ -412,22 +412,27 @@ Inductive and (P Q : Prop) : Prop :=
 
 End And.
 
-(** Notice the similarity with the definition of the [prod] type,
+(*  Notice the similarity with the definition of the [prod] type,
     given in chapter [Poly]; the only difference is that [prod] takes
     [Type] arguments, whereas [and] takes [Prop] arguments. *)
-[Poly」の章の[prod]型の定義との類似性に気をつけてください。違いは[prod]が、[Type]を引数にとり、[and]が[Prop]を引数に取るという点だけです。*)
+(** [Poly」の章の[prod]型の定義との類似性に注目してください。違いは[prod]が、[Type]を引数にとり、[and]が[Prop]を引数に取るという点だけです。*)
 
 Print prod.
 (* ===>
    Inductive prod (X Y : Type) : Type :=
    | pair : X -> Y -> X * Y. *)
 
-(** This should clarify why [destruct] and [intros] patterns can be
+(*  This should clarify why [destruct] and [intros] patterns can be
     used on a conjunctive hypothesis.  Case analysis allows us to
     consider all possible ways in which [P /\ Q] was proved -- here
     just one (the [conj] constructor).  Similarly, the [split] tactic
     actually works for any inductively defined proposition with only
     one constructor.  In particular, it works for [and]: *)
+(** このことは、なぜ[destruct]と[intros]が連言の仮説に使用されるかについて明確にしてくれます。
+ケース分析によって、[P/\Q]が証明される有り得るすべてのルートについて考えることが可能になります。
+-- この場合は、[conj]コンストラクタ一つしかありませんが...
+同様に、[split]タクティックは帰納的に定義された一つしかコンスラクタを持たないような命題についても実際に動作します。
+とりわけ、[and]については特に。*)
 
 Lemma and_comm : forall P Q : Prop, P /\ Q <-> Q /\ P.
 Proof.
@@ -452,11 +457,12 @@ Definition and_comm'_aux P Q (H : P /\ Q) :=
 Definition and_comm' P Q : P /\ Q <-> Q /\ P :=
   conj (and_comm'_aux P Q) (and_comm'_aux Q P).
 
+(*  **** Exercise: 2 stars, optional (conj_fact)  *)
 (** **** 練習問題: ★ ★, optional (conj_fact)  *)
 (** Construct a proof object demonstrating the following proposition. *)
 
-Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R :=
-  (* FILL IN HERE *) admit.
+Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R 
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 (** [] *)
 
 (** ** Disjunction
