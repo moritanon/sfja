@@ -445,9 +445,11 @@ Proof.
     + apply HP.
 Qed.
 
-(** This shows why the inductive definition of [and] can be
+(*  This shows why the inductive definition of [and] can be
     manipulated by tactics as we've been doing.  We can also use it to
     build proofs directly, using pattern-matching.  For instance: *)
+(** このことは、[and]の帰納的定義がなぜ、タクティックによってこれまで行なわれてきたように操作されうるかを示しています。
+パターンマッチを用いて直接に証明を組み立てるためにandを使うことが出来ます。例えば *)
 
 Definition and_comm'_aux P Q (H : P /\ Q) :=
   match H with
@@ -458,17 +460,21 @@ Definition and_comm' P Q : P /\ Q <-> Q /\ P :=
   conj (and_comm'_aux P Q) (and_comm'_aux Q P).
 
 (*  **** Exercise: 2 stars, optional (conj_fact)  *)
-(** **** 練習問題: ★ ★, optional (conj_fact)  *)
-(** Construct a proof object demonstrating the following proposition. *)
+(** **** 練習問題: ★★, optional (conj_fact)  *)
+(*  Construct a proof object demonstrating the following proposition. *)
+(** 次の命題を立証する証明オブジェクトを構築しなさい *)
 
 Definition conj_fact : forall P Q R, P /\ Q -> Q /\ R -> P /\ R 
   (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 (** [] *)
 
-(** ** Disjunction
+(*  ** Disjunction
 
     The inductive definition of disjunction uses two constructors, one
     for each side of the disjunct: *)
+(** ** 選言
+
+    選言の帰納的定義は二つのコンストラクタを使います。それぞれが選言の枝になります。*)
 
 Module Or.
 
@@ -478,19 +484,25 @@ Inductive or (P Q : Prop) : Prop :=
 
 End Or.
 
-(** This declaration explains the behavior of the [destruct] tactic on
+(*  This declaration explains the behavior of the [destruct] tactic on
     a disjunctive hypothesis, since the generated subgoals match the
     shape of the [or_introl] and [or_intror] constructors.
 
     Once again, we can also directly write proof objects for theorems
     involving [or], without resorting to tactics. *)
+(** この宣言は、選言的仮説上での[destruct]タクティックのふるまいを説明します。
+    生成されたサブゴールは[or_introl]と[or_intror]コンストラクタの形にマッチします。
 
-(** **** 練習問題: ★ ★s, optional (or_commut'')  *)
-(** Try to write down an explicit proof object for [or_commut] (without
+    ここでも、[or]を含む定理のための証明オブジェクトをタクティックに頼ることなく、直接書くことが出来ます。*)
+
+(*  **** Exercise: 2 stars, optional (or_commut'')  *)
+(** **** 練習問題: ★★, optional (or_commut'')  *)
+(*  Try to write down an explicit proof object for [or_commut] (without
     using [Print] to peek at the ones we already defined!). *)
+(** 明示的な証明オブジェクトをすでに定義したそれを[Print]を使って覗くことなく、書下してみましょう *)
 
-Definition or_comm : forall P Q, P \/ Q -> Q \/ P :=
-  (* FILL IN HERE *) admit.
+Definition or_comm : forall P Q, P \/ Q -> Q \/ P 
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 (** [] *)
 
 (** ** Existential Quantification
